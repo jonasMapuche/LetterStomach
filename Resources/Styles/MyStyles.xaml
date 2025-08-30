@@ -1,0 +1,235 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="LetterStomach.Resources.Styles.MyStyles">
+
+    <Style x:Key="NavigationBotGridStyle" TargetType="Grid">
+        <Setter Property="Margin" Value="0, 0, 0, 0" />
+        <Setter Property="VerticalOptions" Value="Start" />
+        <Setter Property="HorizontalOptions" Value="Start" />
+        <Setter Property="BackgroundColor" Value="{StaticResource PrimaryColor}" />
+        <Setter Property="Padding" Value="20, 18, 0 , 0" />
+    </Style>
+
+    <Style x:Key="NavigationBotEllipseStyle" TargetType="Ellipse">
+        <Setter Property="HeightRequest" Value="0" />
+        <Setter Property="WidthRequest" Value="0" />
+    </Style>
+
+    <Style x:Key="NavigationBotImageStyle" TargetType="Image">
+        <Setter Property="HorizontalOptions" Value="Center" />
+        <Setter Property="VerticalOptions" Value="Center" />
+        <Setter Property="HeightRequest" Value="24" />
+        <Setter Property="Margin" Value="0, 0, 0, 0" />
+    </Style>
+
+    <Style x:Key="BotContainerHomeGridStyle" TargetType="Grid">
+        <Setter Property="Padding" Value="80, 50, 0, 20" />
+        <Setter Property="HorizontalOptions" Value="End" />
+        <Setter Property="VerticalOptions" Value="End" />
+    </Style>
+
+    <Style x:Key="NewBotHomeGridStyle" TargetType="Grid">
+        <Setter Property="HeightRequest" Value="62" />
+        <Setter Property="WidthRequest" Value="62" />
+        <Setter Property="Margin" Value="0, 0, 0, 0" />
+        <Setter Property="Shadow" Value="#000000 4 4" />
+    </Style>
+
+    <Style x:Key="NewBotHomeImageStyle" TargetType="Image">
+        <Setter Property="HorizontalOptions" Value="Center" />
+        <Setter Property="VerticalOptions" Value="Center" />
+        <Setter Property="HeightRequest" Value="48" />
+        <Setter Property="Margin" Value="10" />
+    </Style>
+
+    <Style x:Key="ChatHomeBoxViewStyle" TargetType="BoxView">
+        <Setter Property="Color" Value="{StaticResource WhiteColor}" />
+        <Setter Property="CornerRadius" Value="18, 18, 0, 0" />
+    </Style>
+
+    <Style x:Key="ChatHomeCollectionViewStyle" TargetType="CollectionView">
+        <Setter Property="Margin" Value="12, 14, 12, 0" />
+    </Style>
+
+    <Style x:Key="ContainerHomeItemGridStyle" TargetType="CollectionView">
+        <Setter Property="Margin" Value="12, 0, 12, 0" />
+    </Style>
+
+    <Style x:Key="HomeItemEllipseStyle" TargetType="Ellipse">
+        <Setter Property="HeightRequest" Value="72" />
+        <Setter Property="WidthRequest" Value="72" />
+    </Style>
+
+    <Style x:Key="HomeItemImageStyle" TargetType="Image">
+        <Setter Property="HorizontalOptions" Value="Center" />
+        <Setter Property="VerticalOptions" Value="Center" />
+        <Setter Property="HeightRequest" Value="48" />
+        <Setter Property="Margin" Value="10" />
+    </Style>
+
+    <Style x:Key="NameHomeItemLabelStyle" TargetType="Label">
+        <Setter Property="TextColor" Value="{StaticResource BackgroundColor}" />
+        <Setter Property="FontSize" Value="20" />
+        <Setter Property="FontFamily" Value="OpenSans Semibold" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="Margin" Value="12, 0" />
+    </Style>
+
+    <Style x:Key="MessageHomeItemLabelStyle" TargetType="Label">
+        <Setter Property="TextColor" Value="{StaticResource BackgroundColor}" />
+        <Setter Property="FontSize" Value="18" />
+        <Setter Property="FontFamily" Value="OpenSans Regular" />
+        <Setter Property="LineBreakMode" Value="TailTruncation" />
+        <Setter Property="MaxLines" Value="3" />
+        <Setter Property="Margin" Value="12, 2, 12, 0" />
+    </Style>
+
+    <Style x:Key="UserContainerBotGridStyle" TargetType="Grid">
+        <Setter Property="HorizontalOptions" Value="Start" />
+        <Setter Property="VerticalOptions" Value="Start" />
+        <Setter Property="HeightRequest" Value="72" />
+        <Setter Property="WidthRequest" Value="72" />
+        <Setter Property="Margin" Value="20, 40" />
+    </Style>
+
+    <Style x:Key="UserBotEllipseStyle" TargetType="Ellipse">
+        <Setter Property="HeightRequest" Value="72" />
+        <Setter Property="WidthRequest" Value="72" />
+    </Style>
+
+    <Style x:Key="UserBotImageStyle" TargetType="Image">
+        <Setter Property="HorizontalOptions" Value="Center" />
+        <Setter Property="VerticalOptions" Value="Center" />
+        <Setter Property="HeightRequest" Value="44" />
+        <Setter Property="Margin" Value="10" />
+    </Style>
+
+    <Style x:Key="UserBotLabelStyle" TargetType="Label">
+        <Setter Property="FontSize" Value="26" />
+        <Setter Property="TextColor" Value="{StaticResource WhiteColor}" />
+        <Setter Property="FontFamily" Value="Metropolis Medium" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="WidthRequest" Value="150" />
+        <Setter Property="HorizontalOptions" Value="Start" />
+        <Setter Property="Margin" Value="0, 10, 0, 0" />
+    </Style>
+
+    <Style x:Key="AdornerBotBoxViewStyle" TargetType="BoxView">
+        <Setter Property="Color" Value="{StaticResource WhiteColor}" />
+        <Setter Property="Margin" Value="0, 40, 0, 0" />
+        <Setter Property="CornerRadius" Value="24, 24, 0, 0" />
+    </Style>
+
+    <Style x:Key="ChatBotCollectionViewStyle" TargetType="CollectionView">
+        <Setter Property="Margin" Value="18, 50, 18, 0" />
+    </Style>
+
+    <Style x:Key="ContainerReceiverBotItemGridStyle" TargetType="Grid">
+        <Setter Property="Margin" Value="8" />
+    </Style>
+
+    <Style x:Key="ShapeReceiverBotItemBoxViewStyle" TargetType="BoxView">
+        <Setter Property="Color" Value="{StaticResource MessageColor}" />
+        <Setter Property="CornerRadius" Value="24, 24, 0, 24" />
+    </Style>
+
+    <Style x:Key="MessageReceiverBotItemLabelStyle" TargetType="Label">
+        <Setter Property="TextColor" Value="{StaticResource BackgroundColor}" />
+        <Setter Property="FontSize" Value="18" />
+        <Setter Property="FontFamily" Value="OpenSans Regular" />
+        <Setter Property="LineBreakMode" Value="TailTruncation" />
+        <Setter Property="MaxLines" Value="3" />
+        <Setter Property="Margin" Value="12, 12, 12, 0" />
+    </Style>
+
+    <Style x:Key="ContainerSenderBotItemGridStyle" TargetType="Grid">
+        <Setter Property="Margin" Value="8" />
+    </Style>
+
+    <Style x:Key="ShapeSenderBotItemGridStyle" TargetType="Grid">
+        <Setter Property="HeightRequest" Value="44" />
+        <Setter Property="WidthRequest" Value="44" />
+        <Setter Property="VerticalOptions" Value="End" />
+    </Style>
+
+    <Style x:Key="SenderBotItemEllipseStyle" TargetType="Ellipse">
+        <Setter Property="HorizontalOptions" Value="Center" />
+        <Setter Property="VerticalOptions" Value="Center" />
+        <Setter Property="HeightRequest" Value="28" />
+        <Setter Property="WidthRequest" Value="28" />
+    </Style>
+
+    <Style x:Key="SenderBotItemImageStyle" TargetType="Image">
+        <Setter Property="HorizontalOptions" Value="Center" />
+        <Setter Property="VerticalOptions" Value="Center" />
+        <Setter Property="Margin" Value="12" />
+    </Style>
+
+    <Style x:Key="SenderBotItemBoxViewStyle" TargetType="BoxView">
+        <Setter Property="Color" Value="{StaticResource MessageColor}" />
+        <Setter Property="CornerRadius" Value="24, 24, 0, 24" />
+    </Style>
+
+    <Style x:Key="SenderBotItemLabelStyle" TargetType="Label">
+        <Setter Property="TextColor" Value="{StaticResource BackgroundColor}" />
+        <Setter Property="FontSize" Value="18" />
+        <Setter Property="FontFamily" Value="OpenSans Regular" />
+        <Setter Property="LineBreakMode" Value="TailTruncation" />
+        <Setter Property="MaxLines" Value="3" />
+        <Setter Property="Margin" Value="12, 12, 12, 0" />
+    </Style>
+
+    <Style x:Key="ChatEntryBotGridStyle" TargetType="Grid">
+        <Setter Property="BackgroundColor" Value="{StaticResource MessageColor}" />
+        <Setter Property="VerticalOptions" Value="Center" />
+        <Setter Property="HeightRequest" Value="72" />
+        <Setter Property="Padding" Value="4" />
+        <Setter Property="Margin" Value="12" />
+    </Style>
+
+    <Style x:Key="ContainerBotGridStyle" TargetType="Grid">
+        <Setter Property="HorizontalOptions" Value="End" />
+        <Setter Property="WidthRequest" Value="40" />
+    </Style>
+
+    <Style x:Key="ChatEntryBotEllipseStyle" TargetType="BoxView">
+        <Setter Property="BackgroundColor" Value="{StaticResource PrimaryColor}" />
+        <Setter Property="CornerRadius" Value="32" />
+        <Setter Property="HeightRequest" Value="32" />
+        <Setter Property="WidthRequest" Value="32" />
+        <Setter Property="VerticalOptions" Value="Center" />
+    </Style>
+
+    <Style x:Key="ChatEntryBotImageStyle" TargetType="Image">
+        <Setter Property="HeightRequest" Value="40" />
+        <Setter Property="Aspect" Value="AspectFit" />
+        <Setter Property="HorizontalOptions" Value="Center" />
+        <Setter Property="VerticalOptions" Value="Center" />
+    </Style>
+
+    <Style x:Key="AdornerSettingBoxViewStyle" TargetType="BoxView">
+        <Setter Property="Color" Value="{StaticResource WhiteColor}" />
+        <Setter Property="Margin" Value="0, 40, 0, 0" />
+        <Setter Property="CornerRadius" Value="24, 24, 0, 0" />
+    </Style>
+
+    <Style x:Key="UserSettingLabelStyle" TargetType="Label">
+        <Setter Property="FontSize" Value="26" />
+        <Setter Property="TextColor" Value="{StaticResource WhiteColor}" />
+        <Setter Property="FontFamily" Value="Metropolis Medium" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="WidthRequest" Value="150" />
+        <Setter Property="HorizontalOptions" Value="Start" />
+        <Setter Property="Margin" Value="24, 20" />
+    </Style>
+
+    <Style x:Key="NewSettingGridStyle" TargetType="Grid">
+        <Setter Property="HeightRequest" Value="32" />
+        <Setter Property="WidthRequest" Value="32" />
+        <Setter Property="HorizontalOptions" Value="Start" />
+        <Setter Property="Margin" Value="20, 100, 0, 0" />
+        <Setter Property="Shadow" Value="#000000 4 4" />
+    </Style>
+
+</ResourceDictionary>

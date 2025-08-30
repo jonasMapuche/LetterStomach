@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:LetterStomach.Models"
+             xmlns:viewmodels="clr-namespace:LetterStomach.ViewModels"
+             x:Class="LetterStomach.Views.Templates.HomeItemTemplate">
+    <ContentView.Resources>
+        <ResourceDictionary>
+        </ResourceDictionary>
+    </ContentView.Resources>
+    <ContentView.Content>
+        <SwipeView
+            Padding="2, 5"
+            Shadow="#000000 2 2">
+            <SwipeView.LeftItems>
+                <SwipeItems>
+                    <SwipeItem 
+                        x:Name="swiLeft"
+                        IconImageSource="play_arrow_62dp_white.png"
+                        BackgroundColor="{StaticResource PrimaryColor}"
+                        Clicked="OnLeftClicked">
+                    </SwipeItem>
+                </SwipeItems>
+            </SwipeView.LeftItems>
+            <SwipeView.RightItems>
+                <SwipeItems>
+                    <SwipeItem 
+                        x:Name="swiRight"
+                        IconImageSource="speaker_notes_off_62dp_white.png"
+                        BackgroundColor="{StaticResource PrimaryColor}"
+                        Clicked="OnRightClicked"/>
+                </SwipeItems>
+            </SwipeView.RightItems>
+            <Border StrokeThickness="0"
+                StrokeShape="RoundRectangle 10, 10, 10, 10"
+                Background="{StaticResource WhiteColor}">
+                <Grid
+                    ColumnDefinitions="Auto, *"
+                    RowSpacing="0"
+                    Margin="12, 16">
+                    <Grid.GestureRecognizers>
+                        <TapGestureRecognizer 
+                        x:DataType="models:Message"
+                        Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:HomeViewModel}}, Path=BotCommand}"      
+                        CommandParameter="{Binding Sender}"/>
+                    </Grid.GestureRecognizers>
+                    <Grid
+                        Style="{StaticResource ContainerHomeItemGridStyle}">
+                        <Ellipse
+                            x:DataType="models:Message"
+                            BackgroundColor="{Binding Sender.Color}"
+                            Style="{StaticResource HomeItemEllipseStyle}"/>
+                        <Image
+                            x:DataType="models:Message"
+                            Source="{Binding Sender.Image}"
+                            Style="{StaticResource HomeItemImageStyle}"/>
+                    </Grid>
+                    <Grid
+                        Grid.Column="1"   
+                        ColumnDefinitions="*, Auto">
+                        <StackLayout>
+                            <Label        
+                                x:Name="lblName"
+                                x:DataType="models:Message"
+                                Text="{Binding Sender.Name}"
+                                Style="{StaticResource NameHomeItemLabelStyle}"/>
+                            <Label         
+                                x:DataType="models:Message"
+                                Text="{Binding Text}"
+                                Style="{StaticResource MessageHomeItemLabelStyle}"/>
+                        </StackLayout>
+                    </Grid>
+                </Grid>
+            </Border>
+        </SwipeView>
+    </ContentView.Content>
+</ContentView>

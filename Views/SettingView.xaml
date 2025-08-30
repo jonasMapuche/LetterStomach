@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:viewmodels="clr-namespace:LetterStomach.ViewModels"
+             xmlns:controls="clr-namespace:LetterStomach.Controls"
+             x:Class="LetterStomach.Views.SettingView">
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior Command="{Binding BackCommand}"/>
+    </Shell.BackButtonBehavior>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem 
+            x:Name="tlbCheck"
+            Text="Check"
+            IsEnabled="False"
+            IconImageSource="check.png"
+            Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:SettingViewModel}}, Path=CheckCommand}">
+            <ToolbarItem.CommandParameter>
+                <MultiBinding Converter="{StaticResource SettingConverter}">
+                    <MultiBinding.Bindings>
+                        <Binding Path="IsToggled" Source="{x:Reference swiUpdateTable}" />
+                        <Binding Path="IsToggled" Source="{x:Reference swiSQLite}"/>
+                        <Binding Path="SelectedItem" Source="{x:Reference pkrSelectTable}"/>
+                        <Binding Path="Value" Source="{x:Reference sldPich}"/>
+                        <Binding Path="Value" Source="{x:Reference sldVolume}"/>
+                    </MultiBinding.Bindings>
+                </MultiBinding>
+            </ToolbarItem.CommandParameter>
+        </ToolbarItem>
+    </ContentPage.ToolbarItems>
+    <ContentPage.Behaviors>
+        <toolkit:StatusBarBehavior StatusBarColor="{StaticResource PrimaryColor}" StatusBarStyle="LightContent" />
+    </ContentPage.Behaviors>
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <controls:SettingConverter x:Key="SettingConverter" />  
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <ContentPage.Content>
+        <Grid      
+            BackgroundColor="{StaticResource PrimaryColor}"
+            RowDefinitions="40, *">
+            <Grid
+                Grid.Row="0"
+                RowDefinitions="Auto, 116">
+                <Grid>
+                    <Label
+                        Text="Setting" 
+                        Style="{StaticResource UserSettingLabelStyle}"/>
+                </Grid>
+            </Grid>
+            <Grid
+                Grid.Row="1">
+                <BoxView
+                    Style="{StaticResource AdornerSettingBoxViewStyle}"/>
+                <Grid
+                    RowDefinitions="Auto, Auto, Auto, Auto, Auto">
+                    <Grid
+                        Grid.Row="0">
+                        <Label Text="Select Table"
+                            FontSize="20"
+                            HorizontalOptions="Start"
+                            Margin="20, 50"/>
+                        <Picker 
+                            Title="Select Option"
+                            x:Name="pkrSelectTable"
+                            x:DataType="viewmodels:SettingViewModel"
+                            ItemsSource="{Binding Items}"
+                            ItemDisplayBinding="{Binding Name}"
+                            SelectedIndexChanged="OnSelectedIndexChanged"
+                            FontSize="20"
+                            Margin="30, 80, 30, 0"/>
+                    </Grid>
+                    <Grid
+                        Grid.Row="1">
+                        <Label Text="Update Table"
+                            FontSize="20"
+                            HorizontalOptions="Start"
+                            Margin="20, 20, 0, 0"/>
+                        <Switch 
+                            x:Name="swiUpdateTable"
+                            x:DataType="viewmodels:SettingViewModel"
+                            IsToggled="{Binding IsUpdateTable}"
+                            Toggled="OnUpdateToggled"
+                            Margin="150, 10, 0, 0"
+                            HorizontalOptions="Start"/>
+                    </Grid>
+                    <Grid
+                        Grid.Row="2">
+                        <Label Text="SQLite"
+                            FontSize="20"
+                            HorizontalOptions="Start"
+                            Margin="20, 20, 0, 0"/>
+                        <Switch 
+                            x:Name="swiSQLite"
+                            x:DataType="viewmodels:SettingViewModel"
+                            IsToggled="{Binding IsSQLiteTable}"
+                            Toggled="OnSQLiteToggled"
+                            Margin="150, 10, 0, 0"
+                            HorizontalOptions="Start"/>
+                    </Grid>
+                    <Grid
+                        Grid.Row="3">
+                        <Label Text="Pitch"
+                            FontSize="20"
+                            HorizontalOptions="Start"
+                            Margin="20, 20, 0, 0"/>
+                        <Label x:Name="lblPich"
+                            FontSize="20"
+                            Margin="100, 20, 0, 0"
+                            HorizontalOptions="Start"
+                            Text="{Binding Source={x:Reference sldPich}, Path=Value, StringFormat='{0}'}"/>
+                        <Slider x:Name="sldPich"
+                            Margin="150, 20, 30, 0"
+                            ThumbColor="{StaticResource WhiteColor}"
+                            BackgroundColor="{StaticResource PrimaryColor}"
+                            MaximumTrackColor="{StaticResource WhiteColor}"
+                            MinimumTrackColor="{StaticResource WhiteColor}"
+                            Minimum="0"
+                            Maximum="100"
+                            x:DataType="viewmodels:SettingViewModel"
+                            Value="{Binding IsPitchSpeak}"
+                            ValueChanged="OnSliderPitchChanged"/>
+                    </Grid>
+                    <Grid
+                        Grid.Row="4">
+                        <Label Text="Volume"
+                            FontSize="20"
+                            HorizontalOptions="Start"
+                            Margin="20, 20, 0, 0"/>
+                        <Label x:Name="lblVolume"
+                            FontSize="20"
+                            Margin="100, 20, 0, 0"
+                            HorizontalOptions="Start"
+                            Text="{Binding Source={x:Reference sldVolume}, Path=Value, StringFormat='{0}'}"/>
+                        <Slider x:Name="sldVolume"
+                            Margin="150, 20, 30, 0"
+                            ThumbColor="{StaticResource WhiteColor}"
+                            BackgroundColor="{StaticResource PrimaryColor}"
+                            MaximumTrackColor="{StaticResource WhiteColor}"
+                            MinimumTrackColor="{StaticResource WhiteColor}"
+                            Minimum="0"
+                            Maximum="100"
+                            x:DataType="viewmodels:SettingViewModel"
+                            Value="{Binding IsVolumeSpeak}"
+                            ValueChanged="OnSliderVolumeChanged"/>
+                    </Grid>
+                </Grid>
+            </Grid>
+        </Grid>
+    </ContentPage.Content>
+</ContentPage>

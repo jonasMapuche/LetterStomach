@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:viewmodels="clr-namespace:LetterStomach.ViewModels"
+             xmlns:templates="clr-namespace:LetterStomach.Views.Templates"
+             xmlns:models="clr-namespace:LetterStomach.Models"
+             xmlns:controls="clr-namespace:LetterStomach.Controls"
+             Shell.NavBarIsVisible="false"
+             x:Class="LetterStomach.Views.BotView">
+    <ContentPage.Behaviors>
+        <toolkit:StatusBarBehavior StatusBarColor="{StaticResource PrimaryColor}" StatusBarStyle="LightContent" />
+    </ContentPage.Behaviors>
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <DataTemplate x:Key="SenderBotItemTemplate">
+                <templates:SenderBotItemTemplate />
+            </DataTemplate>
+            <DataTemplate x:Key="ReceiverBotItemTemplate">
+                <templates:ReceiverBotItemTemplate/>
+            </DataTemplate>
+            <templates:SelectorBotItemTemplate
+                x:Key="BotDataTemplateSelector"
+                SenderMessageTemplate="{StaticResource SenderBotItemTemplate}"
+                ReceiverMessageTemplate="{StaticResource ReceiverBotItemTemplate}"/>
+            <Style x:Key="ChatEntryBotControlStyle" TargetType="controls:BorderlessEntry">
+                <Setter Property="FontSize" Value="18" />
+                <Setter Property="VerticalOptions" Value="Center" />
+                <Setter Property="Margin" Value="6, 0" />
+            </Style>
+        </ResourceDictionary>
+        <toolkit:ByteArrayToImageSourceConverter x:Key="ToImage" />
+    </ContentPage.Resources>
+    <ContentPage.Content>
+        <Grid      
+            BackgroundColor="{StaticResource PrimaryColor}"
+            RowDefinitions="188, *">
+            <Grid 
+                Grid.Row="0"
+                RowDefinitions="Auto, 160">
+                <Grid.GestureRecognizers>
+                    <TapGestureRecognizer 
+                        Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:BotViewModel}}, Path=BackCommand}"/>
+                </Grid.GestureRecognizers>
+                <Grid 
+                    Grid.Row="0"
+                    RowDefinitions="*"
+                    Style="{StaticResource NavigationBotGridStyle}"> 
+                    <Ellipse
+                        Style="{StaticResource NavigationBotEllipseStyle}"/> 
+                    <Image
+                        Source="arrow_left_alt_62dp_white.png"
+                        Style="{StaticResource NavigationBotImageStyle}"/> 
+                </Grid>
+                <Grid 
+                    Grid.Row="1"
+                    ColumnDefinitions="190, 120">
+                    <Grid
+                        Grid.Column="0"
+                        Style="{StaticResource UserContainerBotGridStyle}"
+                        RowDefinitions="90, *">
+                        <Grid
+                            Grid.Row="0">
+                            <Label
+                                x:DataType="viewmodels:BotViewModel"
+                                Text="{Binding Username.Name}"
+                                Style="{StaticResource UserBotLabelStyle}"/>
+                        </Grid>
+                        <Grid
+                            Grid.Row="1">
+                            <Ellipse
+                                x:DataType="viewmodels:BotViewModel"
+                                BackgroundColor="{Binding Username.Color}"
+                                Style="{StaticResource UserBotEllipseStyle}"/>
+                            <Image
+                                x:DataType="viewmodels:BotViewModel"
+                                Source="{Binding Username.Image}"
+                                Style="{StaticResource UserBotImageStyle}"/>
+                        </Grid>
+                    </Grid>
+                    <Grid
+                        Grid.Column="1">
+                        <toolkit:CameraView 
+                            x:Name="cavCamera"
+                            CameraFlashMode="{Binding FlashMode}"
+                            IsVisible="True"
+                            MediaCaptured="OnMediaCaptured"
+                            SelectedCamera="{Binding SelectedCamera}"/>
+                        <Image
+                            x:Name="imgCamera"
+                            Aspect="AspectFit"
+                            IsVisible="False"
+                            Source="{Binding Bytes, Converter={StaticResource ToImage}}" />
+                    </Grid>
+                </Grid>
+            </Grid>
+            <Grid
+                Grid.Row="1">
+                <BoxView
+                    Style="{StaticResource AdornerBotBoxViewStyle}"/> 
+                <Grid
+                    RowDefinitions="*, Auto">
+                    <Grid>
+                        <CollectionView 
+                            x:DataType="viewmodels:BotViewModel"
+                            ItemsSource="{Binding Messages}"
+                            ItemTemplate="{StaticResource BotDataTemplateSelector}"
+                            Style="{StaticResource ChatBotCollectionViewStyle}"/> 
+                    </Grid>
+                    <Grid
+                        Grid.Row="1"
+                        Style="{StaticResource ChatEntryBotGridStyle}"> 
+                        <Grid
+                            ColumnDefinitions="*, Auto">
+                            <controls:BorderlessEntry
+                                x:Name="ctrMessage"
+                                Placeholder="Type your message..."
+                                Style="{StaticResource ChatEntryBotControlStyle}"/>
+                            <Grid 
+                                Grid.Column="1"
+                                Style="{StaticResource ContainerBotGridStyle}">
+                                <Grid>
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer 
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:BotViewModel}}, Path=SendCommand}"
+                                            CommandParameter="{Binding Source={x:Reference ctrMessage}, Path=Text}"/>
+                                    </Grid.GestureRecognizers>
+                                    <Grid>
+                                        <Ellipse
+                                            Style="{StaticResource ChatEntryBotEllipseStyle}"/>
+                                        <Image
+                                            Source="send.png"
+                                            Style="{StaticResource ChatEntryBotImageStyle}"/>
+                                    </Grid>
+                                </Grid>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                </Grid>
+            </Grid>
+        </Grid>
+    </ContentPage.Content>
+</ContentPage>
