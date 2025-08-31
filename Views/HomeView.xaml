@@ -57,10 +57,22 @@
                             <BoxView.GestureRecognizers>
                                 <TapGestureRecognizer 
                                     Command="{Binding SpeakCommand}"/>
-                                <SwipeGestureRecognizer Direction="Up" Swiped="OnDirectionSwiped"/>
-                                <SwipeGestureRecognizer Direction="Right" Swiped="OnDirectionSwiped" />
-                                <SwipeGestureRecognizer Direction="Left" Swiped="OnDirectionSwiped" />
-                                <SwipeGestureRecognizer Direction="Down" Swiped="OnDirectionSwiped" />
+                                <SwipeGestureRecognizer 
+                                    Direction="Up" 
+                                    Command="{Binding SwipedCommand}" 
+                                    CommandParameter="{x:Static SwipeDirection.Up}"/>
+                                <SwipeGestureRecognizer 
+                                    Direction="Right" 
+                                    Command="{Binding SwipedCommand}" 
+                                    CommandParameter="{x:Static SwipeDirection.Right}" />
+                                <SwipeGestureRecognizer 
+                                    Direction="Left" 
+                                    Command="{Binding SwipedCommand}" 
+                                    CommandParameter="{x:Static SwipeDirection.Left}" />
+                                <SwipeGestureRecognizer 
+                                    Direction="Down" 
+                                    Command="{Binding SwipedCommand}" 
+                                    CommandParameter="{x:Static SwipeDirection.Down}" />
                             </BoxView.GestureRecognizers>                                                        
                         </BoxView>
                     </Grid>

@@ -1,11 +1,12 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using LetterStomach.Models;
+using LetterStomach.Services.Interfaces;
 using System.Globalization;
 using System.Text;
 
 namespace LetterStomach.Services
 {
-    public class WordEmbeddingService : ObservableObject
+    public class WordEmbeddingService : ObservableObject, IWordEmbeddingService
     {
         private string _error_message;
 
