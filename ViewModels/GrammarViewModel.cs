@@ -31,7 +31,7 @@ namespace LetterStomach.ViewModels
         private IConjunctionViewModel _conjunctionViewModel;
 
         private ISyntaxViewModel _syntaxViewMode = new SyntaxViewModel();
-        private IMorphologyViewModel _morphologyViewMode = new MorphologyViewModel();
+        private IMorphologyViewModel _morphologyViewModel = new MorphologyViewModel();
         private ISyntaxViewModel syntaxViewModel = new SyntaxViewModel();
         
         private IWordEmbeddingService _wordEmbeddingService = new WordEmbeddingService();
@@ -112,6 +112,7 @@ namespace LetterStomach.ViewModels
         protected string VAR_ADVERB_ADVERB = SettingService.Instance.Adverb_Adverb;
         protected string VAR_ADJECTIVE_NOUN = SettingService.Instance.Adjective_Noun;
 
+        #region INIT
         public void SetGrammar()
         {
             try
@@ -214,7 +215,9 @@ namespace LetterStomach.ViewModels
                 OnError?.Invoke(this, error_message);
             }
         }
+        #endregion
 
+        #region GET
         private List<Circunstancia> GetAdverb(string language)
         {
             try
@@ -354,7 +357,9 @@ namespace LetterStomach.ViewModels
                 return null;
             }
         }
+        #endregion
 
+        #region SET
         private void SetOration(string language, List<Lesson> lesson_word)
         {
             try
@@ -370,7 +375,9 @@ namespace LetterStomach.ViewModels
                 throw;
             }
         }
+        #endregion
 
+        #region SELECT
         private List<Lesson> SelectOration(string language)
         {
             try
@@ -520,7 +527,9 @@ namespace LetterStomach.ViewModels
                 return null;
             }
         }
+        #endregion
 
+        #region SYNTAX
         public List<Lesson> OrderLesson(List<Lesson> firsts)
         {
             try
@@ -577,6 +586,41 @@ namespace LetterStomach.ViewModels
             }
         }
 
+        private List<Lesson> MountPeriod(string language, List<Sentenca> sentences, List<Lesson> previous, List<Lesson> terms, bool noun)
+        {
+            try
+            {
+                List<Lesson> words = new List<Lesson>();
+
+                if (previous == null) words = OrderLesson(this._syntaxViewMode.PeriodSS_V(language, sentences, terms, noun));
+                else words = OrderLesson(previous, this._syntaxViewMode.PeriodSS_V(language, sentences, terms, noun));
+
+                words = OrderLesson(words, this._syntaxViewMode.PeriodSS_V_P(language, sentences, terms, noun));
+                words = OrderLesson(words, this._syntaxViewMode.PeriodSS_V_Pr_P(language, sentences, terms, noun));
+                words = OrderLesson(words, this._syntaxViewMode.PeriodSS_V_N(language, sentences, terms, noun));
+                words = OrderLesson(words, this._syntaxViewMode.PeriodSS_V_Pr_N(language, sentences, terms, noun));
+                words = OrderLesson(words, this._syntaxViewMode.PeriodSS_V_AdjN(language, sentences, terms, noun));
+                words = OrderLesson(words, this._syntaxViewMode.PeriodSS_V_Pr_AdjN(language, sentences, terms, noun));
+                words = OrderLesson(words, this._syntaxViewMode.PeriodSS_V_Adj(language, sentences, terms, noun));
+                words = OrderLesson(words, this._syntaxViewMode.PeriodSS_V_Adj_P(language, sentences, terms, noun));
+                words = OrderLesson(words, this._syntaxViewMode.PeriodSS_V_Adj_Pr_P(language, sentences, terms, noun));
+                words = OrderLesson(words, this._syntaxViewMode.PeriodSS_V_Adj_N(language, sentences, terms, noun));
+                words = OrderLesson(words, this._syntaxViewMode.PeriodSS_V_Adj_Pr_N(language, sentences, terms, noun));
+                words = OrderLesson(words, this._syntaxViewMode.PeriodSS_V_Adj_AdjN(language, sentences, terms, noun));
+                words = OrderLesson(words, this._syntaxViewMode.PeriodSS_V_Adj_Pr_AdjN(language, sentences, terms, noun));
+
+                return words;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return null;
+            }
+        }
+        #endregion
+
+        #region MORPHOLOGY
         public List<Word> Authenticate(string language, List<Word> lessons)
         {
             try
@@ -648,7 +692,7 @@ namespace LetterStomach.ViewModels
                     if ((preposition == null) && (pronoun_predicate == null) && (digit_predicate == null) && (article_predicate == null) && (noun_predicate == null))
                     {
                         List<Word> item = new List<Word>();
-                        item = this._morphologyViewMode.GetSuject(pronoun_subject, noun_subject, article_subject, digit_subject, verb, model);
+                        item = this._morphologyViewModel.GetSuject(pronoun_subject, noun_subject, article_subject, digit_subject, verb, model);
                         item.ForEach(index =>
                         {
                             new_word.Add(index);
@@ -710,14 +754,14 @@ namespace LetterStomach.ViewModels
                 if (similarity)
                 {
                     List<Word> item_two = new List<Word>();
-                    item_two = this._morphologyViewMode.GetPredicate(pronoun_predicate, noun_predicate, article_predicate, digit_predicate, preposition);
+                    item_two = this._morphologyViewModel.GetPredicate(pronoun_predicate, noun_predicate, article_predicate, digit_predicate, preposition);
                     item_two.ForEach(index =>
                     {
                         new_word.Add(index);
                     });
 
                     item_two = new List<Word>();
-                    item_two = this._morphologyViewMode.GetSuject(pronoun_subject, noun_subject, article_subject, digit_subject, verb, model);
+                    item_two = this._morphologyViewModel.GetSuject(pronoun_subject, noun_subject, article_subject, digit_subject, verb, model);
                     item_two.ForEach(index =>
                     {
                         new_word.Add(index);
@@ -725,39 +769,6 @@ namespace LetterStomach.ViewModels
                 }
 
                 return new_word;
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
-                return null;
-            }
-        }
-
-        private List<Lesson> MountPeriod(string language, List<Sentenca> sentences, List<Lesson> previous, List<Lesson> terms, bool noun)
-        {
-            try
-            {
-                List<Lesson> words = new List<Lesson>();
-
-                if (previous == null) words = OrderLesson(this._syntaxViewMode.PeriodSS_V(language, sentences, terms, noun));
-                else words = OrderLesson(previous, this._syntaxViewMode.PeriodSS_V(language, sentences, terms, noun));
-
-                words = OrderLesson(words, this._syntaxViewMode.PeriodSS_V_P(language, sentences, terms, noun));
-                words = OrderLesson(words, this._syntaxViewMode.PeriodSS_V_Pr_P(language, sentences, terms, noun));
-                words = OrderLesson(words, this._syntaxViewMode.PeriodSS_V_N(language, sentences, terms, noun));
-                words = OrderLesson(words, this._syntaxViewMode.PeriodSS_V_Pr_N(language, sentences, terms, noun));
-                words = OrderLesson(words, this._syntaxViewMode.PeriodSS_V_AdjN(language, sentences, terms, noun));
-                words = OrderLesson(words, this._syntaxViewMode.PeriodSS_V_Pr_AdjN(language, sentences, terms, noun));
-                words = OrderLesson(words, this._syntaxViewMode.PeriodSS_V_Adj(language, sentences, terms, noun));
-                words = OrderLesson(words, this._syntaxViewMode.PeriodSS_V_Adj_P(language, sentences, terms, noun));
-                words = OrderLesson(words, this._syntaxViewMode.PeriodSS_V_Adj_Pr_P(language, sentences, terms, noun));
-                words = OrderLesson(words, this._syntaxViewMode.PeriodSS_V_Adj_N(language, sentences, terms, noun));
-                words = OrderLesson(words, this._syntaxViewMode.PeriodSS_V_Adj_Pr_N(language, sentences, terms, noun));
-                words = OrderLesson(words, this._syntaxViewMode.PeriodSS_V_Adj_AdjN(language, sentences, terms, noun));
-                words = OrderLesson(words, this._syntaxViewMode.PeriodSS_V_Adj_Pr_AdjN(language, sentences, terms, noun));
-
-                return words;
             }
             catch (Exception ex)
             {
@@ -817,9 +828,9 @@ namespace LetterStomach.ViewModels
                 List<Sentenca> sentence = SelectSentence(language).Distinct().ToList();
                 List<Word> result = new List<Word>();
 
-                List<string> list_noun = this._morphologyViewMode.GetLessonNoun(language, lesson, book);
-                List<string> list_adjective = this._morphologyViewMode.GetLessonAdjective(lesson, book);
-                List<string> list_model = this._morphologyViewMode.GetLessonVerb(lesson);
+                List<string> list_noun = this._morphologyViewModel.GetLessonNoun(language, lesson, book);
+                List<string> list_adjective = this._morphologyViewModel.GetLessonAdjective(lesson, book);
+                List<string> list_model = this._morphologyViewModel.GetLessonVerb(lesson);
 
                 List<Juncao> list_preposition = SelectPreposition(language);
                 List<Preceito> list_article = SelectArticle(language);
@@ -828,22 +839,22 @@ namespace LetterStomach.ViewModels
                 List<Elocucao> list_verb = SelectVerb(language);
                 List<Estoutro> list_pronoun = SelectPronoun(language).Distinct().ToList();
 
-                List<Lesson> mount_noun = this._morphologyViewMode.GetNoun(sentence, list_noun, list_pronoun, list_article, list_numeral);
-                List<Lesson> mount_verb = this._morphologyViewMode.GetVerb(sentence, list_model, list_verb, list_adverb);
-                List<Lesson> mount_adjective = this._morphologyViewMode.GetAdjective(sentence, list_adjective, list_adverb);
-                List<Lesson> mount_adjective_noun = this._morphologyViewMode.GetAdjectiveNoun(sentence, list_adjective, list_adverb, list_noun, list_article);
-                List<Lesson> mount_digit = this._morphologyViewMode.GetNumeral(sentence, list_numeral);
-                List<Lesson> mount_article = this._morphologyViewMode.GetArticle(sentence, list_article);
-                List<Lesson> mount_preposition = this._morphologyViewMode.GetPreposition(sentence, list_preposition);
-                List<Lesson> mount_pronoun = this._morphologyViewMode.GetPronoun(sentence, list_pronoun);
+                List<Lesson> mount_noun = this._morphologyViewModel.GetNoun(sentence, list_noun, list_pronoun, list_article, list_numeral);
+                List<Lesson> mount_verb = this._morphologyViewModel.GetVerb(sentence, list_model, list_verb, list_adverb);
+                List<Lesson> mount_adjective = this._morphologyViewModel.GetAdjective(sentence, list_adjective, list_adverb);
+                List<Lesson> mount_adjective_noun = this._morphologyViewModel.GetAdjectiveNoun(sentence, list_adjective, list_adverb, list_noun, list_article);
+                List<Lesson> mount_digit = this._morphologyViewModel.GetNumeral(sentence, list_numeral);
+                List<Lesson> mount_article = this._morphologyViewModel.GetArticle(sentence, list_article);
+                List<Lesson> mount_preposition = this._morphologyViewModel.GetPreposition(sentence, list_preposition);
+                List<Lesson> mount_pronoun = this._morphologyViewModel.GetPronoun(sentence, list_pronoun);
 
-                List<Lesson> fulls = this._morphologyViewMode.Union(mount_noun, mount_verb);
-                fulls = this._morphologyViewMode.Union(fulls, mount_adjective);
-                fulls = this._morphologyViewMode.Union(fulls, mount_adjective_noun);
-                fulls = this._morphologyViewMode.Union(fulls, mount_digit);
-                fulls = this._morphologyViewMode.Union(fulls, mount_article);
-                fulls = this._morphologyViewMode.Union(fulls, mount_preposition);
-                fulls = this._morphologyViewMode.Union(fulls, mount_pronoun);
+                List<Lesson> fulls = this._morphologyViewModel.Union(mount_noun, mount_verb);
+                fulls = this._morphologyViewModel.Union(fulls, mount_adjective);
+                fulls = this._morphologyViewModel.Union(fulls, mount_adjective_noun);
+                fulls = this._morphologyViewModel.Union(fulls, mount_digit);
+                fulls = this._morphologyViewModel.Union(fulls, mount_article);
+                fulls = this._morphologyViewModel.Union(fulls, mount_preposition);
+                fulls = this._morphologyViewModel.Union(fulls, mount_pronoun);
 
                 List<Lesson> words = new List<Lesson>();
                 words = MountPeriod(language, sentence, null, fulls, false);
@@ -865,5 +876,6 @@ namespace LetterStomach.ViewModels
                 return null;
             }
         }
+        #endregion
     }
 }

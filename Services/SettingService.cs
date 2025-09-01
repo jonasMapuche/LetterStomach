@@ -94,5 +94,8 @@ namespace LetterStomach.Services
         public readonly string Possessive = "possessivo";
         public readonly string Demostrtive = "demonstrativo";
 
+        public readonly string Single = "singular";
+        public readonly string Plural = "plural";
+
     }
 }

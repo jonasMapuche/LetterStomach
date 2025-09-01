@@ -12,6 +12,7 @@ namespace LetterStomach.ViewModels
     [QueryProperty(nameof(Refresh), "refresh")]
     public partial class HomeViewModel : ObservableObject, IQueryAttributable
     {
+        #region ERROR
         private string _error_message;
 
         public string error_message
@@ -24,7 +25,9 @@ namespace LetterStomach.ViewModels
         }
 
         public event EventHandler<string> OnError;
+        #endregion
 
+        #region VARIABLE
         public bool Refresh { get; set; }
 
         [ObservableProperty]
@@ -66,7 +69,9 @@ namespace LetterStomach.ViewModels
         private Language ITALIANO = SettingService.Instance.Italino;
         private Language FRANCAIS = SettingService.Instance.Francais;
         private Language ESPANOL = SettingService.Instance.Espanol;
+        #endregion
 
+        #region CONTRUTOR
         public HomeViewModel(SettingService singleton)
         {
             try
@@ -88,7 +93,9 @@ namespace LetterStomach.ViewModels
                 OnError?.Invoke(this, error_message);
             }
         }
+        #endregion
 
+        #region COMMAND
         private void OnSwipedCommand(SwipeDirection direction)
         {
             if (direction == SwipeDirection.Left)
@@ -109,28 +116,6 @@ namespace LetterStomach.ViewModels
             }
         }
 
-        private void Connect(bool sqlite_database)
-        {
-            try
-            {
-                if (sqlite_database)
-                {
-                    this._grammarViewModel.SQLite();
-                    MessageService.Instance.Messages = MessageService.Instance.GetChatsSQLite();
-                }
-                else
-                {
-                    this._grammarViewModel.MongoDB();
-                    MessageService.Instance.Messages = MessageService.Instance.GetChats();
-                };
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
-            }
-        }
-
         private async Task OnSpeakCommand(object? arg)
         {
             try
@@ -141,23 +126,28 @@ namespace LetterStomach.ViewModels
                 if (SingletonService.Instance.SpeakEnglish)
                 {
                     speak_service.SpeakText(MessageService.Instance.Messages, ENGLISH.Uppercase, pitch_speak, volume_speak);
-                };
+                }
+                ;
                 if (SingletonService.Instance.SpeakDeutsch)
                 {
                     speak_service.SpeakText(MessageService.Instance.Messages, DEUTSCH.Uppercase, pitch_speak, volume_speak);
-                };
+                }
+                ;
                 if (SingletonService.Instance.SpeakItaliano)
                 {
                     speak_service.SpeakText(MessageService.Instance.Messages, ITALIANO.Uppercase, pitch_speak, volume_speak);
-                };
+                }
+                ;
                 if (SingletonService.Instance.SpeakFrancais)
                 {
                     speak_service.SpeakText(MessageService.Instance.Messages, FRANCAIS.Uppercase, pitch_speak, volume_speak);
-                };
+                }
+                ;
                 if (SingletonService.Instance.SpeakEspanol)
                 {
                     speak_service.SpeakText(MessageService.Instance.Messages, ESPANOL.Uppercase, pitch_speak, volume_speak);
-                };
+                }
+                ;
             }
             catch (Exception ex)
             {
@@ -183,6 +173,45 @@ namespace LetterStomach.ViewModels
             }
         }
 
+        public void ApplyQueryAttributes(IDictionary<string, object> query)
+        {
+            try
+            {
+                bool sqlite_database = false;
+                if (query.Count > 0) sqlite_database = query["refresh"] as string == "True" ? true : false;
+                if (sqlite_database) Update(sqlite_database);
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+            }
+        }
+        #endregion
+
+        #region MESSAGE
+        private void Connect(bool sqlite_database)
+        {
+            try
+            {
+                if (sqlite_database)
+                {
+                    this._grammarViewModel.SQLite();
+                    MessageService.Instance.Messages = MessageService.Instance.GetChatsSQLite();
+                }
+                else
+                {
+                    this._grammarViewModel.MongoDB();
+                    MessageService.Instance.Messages = MessageService.Instance.GetChats();
+                };
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+            }
+        }
+
         private void Init()
         {
             try
@@ -199,6 +228,21 @@ namespace LetterStomach.ViewModels
                 this._word_italiano = new List<Word>();
                 this._word_francais = new List<Word>();
                 this._word_espanol = new List<Word>();
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+            }
+        }
+
+        private void Update(bool sqlite_database)
+        {
+            try
+            {
+                Connect(sqlite_database);
+                Init();
+                Load(MessageService.Instance, true);
             }
             catch (Exception ex)
             {
@@ -296,37 +340,9 @@ namespace LetterStomach.ViewModels
                 OnError?.Invoke(this, error_message);
             }
         }
+        #endregion
 
-        public void ApplyQueryAttributes(IDictionary<string, object> query)
-        {
-            try
-            {
-                bool sqlite_database = false;
-                if (query.Count > 0) sqlite_database = query["refresh"] as string == "True" ? true : false;
-                if (sqlite_database) Update(sqlite_database);
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
-            }
-        }
-
-        private void Update(bool sqlite_database)
-        {
-            try
-            {
-                Connect(sqlite_database);
-                Init();
-                Load(MessageService.Instance, true);
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
-            }
-        }
-
+        #region SET
         private void SetLesson(Materia materia, string language)
         {
             try
@@ -359,7 +375,9 @@ namespace LetterStomach.ViewModels
                 throw;
             }
         }
+        #endregion
 
+        #region MOVE
         private void MountNext()
         {
             try
@@ -525,5 +543,6 @@ namespace LetterStomach.ViewModels
                 OnError?.Invoke(this, error_message);
             }
         }
+        #endregion
     }
 }
