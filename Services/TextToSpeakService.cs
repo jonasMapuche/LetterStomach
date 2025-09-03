@@ -1,9 +1,11 @@
 ﻿using LetterStomach.Models;
+using LetterStomach.Services.Interfaces;
 
 namespace LetterStomach.Services
 {
-    public class TextToSpeakService
+    public class TextToSpeakService : ITextToSpeakService
     {
+        #region ERROR
         private string _error_message;
 
         public string error_message
@@ -16,13 +18,17 @@ namespace LetterStomach.Services
         }
 
         public event EventHandler<string> OnError;
+        #endregion
 
+        #region VARIABLE
         private Language ENGLISH = SettingService.Instance.English;
         private Language DEUTSCH = SettingService.Instance.Deutsch;
         private Language ITALIANO = SettingService.Instance.Italino;
         private Language FRANCAIS = SettingService.Instance.Francais;
         private Language ESPANOL = SettingService.Instance.Espanol;
+        #endregion
 
+        #region SPEAK
         public async void SpeakText(List<Message> messages, string language, int pitch_speak, int volume_speak)
         {
             try
@@ -63,5 +69,6 @@ namespace LetterStomach.Services
                 OnError?.Invoke(this, error_message);
             }
         }
+        #endregion
     }
 }

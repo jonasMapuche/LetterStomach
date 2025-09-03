@@ -1,11 +1,13 @@
 ﻿using FftSharp;
 using LetterStomach.Helpers;
+using LetterStomach.Services.Interfaces;
 using System.Numerics;
 
 namespace LetterStomach.Services
 {
     public class PerceptionService
     {
+        #region ERROR
         private string _error_message;
 
         public string error_message
@@ -18,7 +20,9 @@ namespace LetterStomach.Services
         }
 
         public event EventHandler<string> OnError;
+        #endregion
 
+        #region GPS
         public async Task<Location> GetCurrentLocation()
         {
             try
@@ -34,7 +38,9 @@ namespace LetterStomach.Services
                 return null;
             }
         }
+        #endregion
 
+        #region AUDIO
         public async Task DownloadAudio(string file_path)
         {
             try
@@ -44,7 +50,7 @@ namespace LetterStomach.Services
                 await fs.CopyToAsync(ms);
                 ms.Position = 0;
                 using StreamContent streamContent = new StreamContent(ms);
-                HttpService httpService = new HttpService();
+                IHttpService httpService = new HttpService();
                 await httpService.HttpPost(streamContent, file_path);
             }
             catch (Exception ex)
@@ -100,5 +106,6 @@ namespace LetterStomach.Services
                 OnError?.Invoke(this, error_message);
             }
         }
+        #endregion
     }
 }

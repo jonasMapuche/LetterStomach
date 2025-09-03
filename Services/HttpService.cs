@@ -1,11 +1,13 @@
 ﻿using LetterStomach.Models;
+using LetterStomach.Services.Interfaces;
 using Newtonsoft.Json;
 using System.Text;
 
 namespace LetterStomach.Services
 {
-    public class HttpService
+    public class HttpService : IHttpService
     {
+        #region ERROR
         private string _error_message;
 
         public string error_message
@@ -18,12 +20,16 @@ namespace LetterStomach.Services
         }
 
         public event EventHandler<string> OnError;
+        #endregion
 
+        #region VARIABLE
         //private string URL = "http://192.168.0.3:8885/";
         private string URL = "http://api.stomach.com.br:8885/";
 
         private HttpClient _client;
+        #endregion
 
+        #region CONSTRUCTOR
         public HttpService()
         {
             try 
@@ -36,7 +42,9 @@ namespace LetterStomach.Services
                 OnError?.Invoke(this, error_message);
             }
         }
+        #endregion
 
+        #region POST
         public async Task<string> HttpPost(Grammar message)
         {
             try
@@ -54,7 +62,28 @@ namespace LetterStomach.Services
             }
         }
 
-        public async Task<string> HttpGet(string path)
+        public async Task<string> HttpPost(StreamContent message, string file_name)
+        {
+            try
+            {
+                string path = "File";
+                string uri = URL + path;
+                using var content = new MultipartFormDataContent();
+                content.Add(message, "\"fileUpload\"", $"{file_name}");
+                using HttpResponseMessage response = await _client.PostAsync(uri, content);
+                return await response.Content.ReadAsStringAsync();
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return null;
+            }
+        }
+        #endregion
+
+        #region GET
+        private async Task<string> HttpGet(string path)
         {
             try 
             { 
@@ -267,24 +296,6 @@ namespace LetterStomach.Services
                 return null;
             }
         }
-
-        public async Task<string> HttpPost(StreamContent message, string file_name)
-        {
-            try
-            {
-                string path = "File";
-                string uri = URL + path;
-                using var content = new MultipartFormDataContent();
-                content.Add(message, "\"fileUpload\"", $"{file_name}");
-                using HttpResponseMessage response = await _client.PostAsync(uri, content);
-                return await response.Content.ReadAsStringAsync();
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
-                return null;
-            }
-        }
+        #endregion
     }
 }

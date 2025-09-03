@@ -1,11 +1,12 @@
 ﻿using LetterStomach.Services;
+using LetterStomach.Services.Interfaces;
 
 namespace LetterStomach
 {
     public partial class App : Application
     {
-        public static SQLiteService DataService { get; set; }
-        public static MongoDBService MongoDBService { get; set; }
+        public static ISQLiteService DataService { get; set; }
+        public static IMongoDBService MongoDBService { get; set; }
         public App()
         {
             try

@@ -1,11 +1,13 @@
 ﻿using LetterStomach.Enums;
 using LetterStomach.Models;
+using LetterStomach.Services.Interfaces;
 using SQLite;
 
 namespace LetterStomach.Services
 {
-    public class SQLiteService
+    public class SQLiteService : ISQLiteService
     {
+        #region ERROR
         private string _error_message;
 
         public string error_message
@@ -18,13 +20,14 @@ namespace LetterStomach.Services
         }
 
         public event EventHandler<string> OnError;
+        #endregion
 
+        #region VARIABLE
         private static SQLiteAsyncConnection _database;
 
         public List<Circunstancia> Circunstancia { get; set; }
         public List<Estoutro> Estoutro { get; set; }
         public List<Preceito> Preceito { get; set; }
-
         public List<Algarismo> Algarismo { get; set; }
         public List<Juncao> Juncao { get; set; }
         public List<Materia> Materia { get; set; }
@@ -35,6 +38,19 @@ namespace LetterStomach.Services
 
         private static string FILE_SQLITE = "letter.db";
 
+        private IHttpService _httpService;
+        private IModelService _modelService;
+        #endregion
+
+        #region CONSTRUCTOR
+        public SQLiteService()
+        {
+            _httpService = new HttpService();
+            _modelService = new ModelService();
+        }
+        #endregion
+
+        #region CONNECT
         public void Connect()
         {
             try
@@ -49,7 +65,9 @@ namespace LetterStomach.Services
                 OnError?.Invoke(this, error_message);
             }
         }
+        #endregion
 
+        #region DELETE
         public async Task<int> DeleteAll()
         {
             try
@@ -58,7 +76,6 @@ namespace LetterStomach.Services
                 quantity += await _database.DeleteAllAsync<Adverbios>();
                 quantity += await _database.DeleteAllAsync<Pronomes>();
                 quantity += await _database.DeleteAllAsync<Artigos>();
-
                 quantity += await _database.DeleteAllAsync<Numerais>();
                 quantity += await _database.DeleteAllAsync<Preposicoes>();
                 quantity += await _database.DeleteAllAsync<Substantivo>();
@@ -85,7 +102,6 @@ namespace LetterStomach.Services
                 if (select_table == (int)Hunk.Adverb) quantity += await _database.DeleteAllAsync<Adverbios>();
                 if (select_table == (int)Hunk.Pronoun) quantity += await _database.DeleteAllAsync<Pronomes>();
                 if (select_table == (int)Hunk.Article) quantity += await _database.DeleteAllAsync<Artigos>();
-
                 if (select_table == (int)Hunk.Numeral) quantity += await _database.DeleteAllAsync<Numerais>();
                 if (select_table == (int)Hunk.Preposition) quantity += await _database.DeleteAllAsync<Preposicoes>();
                 if (select_table == (int)Hunk.Noun) quantity += await _database.DeleteAllAsync<Substantivo>();
@@ -103,7 +119,9 @@ namespace LetterStomach.Services
                 return -1;
             }
         }
+        #endregion
 
+        #region CREATE
         public async Task CreateAll()
         {
             try
@@ -117,7 +135,6 @@ namespace LetterStomach.Services
                 await _database.CreateTableAsync<Artigos>();
                 List<Artigos> article = new List<Artigos>();
                 await _database.InsertAllAsync(article);
-
                 await _database.CreateTableAsync<Numerais>();
                 List<Numerais> numeral = new List<Numerais>();
                 await _database.InsertAllAsync(numeral);
@@ -157,7 +174,6 @@ namespace LetterStomach.Services
                 if (select_table == (int)Hunk.Adverb) await _database.CreateTableAsync<Adverbios>();
                 if (select_table == (int)Hunk.Pronoun) await _database.CreateTableAsync<Pronomes>();
                 if (select_table == (int)Hunk.Article) await _database.CreateTableAsync<Artigos>();
-                
                 if (select_table == (int)Hunk.Numeral) await _database.CreateTableAsync<Numerais>();
                 if (select_table == (int)Hunk.Preposition) await _database.CreateTableAsync<Preposicoes>();
                 if (select_table == (int)Hunk.Noun) await _database.CreateTableAsync<Substantivo>();
@@ -173,14 +189,15 @@ namespace LetterStomach.Services
                 OnError?.Invoke(this, error_message);
             }
         }
+        #endregion
 
+        #region INSERT
         public async Task InsertAdverb()
         {
             try
             { 
-                HttpService http = new HttpService();
                 List<Adverbios> adverb = new List<Adverbios>();
-                adverb = await http.HttpAdverb();
+                adverb = await this._httpService.HttpAdverb();
                 await _database.InsertAllAsync(adverb);
             }
             catch (Exception ex)
@@ -194,9 +211,8 @@ namespace LetterStomach.Services
         {
             try
             { 
-                HttpService http = new HttpService();
                 List<Pronomes> pronoun = new List<Pronomes>();
-                pronoun = await http.HttpPronoun();
+                pronoun = await this._httpService.HttpPronoun();
                 await _database.InsertAllAsync(pronoun);
             }
             catch (Exception ex)
@@ -210,9 +226,8 @@ namespace LetterStomach.Services
         {
             try
             { 
-                HttpService http = new HttpService();
                 List<Artigos> article = new List<Artigos>();
-                article = await http.HttpArticle();
+                article = await this._httpService.HttpArticle();
                 await _database.InsertAllAsync(article);
             }
             catch (Exception ex)
@@ -226,9 +241,8 @@ namespace LetterStomach.Services
         {
             try
             {
-                HttpService http = new HttpService();
                 List<Numerais> numeral = new List<Numerais>();
-                numeral = await http.HttpNumeral();
+                numeral = await this._httpService.HttpNumeral();
                 await _database.InsertAllAsync(numeral);
             }
             catch (Exception ex)
@@ -242,9 +256,8 @@ namespace LetterStomach.Services
         {
             try
             {
-                HttpService http = new HttpService();
                 List<Preposicoes> preposition = new List<Preposicoes>();
-                preposition = await http.HttpPreposition();
+                preposition = await this._httpService.HttpPreposition();
                 await _database.InsertAllAsync(preposition);
             }
             catch (Exception ex)
@@ -258,9 +271,8 @@ namespace LetterStomach.Services
         {
             try
             {
-                HttpService http = new HttpService();
                 List<Substantivo> noun = new List<Substantivo>();
-                noun = await http.HttpNoun();
+                noun = await this._httpService.HttpNoun();
                 await _database.InsertAllAsync(noun);
             }
             catch (Exception ex)
@@ -274,9 +286,8 @@ namespace LetterStomach.Services
         {
             try
             {
-                HttpService http = new HttpService();
                 List<Adjetivo> adjective = new List<Adjetivo>();
-                adjective = await http.HttpAdjective();
+                adjective = await this._httpService.HttpAdjective();
                 await _database.InsertAllAsync(adjective);
             }
             catch (Exception ex)
@@ -290,9 +301,8 @@ namespace LetterStomach.Services
         {
             try
             {
-                HttpService http = new HttpService();
                 List<Verbos> verb = new List<Verbos>();
-                verb = await http.HttpVerb();
+                verb = await this._httpService.HttpVerb();
                 await _database.InsertAllAsync(verb);
             }
             catch (Exception ex)
@@ -306,9 +316,8 @@ namespace LetterStomach.Services
         {
             try
             {
-                HttpService http = new HttpService();
                 List<Sentencas> sentence = new List<Sentencas>();
-                sentence = await http.HttpSentence();
+                sentence = await this._httpService.HttpSentence();
                 await _database.InsertAllAsync(sentence);
             }
             catch (Exception ex)
@@ -322,9 +331,8 @@ namespace LetterStomach.Services
         {
             try
             {
-                HttpService http = new HttpService();
                 List<Conjuncoes> conjunction = new List<Conjuncoes>();
-                conjunction = await http.HttpConjunction();
+                conjunction = await this._httpService.HttpConjunction();
                 await _database.InsertAllAsync(conjunction);
             }
             catch (Exception ex)
@@ -338,9 +346,8 @@ namespace LetterStomach.Services
         {
             try
             {
-                HttpService http = new HttpService();
                 List<Auxiliares> auxiliary = new List<Auxiliares>();
-                auxiliary = await http.HttpAuxiliary();
+                auxiliary = await this._httpService.HttpAuxiliary();
                 await _database.InsertAllAsync(auxiliary);
             }
             catch (Exception ex)
@@ -349,15 +356,16 @@ namespace LetterStomach.Services
                 OnError?.Invoke(this, error_message);
             }
         }
+        #endregion
 
+        #region LOAD
         public async Task LoadAdverb()
         {
             try
             { 
                 List<Adverbios> adverb = new List<Adverbios>();
                 adverb = await _database.Table<Adverbios>().ToListAsync();
-                ModelService model = new ModelService();
-                this.Circunstancia = await model.LoadAdverb(adverb);
+                this.Circunstancia = await this._modelService.LoadAdverb(adverb);
             }
             catch (Exception ex)
             {
@@ -372,8 +380,7 @@ namespace LetterStomach.Services
             { 
                 List<Pronomes> pronoun = new List<Pronomes>();
                 pronoun = await _database.Table<Pronomes>().ToListAsync();
-                ModelService model = new ModelService();
-                this.Estoutro = await model.LoadPronoun(pronoun);
+                this.Estoutro = await this._modelService.LoadPronoun(pronoun);
             }
             catch (Exception ex)
             {
@@ -388,8 +395,7 @@ namespace LetterStomach.Services
             { 
                 List<Artigos> article = new List<Artigos>();
                 article = await _database.Table<Artigos>().ToListAsync();
-                ModelService model = new ModelService();
-                this.Preceito = await model.LoadArticle(article);
+                this.Preceito = await this._modelService.LoadArticle(article);
             }
             catch (Exception ex)
             {
@@ -404,8 +410,7 @@ namespace LetterStomach.Services
             {
                 List<Numerais> numeral = new List<Numerais>();
                 numeral = await _database.Table<Numerais>().ToListAsync();
-                ModelService model = new ModelService();
-                this.Algarismo = await model.LoadNumeral(numeral);
+                this.Algarismo = await this._modelService.LoadNumeral(numeral);
             }
             catch (Exception ex)
             {
@@ -420,8 +425,7 @@ namespace LetterStomach.Services
             {
                 List<Preposicoes> preposition = new List<Preposicoes>();
                 preposition = await _database.Table<Preposicoes>().ToListAsync();
-                ModelService model = new ModelService();
-                this.Juncao = await model.LoadPreposition(preposition);
+                this.Juncao = await this._modelService.LoadPreposition(preposition);
             }
             catch (Exception ex)
             {
@@ -438,8 +442,7 @@ namespace LetterStomach.Services
                 noun = await _database.Table<Substantivo>().ToListAsync();
                 List<Adjetivo> adjective = new List<Adjetivo>();
                 adjective = await _database.Table<Adjetivo>().ToListAsync();
-                ModelService model = new ModelService();
-                this.Materia = await model.LoadMateria(noun, adjective); 
+                this.Materia = await this._modelService.LoadMateria(noun, adjective); 
             }
             catch (Exception ex)
             {
@@ -454,8 +457,7 @@ namespace LetterStomach.Services
             {
                 List<Verbos> verb = new List<Verbos>();
                 verb = await _database.Table<Verbos>().ToListAsync();
-                ModelService model = new ModelService();
-                this.Elocucao = await model.LoadElocucao(verb);
+                this.Elocucao = await this._modelService.LoadElocucao(verb);
             }
             catch (Exception ex)
             {
@@ -470,8 +472,7 @@ namespace LetterStomach.Services
             {
                 List<Sentencas> sentence = new List<Sentencas>();
                 sentence = await _database.Table<Sentencas>().ToListAsync();
-                ModelService model = new ModelService();
-                this.Sentenca = await model.LoadSentenca(sentence);
+                this.Sentenca = await this._modelService.LoadSentenca(sentence);
             }
             catch (Exception ex)
             {
@@ -486,8 +487,7 @@ namespace LetterStomach.Services
             {
                 List<Conjuncoes> conjunction = new List<Conjuncoes>();
                 conjunction = await _database.Table<Conjuncoes>().ToListAsync();
-                ModelService model = new ModelService();
-                this.Ligacao = await model.LoadLigacao(conjunction);
+                this.Ligacao = await this._modelService.LoadLigacao(conjunction);
             }
             catch (Exception ex)
             {
@@ -502,8 +502,7 @@ namespace LetterStomach.Services
             {
                 List<Auxiliares> auxiliary = new List<Auxiliares>();
                 auxiliary = await _database.Table<Auxiliares>().ToListAsync();
-                ModelService model = new ModelService();
-                this.Assistente = await model.LoadAssistente(auxiliary);
+                this.Assistente = await this._modelService.LoadAssistente(auxiliary);
             }
             catch (Exception ex)
             {
@@ -511,5 +510,6 @@ namespace LetterStomach.Services
                 OnError?.Invoke(this, error_message);
             }
         }
+        #endregion
     }
 }

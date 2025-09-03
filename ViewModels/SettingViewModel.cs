@@ -2,13 +2,14 @@
 using LetterStomach.Enums;
 using LetterStomach.Models;
 using LetterStomach.Services;
+using LetterStomach.Services.Interfaces;
 using System.Windows.Input;
 
 namespace LetterStomach.ViewModels
 {
-
     public class SettingViewModel
     {
+        #region ERROR
         private string _error_message;
 
         public string error_message
@@ -21,7 +22,9 @@ namespace LetterStomach.ViewModels
         }
 
         public event EventHandler<string> OnError;
+        #endregion
 
+        #region VARIABLE
         public List<Hunks> Items { get; set; }
 
         public bool IsUpdateTable { get; set; }
@@ -36,14 +39,18 @@ namespace LetterStomach.ViewModels
         public ICommand BackCommand { get; set; }
 
         private readonly SettingService _setting;
+        private ISQLiteService _sqlite_service;
 
         private int _pitch_init = 0;
         private int _volume_init = 0;
+        #endregion
 
+        #region CONSTRUCTOR
         public SettingViewModel(SettingService setting)
         {
             try
-            { 
+            {
+                _sqlite_service = App.DataService;
                 _setting = setting;
 
                 bool sqlite_database = _setting.SQLiteDatabase;
@@ -85,7 +92,9 @@ namespace LetterStomach.ViewModels
                 OnError?.Invoke(this, error_message);
             }
         }
+        #endregion
 
+        #region COMMAND
         private async Task OnBackCommand()
         {
             try
@@ -156,45 +165,44 @@ namespace LetterStomach.ViewModels
                 OnError?.Invoke(this, error_message);
             }
         }
+        #endregion
 
+        #region DATABASE
         public async Task UpdateSQLite(int select_table)
         {
             try 
             { 
-                SQLiteService sqlite_service = App.DataService;
                 if (select_table == 0)
                 {
-                    await sqlite_service.CreateAll();
-                    await sqlite_service.DeleteAll();
-                    await sqlite_service.InsertAdverb();
-                    await sqlite_service.InsertPronoun();
-                    await sqlite_service.InsertArticle();
-                    
-                    await sqlite_service.InsertNumeral();
-                    await sqlite_service.InsertPreposition();
-                    await sqlite_service.InsertNoun();
-                    await sqlite_service.InsertAdjective();
-                    await sqlite_service.InsertVerb();
-                    await sqlite_service.InsertSentence();
-                    await sqlite_service.InsertConjunction();
-                    await sqlite_service.InsertAuxiliary();
+                    await this._sqlite_service.CreateAll();
+                    await this._sqlite_service.DeleteAll();
+                    await this._sqlite_service.InsertAdverb();
+                    await this._sqlite_service.InsertPronoun();
+                    await this._sqlite_service.InsertArticle();
+                    await this._sqlite_service.InsertNumeral();
+                    await this._sqlite_service.InsertPreposition();
+                    await this._sqlite_service.InsertNoun();
+                    await this._sqlite_service.InsertAdjective();
+                    await this._sqlite_service.InsertVerb();
+                    await this._sqlite_service.InsertSentence();
+                    await this._sqlite_service.InsertConjunction();
+                    await this._sqlite_service.InsertAuxiliary();
                 } else
                 {
-                    await sqlite_service.Create(select_table);
-                    await sqlite_service.Delete(select_table);
+                    await this._sqlite_service.Create(select_table);
+                    await this._sqlite_service.Delete(select_table);
                 };
-                if (select_table == (int)Hunk.Adverb) await sqlite_service.InsertAdverb();
-                if (select_table == (int)Hunk.Pronoun) await sqlite_service.InsertPronoun();
-                if (select_table == (int)Hunk.Article) await sqlite_service.InsertArticle();
-
-                if (select_table == (int)Hunk.Numeral) await sqlite_service.InsertNumeral();
-                if (select_table == (int)Hunk.Preposition) await sqlite_service.InsertPreposition();
-                if (select_table == (int)Hunk.Noun) await sqlite_service.InsertNoun();
-                if (select_table == (int)Hunk.Adjective) await sqlite_service.InsertAdjective();
-                if (select_table == (int)Hunk.Verb) await sqlite_service.InsertVerb();
-                if (select_table == (int)Hunk.Sentence) await sqlite_service.InsertSentence();
-                if (select_table == (int)Hunk.Conjunction) await sqlite_service.InsertConjunction();
-                if (select_table == (int)Hunk.Auxiliary) await sqlite_service.InsertAuxiliary();
+                if (select_table == (int)Hunk.Adverb) await this._sqlite_service.InsertAdverb();
+                if (select_table == (int)Hunk.Pronoun) await this._sqlite_service.InsertPronoun();
+                if (select_table == (int)Hunk.Article) await this._sqlite_service.InsertArticle();
+                if (select_table == (int)Hunk.Numeral) await this._sqlite_service.InsertNumeral();
+                if (select_table == (int)Hunk.Preposition) await this._sqlite_service.InsertPreposition();
+                if (select_table == (int)Hunk.Noun) await this._sqlite_service.InsertNoun();
+                if (select_table == (int)Hunk.Adjective) await this._sqlite_service.InsertAdjective();
+                if (select_table == (int)Hunk.Verb) await this._sqlite_service.InsertVerb();
+                if (select_table == (int)Hunk.Sentence) await this._sqlite_service.InsertSentence();
+                if (select_table == (int)Hunk.Conjunction) await this._sqlite_service.InsertConjunction();
+                if (select_table == (int)Hunk.Auxiliary) await this._sqlite_service.InsertAuxiliary();
             }
             catch (Exception ex)
             {
@@ -207,19 +215,16 @@ namespace LetterStomach.ViewModels
         {
             try
             { 
-                SQLiteService sqlite_service = App.DataService;
-                await sqlite_service.LoadAdverb();
-                await sqlite_service.LoadPronoun();
-                await sqlite_service.LoadArticle();
-
-                await sqlite_service.LoadNumeral();
-                await sqlite_service.LoadPreposition();
-                await sqlite_service.LoadLetter();
-                await sqlite_service.LoadVerb();
-                await sqlite_service.LoadSentence();
-                await sqlite_service.LoadConjunction();
-                await sqlite_service.LoadAuxiliary();
-
+                await this._sqlite_service.LoadAdverb();
+                await this._sqlite_service.LoadPronoun();
+                await this._sqlite_service.LoadArticle();
+                await this._sqlite_service.LoadNumeral();
+                await this._sqlite_service.LoadPreposition();
+                await this._sqlite_service.LoadLetter();
+                await this._sqlite_service.LoadVerb();
+                await this._sqlite_service.LoadSentence();
+                await this._sqlite_service.LoadConjunction();
+                await this._sqlite_service.LoadAuxiliary();
                 _setting.SQLiteDatabase = true;
             }
             catch (Exception ex)
@@ -228,5 +233,6 @@ namespace LetterStomach.ViewModels
                 OnError?.Invoke(this, error_message);
             }
         }
+        #endregion
     }
 }

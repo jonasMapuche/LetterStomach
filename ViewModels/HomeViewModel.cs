@@ -217,11 +217,11 @@ namespace LetterStomach.ViewModels
             try
             {
                 this._grammarViewModel.SetGrammar();
-                this._lesson_english = this._grammarViewModel.GetLetter(ENGLISH.Name).Distinct().ToList();
-                this._lesson_deutsch = this._grammarViewModel.GetLetter(DEUTSCH.Name).Distinct().ToList();
-                this._lesson_italiano = this._grammarViewModel.GetLetter(ITALIANO.Name).Distinct().ToList();
-                this._lesson_francais = this._grammarViewModel.GetLetter(FRANCAIS.Name).Distinct().ToList();
-                this._lesson_espanol = this._grammarViewModel.GetLetter(ESPANOL.Name).Distinct().ToList();
+                this._lesson_english = this._grammarViewModel.GetLetter(ENGLISH.Lowercase).Distinct().ToList();
+                this._lesson_deutsch = this._grammarViewModel.GetLetter(DEUTSCH.Lowercase).Distinct().ToList();
+                this._lesson_italiano = this._grammarViewModel.GetLetter(ITALIANO.Lowercase).Distinct().ToList();
+                this._lesson_francais = this._grammarViewModel.GetLetter(FRANCAIS.Lowercase).Distinct().ToList();
+                this._lesson_espanol = this._grammarViewModel.GetLetter(ESPANOL.Lowercase).Distinct().ToList();
 
                 this._word_english = new List<Word>();
                 this._word_deutsch = new List<Word>();

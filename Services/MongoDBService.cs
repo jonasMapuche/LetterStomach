@@ -1,10 +1,12 @@
 ﻿using MongoDB.Driver;
 using LetterStomach.Models;
+using LetterStomach.Services.Interfaces;
 
 namespace LetterStomach.Services
 {
-    public class MongoDBService
+    public class MongoDBService : IMongoDBService
     {
+        #region ERROR
         private string _error_message;
 
         public string error_message
@@ -17,7 +19,9 @@ namespace LetterStomach.Services
         }
 
         public event EventHandler<string> OnError;
+        #endregion
 
+        #region VARIABLE
         public IMongoCollection<Circunstancia> Circunstancia { get; set; }
         public IMongoCollection<Estoutro> Estoutro { get; set; }
         public IMongoCollection<Preceito> Preceito { get; set; }
@@ -28,7 +32,9 @@ namespace LetterStomach.Services
         public IMongoCollection<Sentenca> Sentenca { get; set; }
         public IMongoCollection<Ligacao> Ligacao { get; set; }
         public IMongoCollection<Assistente> Assistente { get; set; }
+        #endregion
 
+        #region CONNECT
         public void Connect()
         {
             try 
@@ -50,7 +56,9 @@ namespace LetterStomach.Services
                 OnError?.Invoke(this, error_message);
             }
         }
+        #endregion
 
+        #region LOAD
         public void LoadCircustancia() 
         {
             try 
@@ -240,5 +248,6 @@ namespace LetterStomach.Services
                 OnError?.Invoke(this, error_message);
             }
         }
+        #endregion
     }
 }

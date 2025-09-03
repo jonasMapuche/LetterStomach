@@ -7,6 +7,7 @@ namespace LetterStomach.ViewModels
 {
     public class GrammarViewModel : IGrammarViewModel
     {
+        #region ERROR
         private string _error_message;
 
         public string error_message
@@ -19,7 +20,9 @@ namespace LetterStomach.ViewModels
         }
 
         public event EventHandler<string> OnError;
+        #endregion
 
+        #region VARIABLE
         private ILetterViewModel _lettersViewModel;
         private IAdverbViewModel _adverbsViewModel;
         private IArticleViewModel _articlesViewModel;
@@ -96,21 +99,22 @@ namespace LetterStomach.ViewModels
         private Language FRANCAIS = SettingService.Instance.Francais;
         private Language ESPANOL = SettingService.Instance.Espanol;
 
-        protected string VAR_SUBJECT = SettingService.Instance.Suject;
-        protected string VAR_PREDICATE = SettingService.Instance.Predicate;
-        protected string VAR_PRONOUN = SettingService.Instance.Pronoun;
-        protected string VAR_NOUN = SettingService.Instance.Noun;
-        protected string VAR_VERB = SettingService.Instance.Verb;
-        protected string VAR_PERSONAL = SettingService.Instance.Personal;
-        protected string VAR_ADJECTIVE = SettingService.Instance.Adjective;
-        protected string VAR_ARTICLE = SettingService.Instance.Article;
-        protected string VAR_NUMERAL = SettingService.Instance.Numeral;
-        protected string VAR_PREPOSITION = SettingService.Instance.Preposition;
-        protected string VAR_POSSESSIVE = SettingService.Instance.Possessive;
-        protected string VAR_DEMONSTRATIVE = SettingService.Instance.Demostrtive;
-        protected string VAR_ADVERB = SettingService.Instance.Adverb;
-        protected string VAR_ADVERB_ADVERB = SettingService.Instance.Adverb_Adverb;
-        protected string VAR_ADJECTIVE_NOUN = SettingService.Instance.Adjective_Noun;
+        private string VAR_SUBJECT = SettingService.Instance.Suject;
+        private string VAR_PREDICATE = SettingService.Instance.Predicate;
+        private string VAR_PRONOUN = SettingService.Instance.Pronoun;
+        private string VAR_NOUN = SettingService.Instance.Noun;
+        private string VAR_VERB = SettingService.Instance.Verb;
+        private string VAR_PERSONAL = SettingService.Instance.Personal;
+        private string VAR_ADJECTIVE = SettingService.Instance.Adjective;
+        private string VAR_ARTICLE = SettingService.Instance.Article;
+        private string VAR_NUMERAL = SettingService.Instance.Numeral;
+        private string VAR_PREPOSITION = SettingService.Instance.Preposition;
+        private string VAR_POSSESSIVE = SettingService.Instance.Possessive;
+        private string VAR_DEMONSTRATIVE = SettingService.Instance.Demostrtive;
+        private string VAR_ADVERB = SettingService.Instance.Adverb;
+        private string VAR_ADVERB_ADVERB = SettingService.Instance.Adverb_Adverb;
+        private string VAR_ADJECTIVE_NOUN = SettingService.Instance.Adjective_Noun;
+        #endregion
 
         #region INIT
         public void SetGrammar()

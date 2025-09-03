@@ -5,6 +5,7 @@ namespace LetterStomach.Views;
 
 public partial class SettingView : ContentPage
 {
+    #region ERROR
     private bool _error_test = false;
     private string _error_message;
 
@@ -26,7 +27,9 @@ public partial class SettingView : ContentPage
     {
         await DisplayAlert("Erro", error_message, "OK");
     }
+    #endregion
 
+    #region VARIABLE
     private bool _update_table = false;
     private bool _upgrade_table = false;
     private int _selected_table = -1;
@@ -35,7 +38,9 @@ public partial class SettingView : ContentPage
     private int _volume_init = 0;
     private int _pitch_skeak = 0;
     private int _volume_skeak = 0;
-        
+    #endregion
+
+    #region CONTRUCTOR
     public SettingView(SettingViewModel ViewModel)
     {
         try
@@ -55,7 +60,9 @@ public partial class SettingView : ContentPage
             OnError(this.error_message);
         }
     }
+    #endregion
 
+    #region BUTTON
     void OnSelectedIndexChanged(object sender, EventArgs e)
     {
         try
@@ -175,4 +182,5 @@ public partial class SettingView : ContentPage
             OnError(this.error_message);
         }
     }
+    #endregion
 }

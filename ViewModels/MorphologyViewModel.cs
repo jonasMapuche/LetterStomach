@@ -2,6 +2,7 @@
 using LetterStomach.Services;
 using LetterStomach.Services.Interfaces;
 using LetterStomach.ViewModels.Interfaces;
+using SQLite;
 
 namespace LetterStomach.ViewModels
 {
@@ -590,7 +591,7 @@ namespace LetterStomach.ViewModels
                     word.lecture.ForEach(item =>
                     {
                         if (item.kind == VAR_ADJECTIVE) first = item.term;
-                        if (item.kind != VAR_ADJECTIVE) last = item.term;
+                        if (item.kind == VAR_ADVERB) last = item.term;
                         words.Add(item);
                     });
                     bool similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, first, last);
@@ -880,6 +881,41 @@ namespace LetterStomach.ViewModels
             }
         }
 
+        private List<Lesson> MountNoun(List<string> nouns, List<Preceito> articles)
+        {
+            try
+            {
+                List<Lesson> lessons = new List<Lesson>();
+                HashSet<string> precepts = new HashSet<string>();
+                precepts = MountArticle(articles);
+                nouns.ForEach(substantive =>
+                {
+                    List<Word> words = new List<Word>();
+                    HashSet<string> word = new HashSet<string>(substantive.Split(' '));
+                    if (word.Count > 1)
+                    {
+                        if (Array.IndexOf(precepts.ToArray(), word.First()) != -1)
+                            words = Word(word.Last(), VAR_NOUN, null, null);
+                    }
+                    else words = Word(substantive, VAR_NOUN, null, null);
+                    if (words.Count > 0)
+                    {
+                        Lesson lesson = new Lesson();
+                        lesson.lecture = words;
+                        lessons.Add(lesson);
+                    }
+                });
+                return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return null;
+            }
+        }
+
+
         private List<Lesson> UnionNoun(List<Lesson> firsts, List<Lesson> seconds)
         {
             try
@@ -907,6 +943,7 @@ namespace LetterStomach.ViewModels
             }
         }
 
+        /*
         private List<Lesson> UnionNoun(List<string> firsts, List<Lesson> seconds)
         {
             try
@@ -933,6 +970,7 @@ namespace LetterStomach.ViewModels
                 return null;
             }
         }
+        */
 
         private List<Lesson> VerifyNoun(List<Lesson> matters, List<Sentenca> sentences)
         {
@@ -972,7 +1010,12 @@ namespace LetterStomach.ViewModels
                             similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, middle, last);
                     }
                     else
-                        similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, first, last);
+                    {
+                        if (first != string.Empty)
+                            similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, first, last);
+                        else
+                            similarity = true;
+                    }
                     if (similarity)
                     {
                         Lesson lesson = new Lesson();
@@ -998,14 +1041,12 @@ namespace LetterStomach.ViewModels
             {
                 List<Algarismo> words = new List<Algarismo>();
                 HashSet<string> vocabulary = this._wordEmbeddingService.Vocabulary(sentences);
-                string word = null;
+                string word = string.Empty;
                 numerals.ForEach(item =>
                 {
                     word = this._wordEmbeddingService.RemoveAccent(item. nome.ToLower());
                     if (Array.IndexOf(vocabulary.ToArray(), word) != -1)
-                    {
                         words.Add(item);
-                    }
                 });
                 return words;
             }
@@ -1025,7 +1066,7 @@ namespace LetterStomach.ViewModels
             {
                 List<Estoutro> words = new List<Estoutro>();
                 HashSet<string> vocabulary = this._wordEmbeddingService.Vocabulary(sentences);
-                string word = null;
+                string word = string.Empty;
                 pronouns.ForEach(item =>
                 {
                     word = this._wordEmbeddingService.RemoveAccent(item.nome.ToLower());
@@ -1143,43 +1184,6 @@ namespace LetterStomach.ViewModels
                 return null;
             }
         }
-
-        private List<Lesson> MountAdjectivePronoun(List<string> nouns, List<Estoutro> pronouns, List<Preceito> articles)
-        {
-            try
-            {
-                List<Lesson> lessons = new List<Lesson>();
-                HashSet<string> precepts = new HashSet<string>();
-                precepts = MountArticle(articles);
-                nouns.ForEach(substantive =>
-                {
-                    pronouns.ForEach(surrogate =>
-                    {
-                        List<Word> words = new List<Word>();
-                        HashSet<string> word = new HashSet<string>(substantive.Split(' '));
-                        if (word.Count > 1)
-                        {
-                            if (Array.IndexOf(precepts.ToArray(), word.First()) != -1)
-                                words = WordPronounNoun(word.Last(), surrogate.nome);
-                        }
-                        else words = WordPronounNoun(word.First(), surrogate.nome);
-                        if (words.Count > 0)
-                        {
-                            Lesson lesson = new Lesson();
-                            lesson.lecture = words;
-                            lessons.Add(lesson);
-                        }
-                    });
-                });
-                return lessons;
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
-                return null;
-            }
-        }
         #endregion
 
         #region PREPOSITION
@@ -1219,7 +1223,7 @@ namespace LetterStomach.ViewModels
                     {
                         string word = verbs[quantity].modelo.ToString().ToLower();
                         word = this._wordEmbeddingService.RemoveAccent(word);
-                        if (word.Contains(item))
+                        if (word == item)
                             words.Add(verbs[quantity]);
                     });
                 }
@@ -1256,7 +1260,7 @@ namespace LetterStomach.ViewModels
             }
         }
 
-        private List<Lesson> VerifyVerb(List<Lesson> verbs_adverbs, List<Sentenca> sentences)
+        private List<Lesson> VerifyVerbAdverb(List<Lesson> verbs_adverbs, List<Sentenca> sentences)
         {
             try
             {
@@ -1271,7 +1275,7 @@ namespace LetterStomach.ViewModels
                     item.lecture.ForEach(word =>
                     {
                         if (word.kind == VAR_VERB) first = word.term;
-                        if (word.kind != VAR_VERB) last = word.term;
+                        if (word.kind == VAR_ADVERB) last = word.term;
                         words.Add(word);
                     });
 
@@ -1414,13 +1418,14 @@ namespace LetterStomach.ViewModels
             {
                 List<string> filter_adjective = FilterList(adjectives, sentences);
                 List<Circunstancia> filter_adverb = FilterAdverb(adverbs, sentences);
-                List<Lesson> adjective_adverb = MountAdjectiveAdverb(filter_adjective, filter_adverb);
-                List<Lesson> adverb_adverb = MountAdverbAdverb(filter_adverb);
-                List<Lesson> verify_adjective_adverb = VerifyAdjective(adjective_adverb, sentences);
-                List<Lesson> verify_adverb_adverb = VerifyAdverb(adverb_adverb, sentences);
-                List<Lesson> adjective_adverb_adverb = MountAdjectiveAdverb(filter_adjective, verify_adverb_adverb);
+                List<Lesson> mount_adjective_adverb = MountAdjectiveAdverb(filter_adjective, filter_adverb);
+                List<Lesson> verify_adjective_adverb = VerifyAdjective(mount_adjective_adverb, sentences);
+                List<Lesson> mount_adverb_adverb = MountAdverbAdverb(filter_adverb);
+                List<Lesson> verify_adverb_adverb = VerifyAdverb(mount_adverb_adverb, sentences);
+                List<Lesson> mount_adjective_adverb_adverb = MountAdjectiveAdverb(filter_adjective, verify_adverb_adverb);
+                List<Lesson> verify_adjective_adverb_adverb = VerifyAdjective(mount_adjective_adverb, sentences);
                 List<Lesson> union_adjective_adverb = UnionAdjective(filter_adjective, verify_adjective_adverb);
-                List<Lesson> union_adjective_adverb_adverb = UnionAdjective(union_adjective_adverb, adjective_adverb_adverb);
+                List<Lesson> union_adjective_adverb_adverb = UnionAdjective(union_adjective_adverb, verify_adjective_adverb_adverb);
 
                 List<Lesson> lessons = new List<Lesson>();
                 union_adjective_adverb_adverb.ForEach(item =>
@@ -1448,8 +1453,14 @@ namespace LetterStomach.ViewModels
                 List<string> filter_adjective = FilterList(adjectives, sentences);
                 List<Preceito> filter_article = FilterArticle(articles, sentences);
                 List<Circunstancia> filter_adverb = FilterAdverb(adverbs, sentences);
-                List<Lesson> adjective_adverb = MountAdjectiveAdverb(filter_adjective, filter_adverb);
-                List<Lesson> adjective_noun = MountAdjectiveNoun(filter_noun, adjective_adverb, filter_article);
+
+                List<Lesson> mount_adjective_adverb = MountAdjectiveAdverb(filter_adjective, filter_adverb);
+                List<Lesson> verify_adjective_adverb = VerifyAdjective(mount_adjective_adverb, sentences);
+
+                List<Lesson> union_adjective_adverb = UnionAdjective(filter_adjective, verify_adjective_adverb);
+                List<Lesson> adjective_noun = MountAdjectiveNoun(filter_noun, union_adjective_adverb, filter_article);
+
+
 
                 List<Lesson> lessons = new List<Lesson>();
                 adjective_noun.ForEach(item =>
@@ -1501,26 +1512,29 @@ namespace LetterStomach.ViewModels
                 List<string> filter_noun = FilterList(nouns, sentences);
                 List<Preceito> filter_article = FilterArticle(articles, sentences);
                 List<Algarismo> filter_digit = FilterDigit(numerals, sentences);
+
                 List<string> type_adjective = new List<string>();
-                List<string> type_demostrative = new List<string>();
                 type_adjective.Add(VAR_ADJECTIVE);
-                List<Estoutro> list_pronoun_adjective = MountPronoun(type_adjective, pronouns);
+                List<string> type_demostrative = new List<string>();
                 type_demostrative.Add(VAR_DEMONSTRATIVE);
+                List<Estoutro> list_pronoun_adjective = MountPronoun(type_adjective, pronouns);
                 List<Estoutro> list_pronoun_demostrative = MountPronoun(type_demostrative, pronouns);
                 List<Estoutro> filter_pronoun_adjective = FilterPronoun(list_pronoun_adjective, sentences);
                 List<Estoutro> filter_pronoun_demostrative = FilterPronoun(list_pronoun_demostrative, sentences);
+
+                List<Lesson> mount_noun = MountNoun(filter_noun, filter_article);
                 List<Lesson> noun_possessive = MountNounPronoun(filter_noun, filter_pronoun_adjective, filter_article);
-                List<Lesson> noun_demostrative = MountAdjectivePronoun(filter_noun, filter_pronoun_demostrative, filter_article);
+                List<Lesson> noun_demostrative = MountNounPronoun(filter_noun, filter_pronoun_demostrative, filter_article);
                 List<Lesson> noun_numeral = MountNounNumeral(filter_noun, filter_digit, filter_article);
                 List<Lesson> noun_article = MountNounArticle(filter_noun, filter_article);
-                List<Lesson> union_substantive_one = UnionNoun(noun_article, noun_possessive);
+                List<Lesson> union_substantive = UnionNoun(mount_noun, noun_article);
+                List<Lesson> union_substantive_one = UnionNoun(union_substantive, noun_possessive);
                 List<Lesson> union_substantive_two = UnionNoun(union_substantive_one, noun_numeral);
                 List<Lesson> union_substantive_three = UnionNoun(union_substantive_two, noun_demostrative);
                 List<Lesson> verify_noun = VerifyNoun(union_substantive_three, sentences);
-                List<Lesson> union_noun = UnionNoun(filter_noun, verify_noun);
 
                 List<Lesson> lessons = new List<Lesson>();
-                union_noun.ForEach(item =>
+                verify_noun.ForEach(item =>
                 {
                     Lesson lesson = new Lesson();
                     lesson.team = VAR_NOUN;
@@ -1650,13 +1664,14 @@ namespace LetterStomach.ViewModels
                 List<Elocucao> list_verb_model = MountVerb(models, verbs);
                 List<Elocucao> filter_verb = FilterVerb(list_verb_model, sentences);
                 List<Circunstancia> filter_adverb = FilterAdverb(adverbs, sentences);
-                List<Lesson> verb_adverb = MountVerbAdverb(filter_verb, filter_adverb);
-                List<Lesson> adverb_adverb = MountAdverbAdverb(filter_adverb);
-                List<Lesson> verify_verb_adverb = VerifyVerb(verb_adverb, sentences);
-                List<Lesson> verify_adverb_adverb = VerifyAdverb(adverb_adverb, sentences);
-                List<Lesson> verb_adverb_adverb = MountVerbAdverb(filter_verb, verify_adverb_adverb);
+                List<Lesson> mount_verb_adverb = MountVerbAdverb(filter_verb, filter_adverb);
+                List<Lesson> verify_verb_adverb = VerifyVerbAdverb(mount_verb_adverb, sentences);
+                List<Lesson> mount_adverb_adverb = MountAdverbAdverb(filter_adverb);
+                List<Lesson> verify_adverb_adverb = VerifyAdverb(mount_adverb_adverb, sentences);
+                List<Lesson> mount_verb_adverb_adverb = MountVerbAdverb(filter_verb, verify_adverb_adverb);
+                List<Lesson> verify_verb_adverb_adverb = VerifyVerbAdverb(mount_verb_adverb_adverb, sentences);
                 List<Lesson> union_verb_adverb = UnionVerb(filter_verb, verify_verb_adverb);
-                List<Lesson> union_verb_adverb_adverb = UnionVerb(union_verb_adverb, verb_adverb_adverb);
+                List<Lesson> union_verb_adverb_adverb = UnionVerb(union_verb_adverb, verify_verb_adverb_adverb);
 
                 List<Lesson> lessons = new List<Lesson>();
                 union_verb_adverb_adverb.ForEach(item =>

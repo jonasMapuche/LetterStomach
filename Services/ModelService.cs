@@ -1,9 +1,11 @@
 ﻿using LetterStomach.Models;
+using LetterStomach.Services.Interfaces;
 
 namespace LetterStomach.Services
 {
-    public class ModelService
+    public class ModelService : IModelService
     {
+        #region ERROR
         private string _error_message;
 
         public string error_message
@@ -16,7 +18,9 @@ namespace LetterStomach.Services
         }
 
         public event EventHandler<string> OnError;
+        #endregion
 
+        #region INSERT
         private Circunstancia InsertCircunstancia(string language, string name, List<string> types)
         {
             try
@@ -35,56 +39,6 @@ namespace LetterStomach.Services
             }
         }
 
-        public async Task<List<Circunstancia>> LoadAdverb(List<Adverbios> adverb)
-        {
-            try
-            {
-                List<Adverbios> adverbs = new List<Adverbios>();
-                adverbs = adverb.OrderBy(index => index.language).ThenBy(index => index.name).ThenBy(index => index.type).ToList();
-                string before_name = "";
-                string before_language = "";
-                string name = "";
-                string language = "";
-                string type = "";
-                List<string> types = new List<string>();
-                Circunstancia circunstancia = new Circunstancia();
-                List<Circunstancia> circunstancias = new List<Circunstancia>();
-                foreach (Adverbios item in adverbs)
-                {
-                    language = item.language;
-                    name = item.name;
-                    type = item.type;
-                    if (before_language == "")
-                    {
-                        before_language = language;
-                        before_name = name;
-                        types = new List<string>();
-                        types.Add(type);
-                        continue;
-                    }
-                    if ((language != before_language) || ((name != before_name) && (language == before_language)))
-                    {
-                        circunstancia = new Circunstancia();
-                        circunstancia = InsertCircunstancia(before_language, before_name, types);
-                        circunstancias.Add(circunstancia);
-                        types = new List<string>();
-                    }
-                    before_language = language;
-                    before_name = name;
-                    if ((!types.Contains(type)) || (types.Count == 0)) types.Add(type);
-                }
-                circunstancia = new Circunstancia();
-                circunstancia = InsertCircunstancia(before_language, before_name, types);
-                circunstancias.Add(circunstancia);
-                return circunstancias;
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
-                return null;
-            }
-        }
 
         private Preceito InsertPreceito(string language, string name, List<string> types, List<string> numbers, List<string> genders)
         {
@@ -97,71 +51,6 @@ namespace LetterStomach.Services
                 preceito.numero = numbers;
                 preceito.genero = genders;
                 return preceito;
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
-                return null;
-            }
-        }
-
-        public async Task<List<Preceito>> LoadArticle(List<Artigos> article)
-        {
-            try
-            {
-                List<Artigos> articles = new List<Artigos>();
-                articles = article.OrderBy(index => index.language).ThenBy(index => index.name).ThenBy(index => index.type).ThenBy(index => index.number).ThenBy(index => index.gender).ToList();
-                string before_name = "";
-                string before_language = "";
-                string name = "";
-                string language = "";
-                string type = "";
-                string number = "";
-                string gender = "";
-                List<string> types = new List<string>();
-                List<string> numbers = new List<string>();
-                List<string> genders = new List<string>();
-                Preceito preceito = new Preceito();
-                List<Preceito> preceitos = new List<Preceito>();
-                foreach (Artigos item in articles)
-                {
-                    language = item.language;
-                    name = item.name;
-                    type = item.type;
-                    number = item.number;
-                    gender = item.gender;
-                    if (before_language == "")
-                    {
-                        before_language = language;
-                        before_name = name;
-                        types = new List<string>();
-                        types.Add(type);
-                        numbers = new List<string>();
-                        numbers.Add(number);
-                        genders = new List<string>();
-                        genders.Add(gender);
-                        continue;
-                    }
-                    if ((language != before_language) || ((name != before_name) && (language == before_language)))
-                    {
-                        preceito = new Preceito();
-                        preceito = InsertPreceito(before_language, before_name, types, numbers, genders);
-                        preceitos.Add(preceito);
-                        types = new List<string>();
-                        numbers = new List<string>();
-                        genders = new List<string>();
-                    }
-                    before_language = language;
-                    before_name = name;
-                    if ((!types.Contains(type)) || (types.Count == 0)) types.Add(type);
-                    if ((!numbers.Contains(number)) || (numbers.Count == 0)) numbers.Add(number);
-                    if (!(genders.Contains(gender)) || (genders.Count == 0)) genders.Add(gender);
-                }
-                preceito = new Preceito();
-                preceito = InsertPreceito(before_language, before_name, types, numbers, genders);
-                preceitos.Add(preceito);
-                return preceitos;
             }
             catch (Exception ex)
             {
@@ -209,135 +98,6 @@ namespace LetterStomach.Services
             }
         }
 
-        public async Task<List<Estoutro>> LoadPronoun(List<Pronomes> pronoun)
-        {
-            try
-            {
-                List<Pronomes> pronouns = new List<Pronomes>();
-                pronouns = pronoun.OrderBy(index => index.language).ThenBy(index => index.name).ThenBy(index => index.type).ThenBy(index => index.person).ThenBy(index => index.number).ThenBy(index => index.gender).ThenBy(index => index.context).ToList();
-                string before_name = "";
-                string before_language = "";
-                string name = "";
-                string language = "";
-                string type = "";
-                int person = 0;
-                string number = "";
-                string gender = "";
-                string context = "";
-                List<string> types = new List<string>();
-                List<int> persons = new List<int>();
-                List<string> numbers = new List<string>();
-                List<string> genders = new List<string>();
-                List<string> contexts = new List<string>();
-                Estoutro estoutro = new Estoutro();
-                Contento contento = new Contento();
-                List<Contento> contentos = new List<Contento>();
-                List<Estoutro> estoutros = new List<Estoutro>();
-                foreach (Pronomes item in pronouns)
-                {
-                    language = item.language;
-                    name = item.name;
-                    type = item.type;
-                    person = item.person;
-                    number = item.number;
-                    gender = item.gender;
-                    context = item.context;
-                    if ((before_language == ""))
-                    {
-                        before_language = language;
-                        before_name = name;
-                        types = new List<string>();
-                        types.Add(type);
-                        persons = new List<int>();
-                        persons.Add(person);
-                        numbers = new List<string>();
-                        numbers.Add(number);
-                        genders = new List<string>();
-                        genders.Add(gender);
-                        contexts = new List<string>();
-                        contexts.Add(context);
-                        continue;
-                    }
-                    if ((language != before_language) || ((name != before_name) && (language == before_language))
-                        || ((!types.Contains(type)) && (name == before_name) && (language == before_language)))
-                    {
-                        contento = new Contento();
-                        contento = InsertContento(persons, numbers, genders, contexts);
-                        contentos.Add(contento);
-                        estoutro = new Estoutro();
-                        estoutro = InsertEstoutro(before_language, before_name, types, contentos);
-                        estoutros.Add(estoutro);
-                        types = new List<string>();
-                        persons = new List<int>();
-                        numbers = new List<string>();
-                        genders = new List<string>();
-                        contexts = new List<string>();
-                        contentos = new List<Contento>();
-                    }
-                    if ((!persons.Contains(person)) && (persons.Count > 0))
-                    {
-                        contento = new Contento();
-                        contento = InsertContento(persons, numbers, genders, contexts);
-                        contentos.Add(contento);
-                        persons = new List<int>();
-                        numbers = new List<string>();
-                        genders = new List<string>();
-                        contexts = new List<string>();
-                    }
-                    else if ((!numbers.Contains(number)) && (numbers.Count > 0))
-                    {
-                        contento = new Contento();
-                        contento = InsertContento(persons, numbers, genders, contexts);
-                        contentos.Add(contento);
-                        persons = new List<int>();
-                        numbers = new List<string>();
-                        genders = new List<string>();
-                        contexts = new List<string>();
-                    }
-                    else if ((!genders.Contains(gender)) && (genders.Count > 0))
-                    {
-                        contento = new Contento();
-                        contento = InsertContento(persons, numbers, genders, contexts);
-                        contentos.Add(contento);
-                        persons = new List<int>();
-                        numbers = new List<string>();
-                        genders = new List<string>();
-                        contexts = new List<string>();
-                    }
-                    else if ((!contexts.Contains(context)) && (contexts.Count > 0))
-                    {
-                        contento = new Contento();
-                        contento = InsertContento(persons, numbers, genders, contexts);
-                        contentos.Add(contento);
-                        persons = new List<int>();
-                        numbers = new List<string>();
-                        genders = new List<string>();
-                        contexts = new List<string>();
-                    }
-                    before_language = language;
-                    before_name = name;
-                    if ((!types.Contains(type)) || (types.Count == 0)) types.Add(type);
-                    if ((!persons.Contains(person)) || (persons.Count == 0)) persons.Add(person);
-                    if ((!numbers.Contains(number)) || (numbers.Count == 0)) numbers.Add(number);
-                    if ((!genders.Contains(gender)) || (genders.Count == 0)) genders.Add(gender);
-                    if ((!contexts.Contains(context)) || (contexts.Count == 0)) contexts.Add(context);
-                }
-                contento = new Contento();
-                contento = InsertContento(persons, numbers, genders, contexts);
-                contentos.Add(contento);
-                estoutro = new Estoutro();
-                estoutro = InsertEstoutro(before_language, before_name, types, contentos);
-                estoutros.Add(estoutro);
-                return estoutros;
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
-                return null;
-            }
-        }
-
         private Algarismo InsertAlgarismo(string language, string name, int inital, List<string> types)
         {
             try
@@ -357,62 +117,6 @@ namespace LetterStomach.Services
             }
         }
 
-        public async Task<List<Algarismo>> LoadNumeral(List<Numerais> numeral)
-        {
-            try
-            {
-                List<Numerais> numerais = new List<Numerais>();
-                numerais = numeral.OrderBy(index => index.language).ThenBy(index => index.name).ThenBy(index => index.initial).ThenBy(index => index.type).ToList();
-                string before_name = "";
-                string before_language = "";
-                int before_initial = 0;
-                string name = "";
-                string language = "";
-                int initial = 0;
-                string type = "";
-                List<string> types = new List<string>();
-                Algarismo algarismo = new Algarismo();
-                List<Algarismo> algarismos = new List<Algarismo>();
-                foreach (Numerais item in numerais)
-                {
-                    language = item.language;
-                    name = item.name;
-                    initial = item.initial;
-                    type = item.type;
-                    if (before_language == "")
-                    {
-                        before_language = language;
-                        before_name = name;
-                        before_initial = initial;
-                        types = new List<string>();
-                        types.Add(type);
-                        continue;
-                    }
-                    if ((language != before_language) || ((name != before_name) && (language == before_language)))
-                    {
-                        algarismo = new Algarismo();
-                        algarismo = InsertAlgarismo(before_language, before_name, before_initial, types);
-                        algarismos.Add(algarismo);
-                        types = new List<string>();
-                    }
-                    before_language = language;
-                    before_name = name;
-                    before_initial = initial;
-                    if ((!types.Contains(type)) || (types.Count == 0)) types.Add(type);
-                }
-                algarismo = new Algarismo();
-                algarismo = InsertAlgarismo(before_language, before_name, before_initial, types);
-                algarismos.Add(algarismo);
-                return algarismos;
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
-                return null;
-            }
-        }
-
         private Juncao InsertJuncao(string language, string name, List<string> types)
         {
             try
@@ -422,57 +126,6 @@ namespace LetterStomach.Services
                 juncao.linguagem = language;
                 juncao.tipo = types;
                 return juncao;
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
-                return null;
-            }
-        }
-
-        public async Task<List<Juncao>> LoadPreposition(List<Preposicoes> preposition)
-        {
-            try
-            {
-                List<Preposicoes> prepositions = new List<Preposicoes>();
-                prepositions = preposition.OrderBy(index => index.language).ThenBy(index => index.name).ThenBy(index => index.type).ToList();
-                string before_language = "";
-                string before_name = "";
-                string name = "";
-                string language = "";
-                string type = "";
-                List<string> types = new List<string>();
-                Juncao juncao = new Juncao();
-                List<Juncao> juncoes = new List<Juncao>();
-                foreach (Preposicoes item in prepositions)
-                {
-                    language = item.language;
-                    name = item.name;
-                    type = item.type;
-                    if ((before_language == ""))
-                    {
-                        before_language = language;
-                        before_name = name;
-                        types = new List<string>();
-                        types.Add(type);
-                        continue;
-                    }
-                    if ((language != before_language) || ((name != before_name) && (language == before_language)))
-                    {
-                        juncao = new Juncao();
-                        juncao = InsertJuncao(before_language, before_name, types);
-                        juncoes.Add(juncao);
-                        types = new List<string>();
-                    }
-                    before_language = language;
-                    before_name = name;
-                    if ((!types.Contains(type)) || (types.Count == 0)) types.Add(type);
-                }
-                juncao = new Juncao();
-                juncao = InsertJuncao(before_language, before_name, types);
-                juncoes.Add(juncao);
-                return juncoes;
             }
             catch (Exception ex)
             {
@@ -535,6 +188,118 @@ namespace LetterStomach.Services
             }
         }
 
+        private Sentenca InsertSentenca(string language, string impulse, List<string> rest)
+        {
+            try
+            {
+                Sentenca sentenca = new Sentenca();
+                sentenca.linguagem = language;
+                sentenca.impulso = impulse;
+                sentenca.repouso = rest;
+                return sentenca;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return null;
+            }
+        }
+
+        private Ligacao InsertLigacao(string language, string name, List<string> type)
+        {
+            try
+            {
+                Ligacao ligacao = new Ligacao();
+                ligacao.linguagem = language;
+                ligacao.nome = name;
+                ligacao.tipo = type;
+                return ligacao;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return null;
+            }
+        }
+
+        private Teor InsertTeor(List<string> mode, List<string> pronoun)
+        {
+            try
+            {
+                Teor teor = new Teor();
+                teor.modo = mode;
+                teor.pronome = pronoun;
+                return teor;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return null;
+            }
+        }
+
+        private Elocucao InsertElocucao(string language, string name, string model, List<Teor> teors)
+        {
+            try
+            {
+                Elocucao elocucao = new Elocucao();
+                elocucao.nome = name;
+                elocucao.linguagem = language;
+                elocucao.modelo = model;
+                elocucao.teor = teors;
+                return elocucao;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return null;
+            }
+        }
+
+
+        private Tematica InsertTematica(List<string> mode, List<string> prefix, List<string> preverb, List<string> premode)
+        {
+            try
+            {
+                Tematica tematica = new Tematica();
+                tematica.modo = mode;
+                tematica.prefixo = prefix;
+                tematica.preverbo = preverb;
+                tematica.premodo = premode;
+                return tematica;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return null;
+            }
+        }
+
+        private Assistente InsertAssistente(string language, string name, List<Tematica> tematicas)
+        {
+            try
+            {
+                Assistente assistente = new Assistente();
+                assistente.nome = name;
+                assistente.linguagem = language;
+                assistente.tematica = tematicas;
+                return assistente;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return null;
+            }
+        }
+        #endregion
+
+        #region MOUNT
         private async Task<List<Materia>> MountNoun(List<Substantivo> noun, List<Materia> matter)
         {
             try
@@ -704,15 +469,51 @@ namespace LetterStomach.Services
                 return null;
             }
         }
+        #endregion
 
-        public async Task<List<Materia>> LoadMateria(List<Substantivo> noun, List<Adjetivo> adjective)
+        #region LOAD
+        public async Task<List<Circunstancia>> LoadAdverb(List<Adverbios> adverb)
         {
             try
             {
-                List<Materia> materias = new List<Materia>();
-                materias = await MountAdjective(adjective, materias);
-                materias = await MountNoun(noun, materias);
-                return materias;
+                List<Adverbios> adverbs = new List<Adverbios>();
+                adverbs = adverb.OrderBy(index => index.language).ThenBy(index => index.name).ThenBy(index => index.type).ToList();
+                string before_name = "";
+                string before_language = "";
+                string name = "";
+                string language = "";
+                string type = "";
+                List<string> types = new List<string>();
+                Circunstancia circunstancia = new Circunstancia();
+                List<Circunstancia> circunstancias = new List<Circunstancia>();
+                foreach (Adverbios item in adverbs)
+                {
+                    language = item.language;
+                    name = item.name;
+                    type = item.type;
+                    if (before_language == "")
+                    {
+                        before_language = language;
+                        before_name = name;
+                        types = new List<string>();
+                        types.Add(type);
+                        continue;
+                    }
+                    if ((language != before_language) || ((name != before_name) && (language == before_language)))
+                    {
+                        circunstancia = new Circunstancia();
+                        circunstancia = InsertCircunstancia(before_language, before_name, types);
+                        circunstancias.Add(circunstancia);
+                        types = new List<string>();
+                    }
+                    before_language = language;
+                    before_name = name;
+                    if ((!types.Contains(type)) || (types.Count == 0)) types.Add(type);
+                }
+                circunstancia = new Circunstancia();
+                circunstancia = InsertCircunstancia(before_language, before_name, types);
+                circunstancias.Add(circunstancia);
+                return circunstancias;
             }
             catch (Exception ex)
             {
@@ -722,15 +523,315 @@ namespace LetterStomach.Services
             }
         }
 
-        private Sentenca InsertSentenca(string language, string impulse, List<string> rest)
+        public async Task<List<Preceito>> LoadArticle(List<Artigos> article)
         {
             try
             {
-                Sentenca sentenca = new Sentenca();
-                sentenca.linguagem = language;
-                sentenca.impulso = impulse;
-                sentenca.repouso = rest;
-                return sentenca;
+                List<Artigos> articles = new List<Artigos>();
+                articles = article.OrderBy(index => index.language).ThenBy(index => index.name).ThenBy(index => index.type).ThenBy(index => index.number).ThenBy(index => index.gender).ToList();
+                string before_name = "";
+                string before_language = "";
+                string name = "";
+                string language = "";
+                string type = "";
+                string number = "";
+                string gender = "";
+                List<string> types = new List<string>();
+                List<string> numbers = new List<string>();
+                List<string> genders = new List<string>();
+                Preceito preceito = new Preceito();
+                List<Preceito> preceitos = new List<Preceito>();
+                foreach (Artigos item in articles)
+                {
+                    language = item.language;
+                    name = item.name;
+                    type = item.type;
+                    number = item.number;
+                    gender = item.gender;
+                    if (before_language == "")
+                    {
+                        before_language = language;
+                        before_name = name;
+                        types = new List<string>();
+                        types.Add(type);
+                        numbers = new List<string>();
+                        numbers.Add(number);
+                        genders = new List<string>();
+                        genders.Add(gender);
+                        continue;
+                    }
+                    if ((language != before_language) || ((name != before_name) && (language == before_language)))
+                    {
+                        preceito = new Preceito();
+                        preceito = InsertPreceito(before_language, before_name, types, numbers, genders);
+                        preceitos.Add(preceito);
+                        types = new List<string>();
+                        numbers = new List<string>();
+                        genders = new List<string>();
+                    }
+                    before_language = language;
+                    before_name = name;
+                    if ((!types.Contains(type)) || (types.Count == 0)) types.Add(type);
+                    if ((!numbers.Contains(number)) || (numbers.Count == 0)) numbers.Add(number);
+                    if (!(genders.Contains(gender)) || (genders.Count == 0)) genders.Add(gender);
+                }
+                preceito = new Preceito();
+                preceito = InsertPreceito(before_language, before_name, types, numbers, genders);
+                preceitos.Add(preceito);
+                return preceitos;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return null;
+            }
+        }
+
+        public async Task<List<Estoutro>> LoadPronoun(List<Pronomes> pronoun)
+        {
+            try
+            {
+                List<Pronomes> pronouns = new List<Pronomes>();
+                pronouns = pronoun.OrderBy(index => index.language).ThenBy(index => index.name).ThenBy(index => index.type).ThenBy(index => index.person).ThenBy(index => index.number).ThenBy(index => index.gender).ThenBy(index => index.context).ToList();
+                string before_name = "";
+                string before_language = "";
+                string name = "";
+                string language = "";
+                string type = "";
+                int person = 0;
+                string number = "";
+                string gender = "";
+                string context = "";
+                List<string> types = new List<string>();
+                List<int> persons = new List<int>();
+                List<string> numbers = new List<string>();
+                List<string> genders = new List<string>();
+                List<string> contexts = new List<string>();
+                Estoutro estoutro = new Estoutro();
+                Contento contento = new Contento();
+                List<Contento> contentos = new List<Contento>();
+                List<Estoutro> estoutros = new List<Estoutro>();
+                foreach (Pronomes item in pronouns)
+                {
+                    language = item.language;
+                    name = item.name;
+                    type = item.type;
+                    person = item.person;
+                    number = item.number;
+                    gender = item.gender;
+                    context = item.context;
+                    if ((before_language == ""))
+                    {
+                        before_language = language;
+                        before_name = name;
+                        types = new List<string>();
+                        types.Add(type);
+                        persons = new List<int>();
+                        persons.Add(person);
+                        numbers = new List<string>();
+                        numbers.Add(number);
+                        genders = new List<string>();
+                        genders.Add(gender);
+                        contexts = new List<string>();
+                        contexts.Add(context);
+                        continue;
+                    }
+                    if ((language != before_language) || ((name != before_name) && (language == before_language))
+                        || ((!types.Contains(type)) && (name == before_name) && (language == before_language)))
+                    {
+                        contento = new Contento();
+                        contento = InsertContento(persons, numbers, genders, contexts);
+                        contentos.Add(contento);
+                        estoutro = new Estoutro();
+                        estoutro = InsertEstoutro(before_language, before_name, types, contentos);
+                        estoutros.Add(estoutro);
+                        types = new List<string>();
+                        persons = new List<int>();
+                        numbers = new List<string>();
+                        genders = new List<string>();
+                        contexts = new List<string>();
+                        contentos = new List<Contento>();
+                    }
+                    if ((!persons.Contains(person)) && (persons.Count > 0))
+                    {
+                        contento = new Contento();
+                        contento = InsertContento(persons, numbers, genders, contexts);
+                        contentos.Add(contento);
+                        persons = new List<int>();
+                        numbers = new List<string>();
+                        genders = new List<string>();
+                        contexts = new List<string>();
+                    }
+                    else if ((!numbers.Contains(number)) && (numbers.Count > 0))
+                    {
+                        contento = new Contento();
+                        contento = InsertContento(persons, numbers, genders, contexts);
+                        contentos.Add(contento);
+                        persons = new List<int>();
+                        numbers = new List<string>();
+                        genders = new List<string>();
+                        contexts = new List<string>();
+                    }
+                    else if ((!genders.Contains(gender)) && (genders.Count > 0))
+                    {
+                        contento = new Contento();
+                        contento = InsertContento(persons, numbers, genders, contexts);
+                        contentos.Add(contento);
+                        persons = new List<int>();
+                        numbers = new List<string>();
+                        genders = new List<string>();
+                        contexts = new List<string>();
+                    }
+                    else if ((!contexts.Contains(context)) && (contexts.Count > 0))
+                    {
+                        contento = new Contento();
+                        contento = InsertContento(persons, numbers, genders, contexts);
+                        contentos.Add(contento);
+                        persons = new List<int>();
+                        numbers = new List<string>();
+                        genders = new List<string>();
+                        contexts = new List<string>();
+                    }
+                    before_language = language;
+                    before_name = name;
+                    if ((!types.Contains(type)) || (types.Count == 0)) types.Add(type);
+                    if ((!persons.Contains(person)) || (persons.Count == 0)) persons.Add(person);
+                    if ((!numbers.Contains(number)) || (numbers.Count == 0)) numbers.Add(number);
+                    if ((!genders.Contains(gender)) || (genders.Count == 0)) genders.Add(gender);
+                    if ((!contexts.Contains(context)) || (contexts.Count == 0)) contexts.Add(context);
+                }
+                contento = new Contento();
+                contento = InsertContento(persons, numbers, genders, contexts);
+                contentos.Add(contento);
+                estoutro = new Estoutro();
+                estoutro = InsertEstoutro(before_language, before_name, types, contentos);
+                estoutros.Add(estoutro);
+                return estoutros;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return null;
+            }
+        }
+
+        public async Task<List<Algarismo>> LoadNumeral(List<Numerais> numeral)
+        {
+            try
+            {
+                List<Numerais> numerais = new List<Numerais>();
+                numerais = numeral.OrderBy(index => index.language).ThenBy(index => index.name).ThenBy(index => index.initial).ThenBy(index => index.type).ToList();
+                string before_name = "";
+                string before_language = "";
+                int before_initial = 0;
+                string name = "";
+                string language = "";
+                int initial = 0;
+                string type = "";
+                List<string> types = new List<string>();
+                Algarismo algarismo = new Algarismo();
+                List<Algarismo> algarismos = new List<Algarismo>();
+                foreach (Numerais item in numerais)
+                {
+                    language = item.language;
+                    name = item.name;
+                    initial = item.initial;
+                    type = item.type;
+                    if (before_language == "")
+                    {
+                        before_language = language;
+                        before_name = name;
+                        before_initial = initial;
+                        types = new List<string>();
+                        types.Add(type);
+                        continue;
+                    }
+                    if ((language != before_language) || ((name != before_name) && (language == before_language)))
+                    {
+                        algarismo = new Algarismo();
+                        algarismo = InsertAlgarismo(before_language, before_name, before_initial, types);
+                        algarismos.Add(algarismo);
+                        types = new List<string>();
+                    }
+                    before_language = language;
+                    before_name = name;
+                    before_initial = initial;
+                    if ((!types.Contains(type)) || (types.Count == 0)) types.Add(type);
+                }
+                algarismo = new Algarismo();
+                algarismo = InsertAlgarismo(before_language, before_name, before_initial, types);
+                algarismos.Add(algarismo);
+                return algarismos;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return null;
+            }
+        }
+
+        public async Task<List<Juncao>> LoadPreposition(List<Preposicoes> preposition)
+        {
+            try
+            {
+                List<Preposicoes> prepositions = new List<Preposicoes>();
+                prepositions = preposition.OrderBy(index => index.language).ThenBy(index => index.name).ThenBy(index => index.type).ToList();
+                string before_language = "";
+                string before_name = "";
+                string name = "";
+                string language = "";
+                string type = "";
+                List<string> types = new List<string>();
+                Juncao juncao = new Juncao();
+                List<Juncao> juncoes = new List<Juncao>();
+                foreach (Preposicoes item in prepositions)
+                {
+                    language = item.language;
+                    name = item.name;
+                    type = item.type;
+                    if ((before_language == ""))
+                    {
+                        before_language = language;
+                        before_name = name;
+                        types = new List<string>();
+                        types.Add(type);
+                        continue;
+                    }
+                    if ((language != before_language) || ((name != before_name) && (language == before_language)))
+                    {
+                        juncao = new Juncao();
+                        juncao = InsertJuncao(before_language, before_name, types);
+                        juncoes.Add(juncao);
+                        types = new List<string>();
+                    }
+                    before_language = language;
+                    before_name = name;
+                    if ((!types.Contains(type)) || (types.Count == 0)) types.Add(type);
+                }
+                juncao = new Juncao();
+                juncao = InsertJuncao(before_language, before_name, types);
+                juncoes.Add(juncao);
+                return juncoes;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return null;
+            }
+        }
+
+        public async Task<List<Materia>> LoadMateria(List<Substantivo> noun, List<Adjetivo> adjective)
+        {
+            try
+            {
+                List<Materia> materias = new List<Materia>();
+                materias = await MountAdjective(adjective, materias);
+                materias = await MountNoun(noun, materias);
+                return materias;
             }
             catch (Exception ex)
             {
@@ -791,24 +892,6 @@ namespace LetterStomach.Services
             }
         }
 
-        private Ligacao InsertLigacao(string language, string name, List<string> type)
-        {
-            try
-            {
-                Ligacao ligacao = new Ligacao();
-                ligacao.linguagem = language;
-                ligacao.nome = name;
-                ligacao.tipo = type;
-                return ligacao;
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
-                return null;
-            }
-        }
-
         public async Task<List<Ligacao>> LoadLigacao(List<Conjuncoes> conjunction)
         {
             try
@@ -851,42 +934,6 @@ namespace LetterStomach.Services
                 ligacao = InsertLigacao(before_language, before_name, types);
                 ligacoes.Add(ligacao);
                 return ligacoes;
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
-                return null;
-            }
-        }
-
-        private Teor InsertTeor(List<string> mode, List<string> pronoun)
-        {
-            try
-            {
-                Teor teor = new Teor();
-                teor.modo = mode;
-                teor.pronome = pronoun;
-                return teor;
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
-                return null;
-            }
-        }
-
-        private Elocucao InsertElocucao(string language, string name, string model, List<Teor> teors)
-        {
-            try
-            {
-                Elocucao elocucao = new Elocucao();
-                elocucao.nome = name;
-                elocucao.linguagem = language;
-                elocucao.modelo = model;
-                elocucao.teor = teors;
-                return elocucao;
             }
             catch (Exception ex)
             {
@@ -983,44 +1030,6 @@ namespace LetterStomach.Services
                 return null;
             }
         }
-
-        private Tematica InsertTematica(List<string> mode, List<string> prefix, List<string> preverb, List<string> premode)
-        {
-            try
-            {
-                Tematica tematica = new Tematica();
-                tematica.modo = mode;
-                tematica.prefixo = prefix;
-                tematica.preverbo = preverb;
-                tematica.premodo = premode;
-                return tematica;
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
-                return null;
-            }
-        }
-
-        private Assistente InsertAssistente(string language, string name, List<Tematica> tematicas)
-        {
-            try
-            {
-                Assistente assistente = new Assistente();
-                assistente.nome = name;
-                assistente.linguagem = language;
-                assistente.tematica = tematicas;
-                return assistente;
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
-                return null;
-            }
-        }
-
         public async Task<List<Assistente>> LoadAssistente(List<Auxiliares> auxiliary)
         {
             try
@@ -1151,5 +1160,6 @@ namespace LetterStomach.Services
                 return null;
             }
         }
+        #endregion
     }
 }
