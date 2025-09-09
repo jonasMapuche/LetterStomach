@@ -114,6 +114,10 @@ namespace LetterStomach.ViewModels
         private string VAR_ADVERB = SettingService.Instance.Adverb;
         private string VAR_ADVERB_ADVERB = SettingService.Instance.Adverb_Adverb;
         private string VAR_ADJECTIVE_NOUN = SettingService.Instance.Adjective_Noun;
+        private int VAR_ORDER_3 = 3;
+        private int VAR_ORDER_4 = 4;
+        private int VAR_ORDER_5 = 5;
+        private int VAR_ORDER_6 = 6;
         #endregion
 
         #region INIT
@@ -348,7 +352,7 @@ namespace LetterStomach.ViewModels
             }
         }
 
-        public string GetOration(List<Word> oration)
+        public string GetSyntax(List<Word> oration)
         {
             try
             {
@@ -494,6 +498,25 @@ namespace LetterStomach.ViewModels
             }
         }
 
+        private List<Ligacao> SelectConjunction(string language)
+        {
+            try
+            {
+                if (language == ENGLISH.Name) return _conjunction_english;
+                if (language == DEUTSCH.Name) return _conjunction_deutsch;
+                if (language == ITALIANO.Name) return _conjunction_italiano;
+                if (language == FRANCAIS.Name) return _conjunction_francais;
+                if (language == ESPANOL.Name) return _conjunction_espanol;
+                return null;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return null;
+            }
+        }
+
         private List<Elocucao> SelectVerb(string language)
         {
             try
@@ -534,11 +557,11 @@ namespace LetterStomach.ViewModels
         #endregion
 
         #region SYNTAX
-        public List<Lesson> OrderLesson(List<Lesson> firsts)
+        private List<Lesson> OrderLesson(List<Lesson> firsts)
         {
             try
             {
-                List<Lesson> syntaxs = new List<Lesson>();
+                List<Lesson> lessons = new List<Lesson>();
                 int order = 0;
                 firsts.ForEach(value =>
                 {
@@ -547,10 +570,9 @@ namespace LetterStomach.ViewModels
                     item.order = order;
                     item.team = value.team;
                     item.lecture = value.lecture;
-                    syntaxs.Add(item);
+                    lessons.Add(item);
                 });
-
-                return syntaxs;
+                return lessons;
             }
             catch (Exception ex)
             {
@@ -560,16 +582,16 @@ namespace LetterStomach.ViewModels
             }
         }
 
-        public List<Lesson> OrderLesson(List<Lesson> firsts, List<Lesson> lasts)
+        private List<Lesson> OrderLesson(List<Lesson> firsts, List<Lesson> lasts)
         {
             try
             {
-                List<Lesson> syntaxs = new List<Lesson>();
+                List<Lesson> lessons = new List<Lesson>();
                 int order = 0;
                 firsts.ForEach(value =>
                 {
                     order = value.order;
-                    syntaxs.Add(value);
+                    lessons.Add(value);
                 });
                 lasts.ForEach(value =>
                 {
@@ -578,9 +600,9 @@ namespace LetterStomach.ViewModels
                     item.order = order;
                     item.lecture = value.lecture;
                     item.team = value.team;
-                    syntaxs.Add(item);
+                    lessons.Add(item);
                 });
-                return syntaxs;
+                return lessons;
             }
             catch (Exception ex)
             {
@@ -590,29 +612,80 @@ namespace LetterStomach.ViewModels
             }
         }
 
-        private List<Lesson> MountPeriod(string language, List<Sentenca> sentences, List<Lesson> previous, List<Lesson> terms, bool noun)
+        private List<Lesson> MountOrationSample(List<Sentenca> sentences, List<Lesson> terms)
         {
             try
             {
                 List<Lesson> words = new List<Lesson>();
+                List<Lesson> sampleSubjectVerb = new List<Lesson>();
+                List<Lesson> predicatePredicative = new List<Lesson>();
+                List<Lesson> predicateDirectObject = new List<Lesson>();
+                List<Lesson> predicateIndirectObject = new List<Lesson>();
+                List<Lesson> predicateDirectObjectIndirectObject = new List<Lesson>();
+                List<Lesson> predicateDirectObjectPredicative = new List<Lesson>();
+                List<Lesson> predicateIndirectObjectPredicative = new List<Lesson>();
+                List<Lesson> predicatePredicativeIndirectObject = new List<Lesson>();
 
-                if (previous == null) words = OrderLesson(this._syntaxViewMode.PeriodSS_V(language, sentences, terms, noun));
-                else words = OrderLesson(previous, this._syntaxViewMode.PeriodSS_V(language, sentences, terms, noun));
+                int order_sample = VAR_ORDER_3;
+                int order_predicate = VAR_ORDER_4;
+                sampleSubjectVerb = this._syntaxViewMode.SampleSubjectVerb(sentences, terms);
+                words = sampleSubjectVerb;
+                predicatePredicative = this._syntaxViewMode.PredicatePredicative(sentences, terms, sampleSubjectVerb, order_sample);
+                words = Union(words, predicatePredicative);
+                predicateDirectObject = this._syntaxViewMode.PredicateDirectObject(sentences, terms, sampleSubjectVerb, order_sample);
+                words = Union(words, predicateDirectObject);
+                predicateIndirectObject = this._syntaxViewMode.PredicateIndirectObject(sentences, terms, sampleSubjectVerb, order_sample);
+                words = Union(words, predicateIndirectObject);
+                predicateDirectObjectIndirectObject = this._syntaxViewMode.PredicateDirectObjectIndirectObject(sentences, terms, predicateDirectObject, order_predicate);
+                words = Union(words, predicateDirectObjectIndirectObject);
+                predicateDirectObjectPredicative = this._syntaxViewMode.PredicateDirectObjectPredicativo(sentences, terms, predicateDirectObject, order_predicate);
+                words = Union(words, predicateDirectObjectPredicative);
+                predicateIndirectObjectPredicative = this._syntaxViewMode.PredicateIndirectObjectPredicativo(sentences, terms, predicateDirectObject, order_predicate);
+                words = Union(words, predicateIndirectObjectPredicative);
+                predicatePredicativeIndirectObject = this._syntaxViewMode.PredicatePredicativoIndirectObject(sentences, terms, predicatePredicative, order_predicate);
+                words = Union(words, predicatePredicativeIndirectObject);
+                return words;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return null;
+            }
+        }
 
-                words = OrderLesson(words, this._syntaxViewMode.PeriodSS_V_P(language, sentences, terms, noun));
-                words = OrderLesson(words, this._syntaxViewMode.PeriodSS_V_Pr_P(language, sentences, terms, noun));
-                words = OrderLesson(words, this._syntaxViewMode.PeriodSS_V_N(language, sentences, terms, noun));
-                words = OrderLesson(words, this._syntaxViewMode.PeriodSS_V_Pr_N(language, sentences, terms, noun));
-                words = OrderLesson(words, this._syntaxViewMode.PeriodSS_V_AdjN(language, sentences, terms, noun));
-                words = OrderLesson(words, this._syntaxViewMode.PeriodSS_V_Pr_AdjN(language, sentences, terms, noun));
-                words = OrderLesson(words, this._syntaxViewMode.PeriodSS_V_Adj(language, sentences, terms, noun));
-                words = OrderLesson(words, this._syntaxViewMode.PeriodSS_V_Adj_P(language, sentences, terms, noun));
-                words = OrderLesson(words, this._syntaxViewMode.PeriodSS_V_Adj_Pr_P(language, sentences, terms, noun));
-                words = OrderLesson(words, this._syntaxViewMode.PeriodSS_V_Adj_N(language, sentences, terms, noun));
-                words = OrderLesson(words, this._syntaxViewMode.PeriodSS_V_Adj_Pr_N(language, sentences, terms, noun));
-                words = OrderLesson(words, this._syntaxViewMode.PeriodSS_V_Adj_AdjN(language, sentences, terms, noun));
-                words = OrderLesson(words, this._syntaxViewMode.PeriodSS_V_Adj_Pr_AdjN(language, sentences, terms, noun));
+        private List<Lesson> MountOrationCompound(List<Sentenca> sentences, List<Lesson> terms)
+        {
+            try
+            {
+                List<Lesson> words = new List<Lesson>();
+                List<Lesson> compoundSubjectVerb = new List<Lesson>();
+                List<Lesson> predicatePredicative = new List<Lesson>();
+                List<Lesson> predicateDirectObject = new List<Lesson>();
+                List<Lesson> predicateIndirectObject = new List<Lesson>();
+                List<Lesson> predicateDirectObjectIndirectObject = new List<Lesson>();
+                List<Lesson> predicateDirectObjectPredicative = new List<Lesson>();
+                List<Lesson> predicateIndirectObjectPredicative = new List<Lesson>();
+                List<Lesson> predicatePredicativeIndirectObject = new List<Lesson>();
 
+                int order_sample = VAR_ORDER_5;
+                int order_predicate = VAR_ORDER_6;
+                compoundSubjectVerb = this._syntaxViewMode.CompoundSubjectVerb(sentences, terms);
+                words = compoundSubjectVerb;
+                predicatePredicative = this._syntaxViewMode.PredicatePredicative(sentences, terms, compoundSubjectVerb, order_sample);
+                words = Union(words, predicatePredicative);
+                predicateDirectObject = this._syntaxViewMode.PredicateDirectObject(sentences, terms, compoundSubjectVerb, order_sample);
+                words = Union(words, predicateDirectObject);
+                predicateIndirectObject = this._syntaxViewMode.PredicateIndirectObject(sentences, terms, compoundSubjectVerb, order_sample);
+                words = Union(words, predicateIndirectObject);
+                predicateDirectObjectIndirectObject = this._syntaxViewMode.PredicateDirectObjectIndirectObject(sentences, terms, predicateDirectObject, order_predicate);
+                words = Union(words, predicateDirectObjectIndirectObject);
+                predicateDirectObjectPredicative = this._syntaxViewMode.PredicateDirectObjectPredicativo(sentences, terms, predicateDirectObject, order_predicate);
+                words = Union(words, predicateDirectObjectPredicative);
+                predicateIndirectObjectPredicative = this._syntaxViewMode.PredicateIndirectObjectPredicativo(sentences, terms, predicateDirectObject, order_predicate);
+                words = Union(words, predicateIndirectObjectPredicative);
+                predicatePredicativeIndirectObject = this._syntaxViewMode.PredicatePredicativoIndirectObject(sentences, terms, predicatePredicative, order_predicate);
+                words = Union(words, predicatePredicativeIndirectObject);
                 return words;
             }
             catch (Exception ex)
@@ -625,28 +698,55 @@ namespace LetterStomach.ViewModels
         #endregion
 
         #region MORPHOLOGY
-        public List<Word> Authenticate(string language, List<Word> lessons)
+        private List<Lesson> Union(List<Lesson> fists, List<Lesson> lasts)
+        {
+            try
+            {
+                List<Lesson> lessons = new List<Lesson>();
+                fists.ForEach(item =>
+                {
+                    Lesson lesson = new Lesson();
+                    lesson.lecture = item.lecture;
+                    lesson.team = item.team;
+                    lessons.Add(lesson);
+                });
+                lasts.ForEach(item =>
+                {
+                    Lesson lesson = new Lesson();
+                    lesson.lecture = item.lecture;
+                    lesson.team = item.team;
+                    lessons.Add(lesson);
+                });
+                return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return null;
+            }
+        }
+
+        private List<Word> Authenticate(string language, List<Word> lessons)
         {
             try
             {
                 List<Word> new_word = new List<Word>();
-
                 List<Sentenca> sentences = SelectSentence(language).Distinct().ToList();
                 Dictionary<(string, string), int> word_2_vec = this._wordEmbeddingService.Word2Vec(sentences);
                 HashSet<string> vocabulary = this._wordEmbeddingService.Vocabulary(sentences);
 
-                string pronoun_subject = null;
-                string pronoun_predicate = null;
-                string article_subject = null;
-                string article_predicate = null;
-                string digit_subject = null;
-                string digit_predicate = null;
-                string noun_subject = null;
-                string noun_predicate = null;
-                string verb = null;
-                string model = null;
-                string preposition = null;
-
+                string pronoun_subject = string.Empty;
+                string pronoun_predicate = string.Empty;
+                string article_subject = string.Empty;
+                string article_predicate = string.Empty;
+                string digit_subject = string.Empty;
+                string digit_predicate = string.Empty;
+                string noun_subject = string.Empty;
+                string noun_predicate = string.Empty;
+                string verb = string.Empty;
+                string model = string.Empty;
+                string preposition = string.Empty;
                 foreach (Word word in lessons)
                 {
                     if ((word.kind == VAR_PRONOUN) && (word.sentense == VAR_SUBJECT)) pronoun_subject = word.term;
@@ -664,36 +764,34 @@ namespace LetterStomach.ViewModels
                     if ((word.kind == VAR_ARTICLE) && (word.sentense == VAR_PREDICATE)) article_predicate = word.term;
                     if ((word.kind == VAR_NOUN) && (word.sentense == VAR_PREDICATE)) noun_predicate = word.term;
                 }
-
                 bool similarity = false;
-                if ((pronoun_subject != null) && (noun_subject == null))
+                if ((pronoun_subject != string.Empty) && (noun_subject == string.Empty))
                 {
                     similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, pronoun_subject, verb);
                 }
-                if ((noun_subject != null) && (digit_subject == null) && (pronoun_subject == null) && (article_subject == null))
+                if ((noun_subject != string.Empty) && (digit_subject == string.Empty) && (pronoun_subject == string.Empty) && (article_subject == string.Empty))
                 {
                     similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, noun_subject, verb);
                 }
-                if ((noun_subject != null) && (digit_subject != null))
+                if ((noun_subject != string.Empty) && (digit_subject != string.Empty))
                 {
                     similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, digit_subject, noun_subject);
                     if (similarity) similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, noun_subject, verb);
                 }
-                if ((noun_subject != null) && (pronoun_subject != null))
+                if ((noun_subject != string.Empty) && (pronoun_subject != string.Empty))
                 {
                     similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, pronoun_subject, noun_subject);
                     if (similarity) similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, noun_subject, verb);
                 }
-                if ((noun_subject != null) && (article_subject != null))
+                if ((noun_subject != string.Empty) && (article_subject != string.Empty))
                 {
                     similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, article_subject, noun_subject);
                     if (similarity) similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, noun_subject, verb);
                 }
-
                 if (!similarity) return new_word;
                 else
                 {
-                    if ((preposition == null) && (pronoun_predicate == null) && (digit_predicate == null) && (article_predicate == null) && (noun_predicate == null))
+                    if ((preposition == string.Empty) && (pronoun_predicate == string.Empty) && (digit_predicate == string.Empty) && (article_predicate == string.Empty) && (noun_predicate == string.Empty))
                     {
                         List<Word> item = new List<Word>();
                         item = this._morphologyViewModel.GetSuject(pronoun_subject, noun_subject, article_subject, digit_subject, verb, model);
@@ -704,57 +802,48 @@ namespace LetterStomach.ViewModels
                         return new_word;
                     }
                 }
-
-                if ((pronoun_predicate != null) && (noun_predicate == null) && (preposition == null))
+                if ((pronoun_predicate != string.Empty) && (noun_predicate == string.Empty) && (preposition == string.Empty))
                 {
                     similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, verb, pronoun_predicate);
                 }
-
-                if ((pronoun_predicate != null) && (noun_predicate == null) && (preposition != null))
+                if ((pronoun_predicate != string.Empty) && (noun_predicate == string.Empty) && (preposition != string.Empty))
                 {
                     similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, verb, preposition);
                     if (similarity) similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, preposition, pronoun_predicate);
                 }
-
-                if ((pronoun_predicate != null) && (noun_predicate != null) && (preposition == null))
+                if ((pronoun_predicate != string.Empty) && (noun_predicate != string.Empty) && (preposition == string.Empty))
                 {
                     similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, verb, pronoun_predicate);
                     if (similarity) similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, pronoun_predicate, noun_predicate);
                 }
-
-                if ((pronoun_predicate != null) && (noun_predicate != null) && (preposition != null))
+                if ((pronoun_predicate != string.Empty) && (noun_predicate != string.Empty) && (preposition != string.Empty))
                 {
                     similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, verb, preposition);
                     if (similarity) similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, preposition, pronoun_predicate);
                     if (similarity) similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, pronoun_predicate, noun_predicate);
                 }
-
-                if ((article_predicate != null) && (noun_predicate != null) && (preposition == null))
+                if ((article_predicate != string.Empty) && (noun_predicate != string.Empty) && (preposition == string.Empty))
                 {
                     similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, verb, article_predicate);
                     if (similarity) similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, article_predicate, noun_predicate);
                 }
-
-                if ((article_predicate != null) && (noun_predicate != null) && (preposition != null))
+                if ((article_predicate != string.Empty) && (noun_predicate != string.Empty) && (preposition != string.Empty))
                 {
                     similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, verb, preposition);
                     if (similarity) similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, preposition, article_predicate);
                     if (similarity) similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, article_predicate, noun_predicate);
                 }
-
-                if ((digit_predicate != null) && (noun_predicate != null) && (preposition == null))
+                if ((digit_predicate != string.Empty) && (noun_predicate != string.Empty) && (preposition == string.Empty))
                 {
                     similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, verb, digit_predicate);
                     if (similarity) similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, digit_predicate, noun_predicate);
                 }
-
-                if ((digit_predicate != null) && (noun_predicate != null) && (preposition != null))
+                if ((digit_predicate != string.Empty) && (noun_predicate != string.Empty) && (preposition != string.Empty))
                 {
                     similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, verb, preposition);
                     if (similarity) similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, preposition, digit_predicate);
                     if (similarity) similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, digit_predicate, noun_predicate);
                 }
-
                 if (similarity)
                 {
                     List<Word> item_two = new List<Word>();
@@ -771,7 +860,6 @@ namespace LetterStomach.ViewModels
                         new_word.Add(index);
                     });
                 }
-
                 return new_word;
             }
             catch (Exception ex)
@@ -782,7 +870,7 @@ namespace LetterStomach.ViewModels
             }
         }
 
-        public List<Word> GetOration(string language, List<Word> words, bool reverse)
+        public List<Word> MountSyntax(string language, List<Word> words, bool reverse)
         {
             try
             {
@@ -796,8 +884,8 @@ namespace LetterStomach.ViewModels
                 {
                     if (!next)
                     {
-                        string word = GetOration(words);
-                        string word_lesson = GetOration(lesson.lecture);
+                        string word = GetSyntax(words);
+                        string word_lesson = GetSyntax(lesson.lecture);
                         if (word == word_lesson)
                             next = true;
                     }
@@ -825,7 +913,7 @@ namespace LetterStomach.ViewModels
             }
         }
 
-        public List<Word> GetOration(string language, Materia lesson, List<Materia> book)
+        public List<Word> MountSyntax(string language, Materia lesson, List<Materia> book)
         {
             try
             {
@@ -841,28 +929,35 @@ namespace LetterStomach.ViewModels
                 List<Algarismo> list_numeral = SelectNumeral(language);
                 List<Circunstancia> list_adverb = SelectAdverb(language);
                 List<Elocucao> list_verb = SelectVerb(language);
-                List<Estoutro> list_pronoun = SelectPronoun(language).Distinct().ToList();
+                List<Estoutro> list_pronoun = SelectPronoun(language);
+                List<Ligacao> list_conjunction = SelectConjunction(language);
 
                 List<Lesson> mount_noun = this._morphologyViewModel.GetNoun(sentence, list_noun, list_pronoun, list_article, list_numeral);
                 List<Lesson> mount_verb = this._morphologyViewModel.GetVerb(sentence, list_model, list_verb, list_adverb);
-                List<Lesson> mount_adjective = this._morphologyViewModel.GetAdjective(sentence, list_adjective, list_adverb);
-                List<Lesson> mount_adjective_noun = this._morphologyViewModel.GetAdjectiveNoun(sentence, list_adjective, list_adverb, list_noun, list_article);
-                List<Lesson> mount_digit = this._morphologyViewModel.GetNumeral(sentence, list_numeral);
-                List<Lesson> mount_article = this._morphologyViewModel.GetArticle(sentence, list_article);
+                List<Lesson> mount_adjective_adverb = this._morphologyViewModel.GetAdjectiveAdverb(sentence, list_adjective, list_adverb);
+                List<Lesson> mount_adjective = this._morphologyViewModel.GetAdjective(sentence, list_adjective);
                 List<Lesson> mount_preposition = this._morphologyViewModel.GetPreposition(sentence, list_preposition);
+                List<Lesson> mount_adjective_noun = this._morphologyViewModel.GetAdjectiveNoun(sentence, mount_adjective, mount_noun, mount_preposition);
                 List<Lesson> mount_pronoun = this._morphologyViewModel.GetPronoun(sentence, list_pronoun);
+                List<Lesson> mount_conjunction = this._morphologyViewModel.GetConjunction(sentence, list_conjunction);
+                List<Lesson> mount_numeral_noun = this._morphologyViewModel.GetNumeralNoun(sentence, list_noun, list_article, list_numeral);
 
-                List<Lesson> fulls = this._morphologyViewModel.Union(mount_noun, mount_verb);
-                fulls = this._morphologyViewModel.Union(fulls, mount_adjective);
-                fulls = this._morphologyViewModel.Union(fulls, mount_adjective_noun);
-                fulls = this._morphologyViewModel.Union(fulls, mount_digit);
-                fulls = this._morphologyViewModel.Union(fulls, mount_article);
-                fulls = this._morphologyViewModel.Union(fulls, mount_preposition);
-                fulls = this._morphologyViewModel.Union(fulls, mount_pronoun);
+                List <Lesson> mount_numeral = this._morphologyViewModel.GetNumeral(sentence, list_numeral);
+                List<Lesson> mount_article = this._morphologyViewModel.GetArticle(sentence, list_article);
+
+                List<Lesson> matters = Union(mount_noun, mount_verb);
+                matters = Union(matters, mount_adjective);
+                matters = Union(matters, mount_adjective_noun);
+                matters = Union(matters, mount_preposition);
+                matters = Union(matters, mount_pronoun);
+                matters = Union(matters, mount_numeral);
+                matters = Union(matters, mount_article);
+                matters = Union(matters, mount_conjunction);
+                matters = Union(matters, mount_numeral_noun);
 
                 List<Lesson> words = new List<Lesson>();
-                words = MountPeriod(language, sentence, null, fulls, false);
-                words = MountPeriod(language, sentence, words, fulls, true);
+                words = OrderLesson(MountOrationSample(sentence, matters));
+                words = OrderLesson(words, MountOrationCompound(sentence, matters));
 
                 SetOration(language, words);
 

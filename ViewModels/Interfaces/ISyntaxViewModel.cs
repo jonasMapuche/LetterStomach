@@ -4,21 +4,16 @@ namespace LetterStomach.ViewModels.Interfaces
 {
     internal interface ISyntaxViewModel
     {
-        public string GetOration(List<Word> words);
+        string GetOration(List<Word> words);
 
-        public List<Lesson> PeriodSS_V(string language, List<Sentenca> sentences, List<Lesson> matters, bool noun);
-        public List<Lesson> PeriodSS_V_P(string language, List<Sentenca> sentences, List<Lesson> matters, bool noun);
-        public List<Lesson> PeriodSS_V_Pr_P(string language, List<Sentenca> sentences, List<Lesson> matters, bool noun);
-        public List<Lesson> PeriodSS_V_N(string language, List<Sentenca> sentences, List<Lesson> matters, bool noun);
-        public List<Lesson> PeriodSS_V_Pr_N(string language, List<Sentenca> sentences, List<Lesson> matters, bool noun);
-        public List<Lesson> PeriodSS_V_AdjN(string language, List<Sentenca> sentences, List<Lesson> matters, bool noun);
-        public List<Lesson> PeriodSS_V_Pr_AdjN(string language, List<Sentenca> sentences, List<Lesson> matters, bool noun);
-        public List<Lesson> PeriodSS_V_Adj(string language, List<Sentenca> sentences, List<Lesson> matters, bool noun);
-        public List<Lesson> PeriodSS_V_Adj_P(string language, List<Sentenca> sentences, List<Lesson> matters, bool noun);
-        public List<Lesson> PeriodSS_V_Adj_Pr_P(string language, List<Sentenca> sentences, List<Lesson> matters, bool noun);
-        public List<Lesson> PeriodSS_V_Adj_N(string language, List<Sentenca> sentences, List<Lesson> matters, bool noun);
-        public List<Lesson> PeriodSS_V_Adj_Pr_N(string language, List<Sentenca> sentences, List<Lesson> matters, bool noun);
-        public List<Lesson> PeriodSS_V_Adj_AdjN(string language, List<Sentenca> sentences, List<Lesson> matters, bool noun);
-        public List<Lesson> PeriodSS_V_Adj_Pr_AdjN(string language, List<Sentenca> sentences, List<Lesson> matters, bool noun);
+        List<Lesson> SampleSubjectVerb(List<Sentenca> sentences, List<Lesson> matters);
+        List<Lesson> CompoundSubjectVerb(List<Sentenca> sentences, List<Lesson> matters);
+        List<Lesson> PredicateDirectObject(List<Sentenca> sentences, List<Lesson> matters, List<Lesson> sources, int order_init);
+        List<Lesson> PredicatePredicative(List<Sentenca> sentences, List<Lesson> matters, List<Lesson> sources, int order_init);
+        List<Lesson> PredicateIndirectObject(List<Sentenca> sentences, List<Lesson> matters, List<Lesson> sources, int init_order);
+        List<Lesson> PredicateDirectObjectIndirectObject(List<Sentenca> sentences, List<Lesson> matters, List<Lesson> sources, int order_init);
+        List<Lesson> PredicateDirectObjectPredicativo(List<Sentenca> sentences, List<Lesson> matters, List<Lesson> sources, int order_init);
+        List<Lesson> PredicateIndirectObjectPredicativo(List<Sentenca> sentences, List<Lesson> matters, List<Lesson> sources, int order_init);
+        List<Lesson> PredicatePredicativoIndirectObject(List<Sentenca> sentences, List<Lesson> matters, List<Lesson> sources, int order_init);
     }
 }

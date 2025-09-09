@@ -490,9 +490,9 @@ namespace LetterStomach.ViewModels
         {
             try
             {
-                List<Word> words = this._grammarViewModel.GetOration(language, lesson, books);
+                List<Word> words = this._grammarViewModel.MountSyntax(language, lesson, books);
                 SetOration(words, language);
-                string oration = this._grammarViewModel.GetOration(words);
+                string oration = this._grammarViewModel.GetSyntax(words);
                 Load(MessageService.Instance, true, language, oration);
             }
             catch (Exception ex)
@@ -506,9 +506,9 @@ namespace LetterStomach.ViewModels
         {
             try
             {
-                List<Word> terms = this._grammarViewModel.GetOration(language, words, reverse);
+                List<Word> terms = this._grammarViewModel.MountSyntax(language, words, reverse);
                 SetOration(terms, language);
-                string oration = this._grammarViewModel.GetOration(terms);
+                string oration = this._grammarViewModel.GetSyntax(terms);
                 Load(MessageService.Instance, true, language, oration);
             }
             catch (Exception ex)

@@ -7,5 +7,6 @@
         public string sentense { get; set; }
         public string model { get; set; }
         public string team { get; set; }
+        public int order { get; set; }
     }
 }

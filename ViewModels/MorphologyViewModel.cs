@@ -2,7 +2,6 @@
 using LetterStomach.Services;
 using LetterStomach.Services.Interfaces;
 using LetterStomach.ViewModels.Interfaces;
-using SQLite;
 
 namespace LetterStomach.ViewModels
 {
@@ -24,23 +23,27 @@ namespace LetterStomach.ViewModels
         #endregion
 
         #region VARIABLE
-        protected string VAR_SUBJECT = SettingService.Instance.Suject;
-        protected string VAR_PREDICATE = SettingService.Instance.Predicate;
-        protected string VAR_PRONOUN = SettingService.Instance.Pronoun;
-        protected string VAR_NOUN = SettingService.Instance.Noun;
-        protected string VAR_VERB = SettingService.Instance.Verb;
-        protected string VAR_PERSONAL = SettingService.Instance.Personal;
-        protected string VAR_ADJECTIVE = SettingService.Instance.Adjective;
-        protected string VAR_ARTICLE = SettingService.Instance.Article;
-        protected string VAR_NUMERAL = SettingService.Instance.Numeral;
-        protected string VAR_PREPOSITION = SettingService.Instance.Preposition;
-        protected string VAR_POSSESSIVE = SettingService.Instance.Possessive;
-        protected string VAR_DEMONSTRATIVE = SettingService.Instance.Demostrtive;
-        protected string VAR_ADVERB = SettingService.Instance.Adverb;
-        protected string VAR_ADVERB_ADVERB = SettingService.Instance.Adverb_Adverb;
-        protected string VAR_ADJECTIVE_NOUN = SettingService.Instance.Adjective_Noun;
-        protected string VAR_SINGLE = SettingService.Instance.Single;
-        protected string VAR_PLURAL = SettingService.Instance.Plural;
+        private string VAR_SUBJECT = SettingService.Instance.Suject;
+        private string VAR_PREDICATE = SettingService.Instance.Predicate;
+        private string VAR_PRONOUN = SettingService.Instance.Pronoun;
+        private string VAR_NOUN = SettingService.Instance.Noun;
+        private string VAR_VERB = SettingService.Instance.Verb;
+        private string VAR_PERSONAL = SettingService.Instance.Personal;
+        private string VAR_ADJECTIVE = SettingService.Instance.Adjective;
+        private string VAR_ARTICLE = SettingService.Instance.Article;
+        private string VAR_NUMERAL = SettingService.Instance.Numeral;
+        private string VAR_PREPOSITION = SettingService.Instance.Preposition;
+        private string VAR_POSSESSIVE = SettingService.Instance.Possessive;
+        private string VAR_DEMONSTRATIVE = SettingService.Instance.Demostrtive;
+        private string VAR_ADVERB = SettingService.Instance.Adverb;
+        private string VAR_ADVERB_ADVERB = SettingService.Instance.Adverb_Adverb;
+        private string VAR_ADJECTIVE_NOUN = SettingService.Instance.Adjective_Noun;
+        private string VAR_ADJECTIVE_ADVERB = SettingService.Instance.Adjective_Adverb;
+        private string VAR_CONJUNCTION_NOUN = SettingService.Instance.Conjunction_Noun;
+        private string VAR_CONJUNCTION = SettingService.Instance.Conjunction;
+        private string VAR_SINGLE = SettingService.Instance.Single;
+        private string VAR_PLURAL = SettingService.Instance.Plural;
+        private string VAR_NUMERAL_NOUN = SettingService.Instance.Numeral_Noun;
 
         private IWordEmbeddingService _wordEmbeddingService = new WordEmbeddingService();
         #endregion
@@ -186,114 +189,6 @@ namespace LetterStomach.ViewModels
                 List<Word> terms = new List<Word>();
                 terms = new List<Word>();
                 terms = Word(article, VAR_ARTICLE, null, null);
-                terms.ForEach(item =>
-                {
-                    words.Add(item);
-                });
-                terms = new List<Word>();
-                terms = Word(noun, VAR_NOUN, null, null);
-                terms.ForEach(item =>
-                {
-                    words.Add(item);
-                });
-                return words;
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
-                return null;
-            }
-        }
-
-        private List<Word> WordAdjectiveNounArticle(string noun, string adjective, string article)
-        {
-            try
-            {
-                List<Word> words = new List<Word>();
-                List<Word> terms = new List<Word>();
-                terms = Word(article, VAR_ARTICLE, null, null);
-                terms.ForEach(item =>
-                {
-                    words.Add(item);
-                });
-                terms = new List<Word>();
-                terms = WordArticleNoun(noun, adjective);
-                terms.ForEach(item =>
-                {
-                    words.Add(item);
-                });
-                return words;
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
-                return null;
-            }
-        }
-
-        private List<Word> WordAdjectiveNounArticle(string noun, string adjective, string adverb, string article)
-        {
-            try
-            {
-                List<Word> words = new List<Word>();
-                List<Word> terms = new List<Word>();
-                terms = Word(adverb, VAR_ADVERB, null, null);
-                terms.ForEach(index =>
-                {
-                    words.Add(index);
-                });
-                terms = new List<Word>();
-                terms = WordAdjectiveNounArticle(noun, adjective, article);
-                terms.ForEach(index =>
-                {
-                    words.Add(index);
-                });
-                return words;
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
-                return null;
-            }
-        }
-
-        private List<Word> WordAdjectiveNoun(string noun, string adjective, string adverb)
-        {
-            try
-            {
-                List<Word> words = new List<Word>();
-                List<Word> terms = new List<Word>();
-                terms = Word(adverb, VAR_ADVERB, null, null);
-                terms.ForEach(item =>
-                {
-                    words.Add(item);
-                });
-                terms = new List<Word>();
-                terms = WordArticleNoun(noun, adjective);
-                terms.ForEach(item =>
-                {
-                    words.Add(item);
-                });
-                return words;
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
-                return null;
-            }
-        }
-
-        private List<Word> WordAdjectiveNoun(string noun, string adjective)
-        {
-            try
-            {
-                List<Word> words = new List<Word>();
-                List<Word> terms = new List<Word>();
-                terms = Word(adjective, VAR_ADJECTIVE, null, null);
                 terms.ForEach(item =>
                 {
                     words.Add(item);
@@ -639,6 +534,27 @@ namespace LetterStomach.ViewModels
             }
         }
 
+        private List<Lesson> MountAdjective(List<string> adjectives)
+        {
+            try
+            {
+                List<Lesson> lessons = new List<Lesson>();
+                adjectives.ForEach(item =>
+                {
+                    Lesson lesson = new Lesson();
+                    lesson.lecture = Word(item, VAR_ADJECTIVE, null, null);
+                    lessons.Add(lesson);
+                });
+                return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return null;
+            }
+        }
+
         private List<Lesson> UnionAdjective(List<Lesson> adjectives_adverbs, List<Lesson> adjectives_adverbs_adverbs)
         {
             try
@@ -712,54 +628,69 @@ namespace LetterStomach.ViewModels
         #endregion
 
         #region NOUN
-        private List<Lesson> MountAdjectiveNoun(List<string> nouns, List<Lesson> adjectives_adverbs, List<Preceito> articles)
+        private List<Lesson> MountAdjectivePrepositionNoun(List<Lesson> nouns, List<Lesson> adjectives, List<Lesson> prepositions)
         {
             try
             {
                 List<Lesson> lessons = new List<Lesson>();
-                HashSet<string> precepts = new HashSet<string>();
-                precepts = MountArticle(articles);
-                nouns.ForEach(item_noun =>
+                foreach (Lesson preposition in prepositions)
                 {
-                    adjectives_adverbs.ForEach(item_adjective_adverb =>
+                    foreach (Lesson adjective in adjectives)
                     {
-                        List<Word> words = new List<Word>();
-                        HashSet<string> word = new HashSet<string>(item_noun.Split(' '));
-                        if (word.Count > 1)
+                        foreach (Lesson noun in nouns)
                         {
-                            if (Array.IndexOf(precepts.ToArray(), word.First()) != -1)
+                            List<Word> words = new List<Word>();
+                            noun.lecture.ForEach(item =>
                             {
-                                string adjective = string.Empty;
-                                string adverb = string.Empty;
-                                item_adjective_adverb.lecture.ForEach(item_lecture =>
-                                {
-                                    if (item_lecture.kind == VAR_ADJECTIVE) adjective = item_lecture.term;
-                                    if (item_lecture.kind == VAR_ADVERB) adverb = item_lecture.term;
-                                });
-                                if (adverb != string.Empty) words = WordAdjectiveNounArticle(word.Last(), adjective, adverb, word.First());
-                                else words = WordAdjectiveNounArticle(word.Last(), adjective, word.First());
-                            }
-                        }
-                        else
-                        {
-                            string adjective = string.Empty;
-                            string adverb = string.Empty;
-                            item_adjective_adverb.lecture.ForEach(item_lecture =>
-                            {
-                                if (item_lecture.kind == VAR_ADJECTIVE) adjective = item_lecture.term;
-                                if (item_lecture.kind == VAR_ADVERB) adverb = item_lecture.term;
+                                words.Add(item);
                             });
-                            if (adverb != string.Empty) words = WordAdjectiveNoun(word.First(), adjective, adverb);
-                            else words = WordAdjectiveNoun(word.First(), adjective);
-                        }
-                        if (words.Count > 0)
-                        {
+                            adjective.lecture.ForEach(item =>
+                            {
+                                words.Add(item);
+                            });
+                            preposition.lecture.ForEach(item =>  
+                            { 
+                                words.Add(item); 
+                            });
                             Lesson lesson = new Lesson();
                             lesson.lecture = words;
                             lessons.Add(lesson);
                         }
-                    });
-                });
+                    }
+                }
+                return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return null;
+            }
+        }
+
+        private List<Lesson> MountAdjectiveNoun(List<Lesson> nouns, List<Lesson> adjectives)
+        {
+            try
+            {
+                List<Lesson> lessons = new List<Lesson>();
+                foreach (Lesson adjective in adjectives)
+                {
+                    foreach (Lesson noun in nouns)
+                    {
+                        List<Word> words = new List<Word>();
+                        noun.lecture.ForEach(item =>
+                        {
+                            words.Add(item);
+                        });
+                        adjective.lecture.ForEach(item =>
+                        { 
+                            words.Add(item);
+                        });
+                        Lesson lesson = new Lesson();
+                        lesson.lecture = words;
+                        lessons.Add(lesson);
+                    }
+                }
                 return lessons;
             }
             catch (Exception ex)
@@ -915,7 +846,6 @@ namespace LetterStomach.ViewModels
             }
         }
 
-
         private List<Lesson> UnionNoun(List<Lesson> firsts, List<Lesson> seconds)
         {
             try
@@ -942,35 +872,6 @@ namespace LetterStomach.ViewModels
                 return null;
             }
         }
-
-        /*
-        private List<Lesson> UnionNoun(List<string> firsts, List<Lesson> seconds)
-        {
-            try
-            {
-                List<Lesson> lessons = new List<Lesson>();
-                firsts.ForEach(item =>
-                {
-                    Lesson lesson = new Lesson();
-                    lesson.lecture = Word(item, VAR_NOUN, null, null);
-                    lessons.Add(lesson);
-                });
-                seconds.ForEach(item =>
-                {
-                    Lesson lesson = new Lesson();
-                    lesson.lecture = item.lecture;
-                    lessons.Add(lesson);
-                });
-                return lessons;
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
-                return null;
-            }
-        }
-        */
 
         private List<Lesson> VerifyNoun(List<Lesson> matters, List<Sentenca> sentences)
         {
@@ -1032,10 +933,88 @@ namespace LetterStomach.ViewModels
                 return null;
             }
         }
+
+        private List<Lesson> VerifyAdjectiveNoun(List<Lesson> matters, List<Sentenca> sentences)
+        {
+            try
+            {
+                List<Lesson> lessons = new List<Lesson>();
+                HashSet<string> vocabulary = this._wordEmbeddingService.Vocabulary(sentences);
+                Dictionary<(string, string), int> word_2_vec = this._wordEmbeddingService.Word2Vec(sentences);
+                matters.ForEach(instruction =>
+                {
+                    List<Word> words = new List<Word>();
+                    string adjective = string.Empty;
+                    string noun = string.Empty;
+                    instruction.lecture.ForEach(item =>
+                    {
+                        if (item.kind == VAR_ADJECTIVE) adjective = item.term;
+                        if (item.kind == VAR_NOUN) noun = item.term;
+                        words.Add(item);
+                    });
+                    bool similarity = false;
+                    similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, adjective, noun);
+                    if (similarity)
+                    {
+                        Lesson lesson = new Lesson();
+                        lesson.lecture = words;
+                        lessons.Add(lesson);
+                    }
+                });
+                return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return null;
+            }
+        }
+
+        private List<Lesson> VerifyAdjectivePrepositionNoun(List<Lesson> matters, List<Sentenca> sentences)
+        {
+            try
+            {
+                List<Lesson> lessons = new List<Lesson>();
+                HashSet<string> vocabulary = this._wordEmbeddingService.Vocabulary(sentences);
+                Dictionary<(string, string), int> word_2_vec = this._wordEmbeddingService.Word2Vec(sentences);
+                matters.ForEach(instruction =>
+                {
+                    List<Word> words = new List<Word>();
+                    string adjective = string.Empty;
+                    string preposition = string.Empty;
+                    string noun = string.Empty;
+                    instruction.lecture.ForEach(item =>
+                    {
+                        if (item.kind == VAR_ADJECTIVE) adjective = item.term;
+                        if (item.kind == VAR_NOUN) noun = item.term;
+                        if (item.kind == VAR_PREPOSITION) preposition = item.term;
+                        words.Add(item);
+                    });
+                    bool similarity = false;
+                    similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, noun, preposition);
+                    if (similarity) 
+                        similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, preposition, adjective);
+                    if (similarity)
+                    {
+                        Lesson lesson = new Lesson();
+                        lesson.lecture = words;
+                        lessons.Add(lesson);
+                    }
+                });
+                return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return null;
+            }
+        }
         #endregion
 
         #region NUMERAL
-        private List<Algarismo> FilterDigit(List<Algarismo> numerals, List<Sentenca> sentences)
+        private List<Algarismo> FilterNumeral(List<Algarismo> numerals, List<Sentenca> sentences)
         {
             try
             {
@@ -1411,31 +1390,21 @@ namespace LetterStomach.ViewModels
         }
         #endregion
 
-        #region PUBLIC
-        public List<Lesson> GetAdjective(List<Sentenca> sentences, List<string> adjectives, List<Circunstancia> adverbs)
+        #region CONJUNCTION
+        private List<Ligacao> FilterConjunction(List<Ligacao> conjunctions, List<Sentenca> sentences)
         {
             try
             {
-                List<string> filter_adjective = FilterList(adjectives, sentences);
-                List<Circunstancia> filter_adverb = FilterAdverb(adverbs, sentences);
-                List<Lesson> mount_adjective_adverb = MountAdjectiveAdverb(filter_adjective, filter_adverb);
-                List<Lesson> verify_adjective_adverb = VerifyAdjective(mount_adjective_adverb, sentences);
-                List<Lesson> mount_adverb_adverb = MountAdverbAdverb(filter_adverb);
-                List<Lesson> verify_adverb_adverb = VerifyAdverb(mount_adverb_adverb, sentences);
-                List<Lesson> mount_adjective_adverb_adverb = MountAdjectiveAdverb(filter_adjective, verify_adverb_adverb);
-                List<Lesson> verify_adjective_adverb_adverb = VerifyAdjective(mount_adjective_adverb, sentences);
-                List<Lesson> union_adjective_adverb = UnionAdjective(filter_adjective, verify_adjective_adverb);
-                List<Lesson> union_adjective_adverb_adverb = UnionAdjective(union_adjective_adverb, verify_adjective_adverb_adverb);
-
-                List<Lesson> lessons = new List<Lesson>();
-                union_adjective_adverb_adverb.ForEach(item =>
+                List<Ligacao> words = new List<Ligacao>();
+                HashSet<string> vocabulary = this._wordEmbeddingService.Vocabulary(sentences);
+                string word = string.Empty;
+                conjunctions.ForEach(item =>
                 {
-                    Lesson lesson = new Lesson();
-                    lesson.team = VAR_ADJECTIVE;
-                    lesson.lecture = item.lecture;
-                    lessons.Add(lesson);
+                    word = this._wordEmbeddingService.RemoveAccent(item.nome.ToLower());
+                    if (Array.IndexOf(vocabulary.ToArray(), word) != -1)
+                        words.Add(item);
                 });
-                return lessons;
+                return words;
             }
             catch (Exception ex)
             {
@@ -1444,253 +1413,9 @@ namespace LetterStomach.ViewModels
                 return null;
             }
         }
+        #endregion
 
-        public List<Lesson> GetAdjectiveNoun(List<Sentenca> sentences, List<string> adjectives, List<Circunstancia> adverbs, List<string> nouns, List<Preceito> articles)
-        {
-            try
-            {
-                List<string> filter_noun = FilterList(nouns, sentences);
-                List<string> filter_adjective = FilterList(adjectives, sentences);
-                List<Preceito> filter_article = FilterArticle(articles, sentences);
-                List<Circunstancia> filter_adverb = FilterAdverb(adverbs, sentences);
-
-                List<Lesson> mount_adjective_adverb = MountAdjectiveAdverb(filter_adjective, filter_adverb);
-                List<Lesson> verify_adjective_adverb = VerifyAdjective(mount_adjective_adverb, sentences);
-
-                List<Lesson> union_adjective_adverb = UnionAdjective(filter_adjective, verify_adjective_adverb);
-                List<Lesson> adjective_noun = MountAdjectiveNoun(filter_noun, union_adjective_adverb, filter_article);
-
-
-
-                List<Lesson> lessons = new List<Lesson>();
-                adjective_noun.ForEach(item =>
-                {
-                    Lesson lesson = new Lesson();
-                    lesson.team = VAR_ADJECTIVE_NOUN;
-                    lesson.lecture = item.lecture;
-                    lessons.Add(lesson);
-                });
-                return lessons;
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
-                return null;
-            }
-        }
-
-        public List<Lesson> GetArticle(List<Sentenca> sentences, List<Preceito> articles)
-        {
-            try
-            {
-                List<Preceito> filter_article = FilterArticle(articles, sentences);
-                List<Lesson> lessons = new List<Lesson>();
-                filter_article.ForEach(item =>
-                {
-                    List<Word> words = new List<Word>();
-                    words = Word(item.nome, VAR_ARTICLE, null, null);
-                    Lesson lesson = new Lesson();
-                    lesson.team = VAR_ARTICLE;
-                    lesson.lecture = words;
-                    lessons.Add(lesson);
-                });
-                return lessons;
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
-                return null;
-            }
-        }
-
-        public List<Lesson> GetNoun(List<Sentenca> sentences, List<string> nouns, List<Estoutro> pronouns, List<Preceito> articles, List<Algarismo> numerals)
-        {
-            try
-            {
-                List<string> filter_noun = FilterList(nouns, sentences);
-                List<Preceito> filter_article = FilterArticle(articles, sentences);
-                List<Algarismo> filter_digit = FilterDigit(numerals, sentences);
-
-                List<string> type_adjective = new List<string>();
-                type_adjective.Add(VAR_ADJECTIVE);
-                List<string> type_demostrative = new List<string>();
-                type_demostrative.Add(VAR_DEMONSTRATIVE);
-                List<Estoutro> list_pronoun_adjective = MountPronoun(type_adjective, pronouns);
-                List<Estoutro> list_pronoun_demostrative = MountPronoun(type_demostrative, pronouns);
-                List<Estoutro> filter_pronoun_adjective = FilterPronoun(list_pronoun_adjective, sentences);
-                List<Estoutro> filter_pronoun_demostrative = FilterPronoun(list_pronoun_demostrative, sentences);
-
-                List<Lesson> mount_noun = MountNoun(filter_noun, filter_article);
-                List<Lesson> noun_possessive = MountNounPronoun(filter_noun, filter_pronoun_adjective, filter_article);
-                List<Lesson> noun_demostrative = MountNounPronoun(filter_noun, filter_pronoun_demostrative, filter_article);
-                List<Lesson> noun_numeral = MountNounNumeral(filter_noun, filter_digit, filter_article);
-                List<Lesson> noun_article = MountNounArticle(filter_noun, filter_article);
-                List<Lesson> union_substantive = UnionNoun(mount_noun, noun_article);
-                List<Lesson> union_substantive_one = UnionNoun(union_substantive, noun_possessive);
-                List<Lesson> union_substantive_two = UnionNoun(union_substantive_one, noun_numeral);
-                List<Lesson> union_substantive_three = UnionNoun(union_substantive_two, noun_demostrative);
-                List<Lesson> verify_noun = VerifyNoun(union_substantive_three, sentences);
-
-                List<Lesson> lessons = new List<Lesson>();
-                verify_noun.ForEach(item =>
-                {
-                    Lesson lesson = new Lesson();
-                    lesson.team = VAR_NOUN;
-                    lesson.lecture = item.lecture;
-                    lessons.Add(lesson);
-                });
-                return lessons;
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
-                return null;
-            }
-        }
-
-        public List<Lesson> GetNumeral(List<Sentenca> sentences, List<Algarismo> numerals)
-        {
-            try
-            {
-                List<Algarismo> filter_digit = FilterDigit(numerals, sentences);
-                List<Lesson> lessons = new List<Lesson>();
-
-                filter_digit.ForEach(item =>
-                {
-                    List<Word> words = new List<Word>();
-                    words = Word(item.nome, VAR_NUMERAL, null, null);
-                    Lesson lesson = new Lesson();
-                    lesson.team = VAR_NUMERAL;
-                    lesson.lecture = words;
-                    lessons.Add(lesson);
-                });
-                return lessons;
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
-                return null;
-            }
-        }
-
-        public List<Lesson> GetPreposition(List<Sentenca> sentences, List<Juncao> prepositions)
-        {
-            try
-            {
-                List<Juncao> filter_preposition = FilterPreposition(prepositions, sentences);
-                List<Lesson> lessons = new List<Lesson>();
-                filter_preposition.ForEach(item =>
-                {
-                    List<Word> words = new List<Word>();
-                    words = Word(item.nome, VAR_PREPOSITION, null, null);
-                    Lesson lesson = new Lesson();
-                    lesson.team = VAR_PREPOSITION;
-                    lesson.lecture = words;
-                    lessons.Add(lesson);
-                });
-                return lessons;
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
-                return null;
-            }
-        }
-
-        public List<Lesson> GetPronoun(List<Sentenca> sentences, List<Estoutro> pronouns)
-        {
-            try
-            {
-                List<string> type_personal = new List<string>();
-                List<string> type_possessive = new List<string>();
-                List<string> type_demostrative = new List<string>();
-                type_personal.Add(VAR_PERSONAL);
-                List<Estoutro> list_pronoun_personal = MountPronoun(type_personal, pronouns);
-                type_possessive.Add(VAR_POSSESSIVE);
-                List<Estoutro> list_pronoun_possessive = MountPronoun(type_possessive, pronouns);
-                type_demostrative.Add(VAR_DEMONSTRATIVE);
-                List<Estoutro> list_pronoun_demostrative = MountPronoun(type_demostrative, pronouns);
-                List<Estoutro> filter_pronoun_personal = FilterPronoun(list_pronoun_personal, sentences);
-                List<Estoutro> filter_pronoun_possessive = FilterPronoun(list_pronoun_possessive, sentences);
-                List<Estoutro> filter_pronoun_demostrative = FilterPronoun(list_pronoun_demostrative, sentences);
-
-                List<Lesson> lessons = new List<Lesson>();
-                filter_pronoun_personal.ForEach(item =>
-                {
-                    List<Word> words = new List<Word>();
-                    words = Word(item.nome, VAR_PRONOUN, null, null);
-                    Lesson lesson = new Lesson();
-                    lesson.team = VAR_PERSONAL;
-                    lesson.lecture = words;
-                    lessons.Add(lesson);
-                });
-                filter_pronoun_possessive.ForEach(item =>
-                {
-                    List<Word> words = new List<Word>();
-                    words = Word(item.nome, VAR_PRONOUN, null, null);
-                    Lesson lesson = new Lesson();
-                    lesson.team = VAR_POSSESSIVE;
-                    lesson.lecture = words;
-                    lessons.Add(lesson);
-                });
-                filter_pronoun_demostrative.ForEach(item =>
-                {
-                    List<Word> words = new List<Word>();
-                    words = Word(item.nome, VAR_PRONOUN, null, null);
-                    Lesson lesson = new Lesson();
-                    lesson.team = VAR_DEMONSTRATIVE;
-                    lesson.lecture = words;
-                    lessons.Add(lesson);
-                });
-                return lessons;
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
-                return null;
-            }
-        }
-
-        public List<Lesson> GetVerb(List<Sentenca> sentences, List<string> models, List<Elocucao> verbs, List<Circunstancia> adverbs)
-        {
-            try
-            {
-                List<Elocucao> list_verb_model = MountVerb(models, verbs);
-                List<Elocucao> filter_verb = FilterVerb(list_verb_model, sentences);
-                List<Circunstancia> filter_adverb = FilterAdverb(adverbs, sentences);
-                List<Lesson> mount_verb_adverb = MountVerbAdverb(filter_verb, filter_adverb);
-                List<Lesson> verify_verb_adverb = VerifyVerbAdverb(mount_verb_adverb, sentences);
-                List<Lesson> mount_adverb_adverb = MountAdverbAdverb(filter_adverb);
-                List<Lesson> verify_adverb_adverb = VerifyAdverb(mount_adverb_adverb, sentences);
-                List<Lesson> mount_verb_adverb_adverb = MountVerbAdverb(filter_verb, verify_adverb_adverb);
-                List<Lesson> verify_verb_adverb_adverb = VerifyVerbAdverb(mount_verb_adverb_adverb, sentences);
-                List<Lesson> union_verb_adverb = UnionVerb(filter_verb, verify_verb_adverb);
-                List<Lesson> union_verb_adverb_adverb = UnionVerb(union_verb_adverb, verify_verb_adverb_adverb);
-
-                List<Lesson> lessons = new List<Lesson>();
-                union_verb_adverb_adverb.ForEach(item =>
-                {
-                    Lesson lesson = new Lesson();
-                    lesson.team = VAR_VERB;
-                    lesson.lecture = item.lecture;
-                    lessons.Add(lesson);
-                });
-                return lessons;
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
-                return null;
-            }
-        }
-
+        #region LESSON
         public List<string> GetLessonAdjective(Materia lesson, List<Materia> book)
         {
             try
@@ -1774,36 +1499,9 @@ namespace LetterStomach.ViewModels
                 return null;
             }
         }
+        #endregion
 
-        public List<Lesson> Union(List<Lesson> fists, List<Lesson> lasts)
-        {
-            try
-            {
-                List<Lesson> lessons = new List<Lesson>();
-                fists.ForEach(item =>
-                {
-                    Lesson lesson = new Lesson();
-                    lesson.lecture = item.lecture;
-                    lesson.team = item.team;
-                    lessons.Add(lesson);
-                });
-                lasts.ForEach(item =>
-                {
-                    Lesson lesson = new Lesson();
-                    lesson.lecture = item.lecture;
-                    lesson.team = item.team;
-                    lessons.Add(lesson);
-                });
-                return lessons;
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
-                return null;
-            }
-        }
-
+        #region WORDS
         public List<Word> GetSuject(string pronoun, string noun, string article, string numeral, string verb, string model)
         {
             try
@@ -1885,6 +1583,362 @@ namespace LetterStomach.ViewModels
                     words.Add(index);
                 });
                 return words;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return null;
+            }
+        }
+        #endregion
+
+        #region MOUNT
+        public List<Lesson> GetAdjective(List<Sentenca> sentences, List<string> adjectives)
+        {
+            try
+            {
+                List<string> filter_adjective = FilterList(adjectives, sentences);
+                List<Lesson> mount_adjective = MountAdjective(filter_adjective);
+
+                List<Lesson> lessons = new List<Lesson>();
+                mount_adjective.ForEach(item =>
+                {
+                    Lesson lesson = new Lesson();
+                    lesson.team = VAR_ADJECTIVE;
+                    lesson.lecture = item.lecture;
+                    lessons.Add(lesson);
+                });
+                return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return null;
+            }
+        }
+
+        public List<Lesson> GetAdjectiveAdverb(List<Sentenca> sentences, List<string> adjectives, List<Circunstancia> adverbs)
+        {
+            try
+            {
+                List<string> filter_adjective = FilterList(adjectives, sentences);
+                List<Circunstancia> filter_adverb = FilterAdverb(adverbs, sentences);
+                List<Lesson> mount_adjective_adverb = MountAdjectiveAdverb(filter_adjective, filter_adverb);
+                List<Lesson> verify_adjective_adverb = VerifyAdjective(mount_adjective_adverb, sentences);
+                List<Lesson> mount_adverb_adverb = MountAdverbAdverb(filter_adverb);
+                List<Lesson> verify_adverb_adverb = VerifyAdverb(mount_adverb_adverb, sentences);
+                List<Lesson> mount_adjective_adverb_adverb = MountAdjectiveAdverb(filter_adjective, verify_adverb_adverb);
+                List<Lesson> verify_adjective_adverb_adverb = VerifyAdjective(mount_adjective_adverb, sentences);
+                List<Lesson> union_adjective_adverb = UnionAdjective(filter_adjective, verify_adjective_adverb);
+                List<Lesson> union_adjective_adverb_adverb = UnionAdjective(union_adjective_adverb, verify_adjective_adverb_adverb);
+
+                List<Lesson> lessons = new List<Lesson>();
+                union_adjective_adverb_adverb.ForEach(item =>
+                {
+                    Lesson lesson = new Lesson();
+                    lesson.team = VAR_ADJECTIVE_ADVERB;
+                    lesson.lecture = item.lecture;
+                    lessons.Add(lesson);
+                });
+                return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return null;
+            }
+        }
+
+        public List<Lesson> GetAdjectiveNoun(List<Sentenca> sentences, List<Lesson> adjectives, List<Lesson> nouns, List<Lesson> prepositions)
+        {
+            try
+            {
+                List<Lesson> mount_adjective_noun = MountAdjectiveNoun(nouns, adjectives);
+                List<Lesson> verify_adjective_noun = VerifyAdjectiveNoun(mount_adjective_noun, sentences);
+                List<Lesson> mount_adjective_preposition_noun = MountAdjectivePrepositionNoun(nouns, adjectives, prepositions);
+                List<Lesson> verify_adjective_prepositon_noun = VerifyAdjectivePrepositionNoun(mount_adjective_preposition_noun, sentences);
+                List<Lesson> union_adjective_preposition_noun = UnionNoun(verify_adjective_noun, verify_adjective_prepositon_noun);
+
+                List<Lesson> lessons = new List<Lesson>();
+                union_adjective_preposition_noun.ForEach(item =>
+                {
+                    Lesson lesson = new Lesson();
+                    lesson.team = VAR_ADJECTIVE_NOUN;
+                    lesson.lecture = item.lecture;
+                    lessons.Add(lesson);
+                });
+                return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return null;
+            }
+        }
+
+        public List<Lesson> GetArticle(List<Sentenca> sentences, List<Preceito> articles)
+        {
+            try
+            {
+                List<Preceito> filter_article = FilterArticle(articles, sentences);
+                
+                List<Lesson> lessons = new List<Lesson>();
+                filter_article.ForEach(item =>
+                {
+                    List<Word> words = new List<Word>();
+                    words = Word(item.nome, VAR_ARTICLE, null, null);
+                    Lesson lesson = new Lesson();
+                    lesson.team = VAR_ARTICLE;
+                    lesson.lecture = words;
+                    lessons.Add(lesson);
+                });
+                return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return null;
+            }
+        }
+
+        public List<Lesson> GetNoun(List<Sentenca> sentences, List<string> nouns, List<Estoutro> pronouns, List<Preceito> articles, List<Algarismo> numerals)
+        {
+            try
+            {
+                List<string> filter_noun = FilterList(nouns, sentences);
+                List<Preceito> filter_article = FilterArticle(articles, sentences);
+                List<Algarismo> filter_numeral = FilterNumeral(numerals, sentences);
+
+                List<string> type_adjective = new List<string>();
+                type_adjective.Add(VAR_ADJECTIVE);
+                List<string> type_demostrative = new List<string>();
+                type_demostrative.Add(VAR_DEMONSTRATIVE);
+                List<Estoutro> list_pronoun_adjective = MountPronoun(type_adjective, pronouns);
+                List<Estoutro> list_pronoun_demostrative = MountPronoun(type_demostrative, pronouns);
+                List<Estoutro> filter_pronoun_adjective = FilterPronoun(list_pronoun_adjective, sentences);
+                List<Estoutro> filter_pronoun_demostrative = FilterPronoun(list_pronoun_demostrative, sentences);
+
+                List<Lesson> mount_noun = MountNoun(filter_noun, filter_article);
+                List<Lesson> noun_possessive = MountNounPronoun(filter_noun, filter_pronoun_adjective, filter_article);
+                List<Lesson> noun_demostrative = MountNounPronoun(filter_noun, filter_pronoun_demostrative, filter_article);
+                List<Lesson> noun_numeral = MountNounNumeral(filter_noun, filter_numeral, filter_article);
+                List<Lesson> noun_article = MountNounArticle(filter_noun, filter_article);
+                List<Lesson> union_substantive = UnionNoun(mount_noun, noun_article);
+                List<Lesson> union_substantive_one = UnionNoun(union_substantive, noun_possessive);
+                List<Lesson> union_substantive_two = UnionNoun(union_substantive_one, noun_numeral);
+                List<Lesson> union_substantive_three = UnionNoun(union_substantive_two, noun_demostrative);
+                List<Lesson> verify_noun = VerifyNoun(union_substantive_three, sentences);
+
+                List<Lesson> lessons = new List<Lesson>();
+                verify_noun.ForEach(item =>
+                {
+                    Lesson lesson = new Lesson();
+                    lesson.team = VAR_NOUN;
+                    lesson.lecture = item.lecture;
+                    lessons.Add(lesson);
+                });
+                return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return null;
+            }
+        }
+
+        public List<Lesson> GetNumeralNoun(List<Sentenca> sentences, List<string> nouns, List<Preceito> articles, List<Algarismo> numerals)
+        {
+            try
+            {
+                List<string> filter_noun = FilterList(nouns, sentences);
+                List<Preceito> filter_article = FilterArticle(articles, sentences);
+                List<Algarismo> filter_numeral = FilterNumeral(numerals, sentences);
+
+                List<Lesson> noun_numeral = MountNounNumeral(filter_noun, filter_numeral, filter_article);
+                List<Lesson> verify_noun = VerifyNoun(noun_numeral, sentences);
+
+                List<Lesson> lessons = new List<Lesson>();
+                verify_noun.ForEach(item =>
+                {
+                    Lesson lesson = new Lesson();
+                    lesson.team = VAR_NUMERAL_NOUN;
+                    lesson.lecture = item.lecture;
+                    lessons.Add(lesson);
+                });
+                return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return null;
+            }
+        }
+
+        public List<Lesson> GetNumeral(List<Sentenca> sentences, List<Algarismo> numerals)
+        {
+            try
+            {
+                List<Algarismo> filter_numeral = FilterNumeral(numerals, sentences);
+                
+                List<Lesson> lessons = new List<Lesson>();
+                filter_numeral.ForEach(item =>
+                {
+                    List<Word> words = new List<Word>();
+                    words = Word(item.nome, VAR_NUMERAL, null, null);
+                    Lesson lesson = new Lesson();
+                    lesson.team = VAR_NUMERAL;
+                    lesson.lecture = words;
+                    lessons.Add(lesson);
+                });
+                return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return null;
+            }
+        }
+
+        public List<Lesson> GetConjunction(List<Sentenca> sentences, List<Ligacao> conjunctions)
+        {
+            try
+            {
+                List<Ligacao> filter_conjunction = FilterConjunction(conjunctions, sentences);
+                
+                List<Lesson> lessons = new List<Lesson>();
+                filter_conjunction.ForEach(item =>
+                {
+                    List<Word> words = new List<Word>();
+                    words = Word(item.nome, VAR_CONJUNCTION, null, null);
+                    Lesson lesson = new Lesson();
+                    lesson.team = VAR_CONJUNCTION;
+                    lesson.lecture = words;
+                    lessons.Add(lesson);
+                });
+                return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return null;
+            }
+        }
+
+        public List<Lesson> GetPreposition(List<Sentenca> sentences, List<Juncao> prepositions)
+        {
+            try
+            {
+                List<Juncao> filter_preposition = FilterPreposition(prepositions, sentences);
+
+                List<Lesson> lessons = new List<Lesson>();
+                filter_preposition.ForEach(item =>
+                {
+                    List<Word> words = new List<Word>();
+                    words = Word(item.nome, VAR_PREPOSITION, null, null);
+                    Lesson lesson = new Lesson();
+                    lesson.team = VAR_PREPOSITION;
+                    lesson.lecture = words;
+                    lessons.Add(lesson);
+                });
+                return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return null;
+            }
+        }
+
+        public List<Lesson> GetPronoun(List<Sentenca> sentences, List<Estoutro> pronouns)
+        {
+            try
+            {
+                List<string> type_personal = new List<string>();
+                type_personal.Add(VAR_PERSONAL);
+                List<Estoutro> mount_pronoun_personal = MountPronoun(type_personal, pronouns);
+                List<string> type_possessive = new List<string>();
+                type_possessive.Add(VAR_POSSESSIVE);
+                List<Estoutro> mount_pronoun_possessive = MountPronoun(type_possessive, pronouns);
+                List<string> type_demostrative = new List<string>();
+                type_demostrative.Add(VAR_DEMONSTRATIVE);
+                List<Estoutro> mount_pronoun_demostrative = MountPronoun(type_demostrative, pronouns);
+                List<Estoutro> filter_pronoun_personal = FilterPronoun(mount_pronoun_personal, sentences);
+                List<Estoutro> filter_pronoun_possessive = FilterPronoun(mount_pronoun_possessive, sentences);
+                List<Estoutro> filter_pronoun_demostrative = FilterPronoun(mount_pronoun_demostrative, sentences);
+
+                List<Lesson> lessons = new List<Lesson>();
+                filter_pronoun_personal.ForEach(item =>
+                {
+                    List<Word> words = new List<Word>();
+                    words = Word(item.nome, VAR_PRONOUN, null, null);
+                    Lesson lesson = new Lesson();
+                    lesson.team = VAR_PERSONAL;
+                    lesson.lecture = words;
+                    lessons.Add(lesson);
+                });
+                filter_pronoun_possessive.ForEach(item =>
+                {
+                    List<Word> words = new List<Word>();
+                    words = Word(item.nome, VAR_PRONOUN, null, null);
+                    Lesson lesson = new Lesson();
+                    lesson.team = VAR_POSSESSIVE;
+                    lesson.lecture = words;
+                    lessons.Add(lesson);
+                });
+                filter_pronoun_demostrative.ForEach(item =>
+                {
+                    List<Word> words = new List<Word>();
+                    words = Word(item.nome, VAR_PRONOUN, null, null);
+                    Lesson lesson = new Lesson();
+                    lesson.team = VAR_DEMONSTRATIVE;
+                    lesson.lecture = words;
+                    lessons.Add(lesson);
+                });
+                return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return null;
+            }
+        }
+
+        public List<Lesson> GetVerb(List<Sentenca> sentences, List<string> models, List<Elocucao> verbs, List<Circunstancia> adverbs)
+        {
+            try
+            {
+                List<Elocucao> list_verb_model = MountVerb(models, verbs);
+                List<Elocucao> filter_verb = FilterVerb(list_verb_model, sentences);
+                List<Circunstancia> filter_adverb = FilterAdverb(adverbs, sentences);
+                List<Lesson> mount_verb_adverb = MountVerbAdverb(filter_verb, filter_adverb);
+                List<Lesson> verify_verb_adverb = VerifyVerbAdverb(mount_verb_adverb, sentences);
+                List<Lesson> mount_adverb_adverb = MountAdverbAdverb(filter_adverb);
+                List<Lesson> verify_adverb_adverb = VerifyAdverb(mount_adverb_adverb, sentences);
+                List<Lesson> mount_verb_adverb_adverb = MountVerbAdverb(filter_verb, verify_adverb_adverb);
+                List<Lesson> verify_verb_adverb_adverb = VerifyVerbAdverb(mount_verb_adverb_adverb, sentences);
+                List<Lesson> union_verb_adverb = UnionVerb(filter_verb, verify_verb_adverb);
+                List<Lesson> union_verb_adverb_adverb = UnionVerb(union_verb_adverb, verify_verb_adverb_adverb);
+
+                List<Lesson> lessons = new List<Lesson>();
+                union_verb_adverb_adverb.ForEach(item =>
+                {
+                    Lesson lesson = new Lesson();
+                    lesson.team = VAR_VERB;
+                    lesson.lecture = item.lecture;
+                    lessons.Add(lesson);
+                });
+                return lessons;
             }
             catch (Exception ex)
             {

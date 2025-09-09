@@ -85,9 +85,13 @@ namespace LetterStomach.Services
         public readonly string Article = "article";
         public readonly string Numeral = "numeral";
         public readonly string Adverb = "adverbio";
+        public readonly string Conjunction = "conjuncao";
 
         public readonly string Adverb_Adverb = "adverbio adverbio";
         public readonly string Adjective_Noun = "adjetivo substantivo";
+        public readonly string Adjective_Adverb = "adjetivo adverbio";
+        public readonly string Conjunction_Noun = "conjuncao substantivo";
+        public readonly string Numeral_Noun = "numeral substantivo";
 
         public readonly string Personal = "pessoal";
         public readonly string Preposition = "preposicao";
@@ -96,6 +100,5 @@ namespace LetterStomach.Services
 
         public readonly string Single = "singular";
         public readonly string Plural = "plural";
-
     }
 }

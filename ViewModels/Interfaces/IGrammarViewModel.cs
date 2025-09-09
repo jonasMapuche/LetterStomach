@@ -8,8 +8,8 @@ namespace LetterStomach.ViewModels.Interfaces
         void SQLite();
         void SetGrammar();
         List<Materia> GetLetter(string language);
-        string GetOration(List<Word> oration);
-        List<Word> GetOration(string language, Materia lesson, List<Materia> book);
-        List<Word> GetOration(string language, List<Word> words, bool reverse);
+        string GetSyntax(List<Word> oration);
+        List<Word> MountSyntax(string language, Materia lesson, List<Materia> book);
+        List<Word> MountSyntax(string language, List<Word> words, bool reverse);
     }
 }
