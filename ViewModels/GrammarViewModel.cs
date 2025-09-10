@@ -634,7 +634,7 @@ namespace LetterStomach.ViewModels
                 words = Union(words, predicatePredicative);
                 predicateDirectObject = this._syntaxViewMode.PredicateDirectObject(sentences, terms, sampleSubjectVerb, order_sample);
                 words = Union(words, predicateDirectObject);
-                predicateIndirectObject = this._syntaxViewMode.PredicateIndirectObject(sentences, terms, sampleSubjectVerb, order_sample);
+                predicateIndirectObject = this._syntaxViewMode.PredicateIndirectObject(sentences, terms, predicateDirectObject, order_sample);
                 words = Union(words, predicateIndirectObject);
                 predicateDirectObjectIndirectObject = this._syntaxViewMode.PredicateDirectObjectIndirectObject(sentences, terms, predicateDirectObject, order_predicate);
                 words = Union(words, predicateDirectObjectIndirectObject);

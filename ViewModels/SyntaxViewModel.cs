@@ -78,7 +78,7 @@ namespace LetterStomach.ViewModels
         #endregion
 
         #region VERIFY
-        private bool VerifyVerbSS(List<Word> words, List<Sentenca> sentences)
+        private bool VerifyVerbSampleSubject(List<Word> words, List<Sentenca> sentences)
         {
             try
             {
@@ -105,7 +105,7 @@ namespace LetterStomach.ViewModels
             }
         }
 
-        private bool VerifyVerbCS(List<Word> words, List<Sentenca> sentences)
+        private bool VerifyVerbCompoundSubject(List<Word> words, List<Sentenca> sentences)
         {
             try
             {
@@ -208,7 +208,7 @@ namespace LetterStomach.ViewModels
             }
         }
 
-        private bool VerifyVerbODAdjectiveNoun(List<Word> words, List<Sentenca> sentences)
+        private bool VerifyVerbAdjectiveNoun(List<Word> words, List<Sentenca> sentences)
         {
             try
             {
@@ -257,7 +257,7 @@ namespace LetterStomach.ViewModels
             }
         }
 
-        private bool VerifyVerbOD(List<Word> words, List<Sentenca> sentences)
+        private bool VerifyVerbDirectObject(List<Word> words, List<Sentenca> sentences)
         {
             try
             {
@@ -306,7 +306,7 @@ namespace LetterStomach.ViewModels
             }
         }
 
-        private bool VerifyVerbOI(List<Word> words, List<Sentenca> sentences)
+        private bool VerifyVerbIndirectObject(List<Word> words, List<Sentenca> sentences)
         {
             try
             {
@@ -314,6 +314,7 @@ namespace LetterStomach.ViewModels
                 Dictionary<(string, string), int> word_2_vec = this._wordEmbeddingService.Word2Vec(sentences);
                 string word_preposition = string.Empty;
                 string word_verb = string.Empty;
+                string word_noun = string.Empty;
                 string verb = string.Empty;
                 string adverb = string.Empty;
                 string adverb_adverb = string.Empty;
@@ -323,18 +324,225 @@ namespace LetterStomach.ViewModels
                     if (item.kind == VAR_VERB) verb = item.term;
                     if ((item.sentense == VAR_PREDICATE) && (item.team == VAR_VERB) && (item.kind == VAR_ADVERB)) adverb = item.term;
                     if ((item.sentense == VAR_PREDICATE) && (item.team == VAR_VERB) && (item.kind == VAR_ADVERB_ADVERB)) adverb_adverb = item.term;
+                    if ((item.sentense == VAR_PREDICATE) && (item.team == VAR_NOUN)) word_noun = item.term;
                 });
-                if (adverb_adverb != string.Empty) word_verb = adverb_adverb;
-                else
-                {
-                    if (adverb != string.Empty) word_verb = adverb;
-                    else
-                    {
-                        if (verb != string.Empty) word_verb = verb;
-                    }
-                }
+                if ((adverb_adverb != string.Empty) && (adverb != string.Empty) && (verb != string.Empty)) word_verb = adverb_adverb;
+                if ((adverb_adverb == string.Empty) && (adverb != string.Empty) && (verb != string.Empty)) word_verb = adverb;
+                if ((adverb_adverb == string.Empty) && (adverb == string.Empty) && (verb != string.Empty)) word_verb = verb;
                 bool similarity = false;
                 similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, word_verb, word_preposition);
+                if (similarity == false) similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, word_noun, word_preposition);
+                if (similarity) return true;
+                return false;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return false;
+            }
+        }
+
+        private bool VerifyNumeralConjunctionNoun(List<Word> words, List<Sentenca> sentences, int order_conjunction)
+        {
+            try
+            {
+                HashSet<string> vocabulary = this._wordEmbeddingService.Vocabulary(sentences);
+                Dictionary<(string, string), int> word_2_vec = this._wordEmbeddingService.Word2Vec(sentences);
+                string conjunction = string.Empty;
+                string numeral = string.Empty;
+                string noun = string.Empty;
+                string preposition = string.Empty;
+                words.ForEach(item =>
+                {
+                    if ((item.sentense == VAR_PREDICATE) && (item.team == VAR_CONJUNCTION) && (item.kind == VAR_CONJUNCTION) && (item.order == order_conjunction)) conjunction = item.term;
+                    if ((item.sentense == VAR_PREDICATE) && (item.team == VAR_NUMERAL) && (item.kind == VAR_NUMERAL) && (item.order == order_conjunction)) numeral = item.term;
+                    if ((item.sentense == VAR_PREDICATE) && (item.team == VAR_NUMERAL_NOUN) && (item.kind == VAR_NUMERAL) && (item.order == order_conjunction)) noun = item.term;
+                    if ((item.sentense == VAR_PREDICATE) && (item.kind == VAR_PREPOSITION) && (item.order == order_conjunction)) preposition = item.term; 
+                });
+                bool similarity = false;
+                similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, numeral, conjunction);
+                if (similarity) similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, conjunction, noun);
+                if ((similarity) && (preposition != string.Empty)) similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, preposition, numeral);
+                if (similarity) return true;
+                return false;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return false;
+            }
+        }
+
+        private bool VerifyAdjectiveConjunctionNoun(List<Word> words, List<Sentenca> sentences, int order_conjunction)
+        {
+            try
+            {
+                HashSet<string> vocabulary = this._wordEmbeddingService.Vocabulary(sentences);
+                Dictionary<(string, string), int> word_2_vec = this._wordEmbeddingService.Word2Vec(sentences);
+                string conjunction = string.Empty;
+                string adjective = string.Empty;
+                string noun = string.Empty;
+                string preposition = string.Empty;
+                words.ForEach(item =>
+                {
+                    if ((item.sentense == VAR_PREDICATE) && (item.team == VAR_CONJUNCTION) && (item.kind == VAR_CONJUNCTION) && (item.order == order_conjunction)) conjunction = item.term;
+                    if ((item.sentense == VAR_PREDICATE) && (item.team == VAR_ADJECTIVE) && (item.kind == VAR_ADJECTIVE) && (item.order == order_conjunction)) adjective = item.term;
+                    if ((item.sentense == VAR_PREDICATE) && (item.team == VAR_ADJECTIVE_NOUN) && (item.kind == VAR_ADJECTIVE) && (item.order == order_conjunction)) noun = item.term;
+                    if ((item.sentense == VAR_PREDICATE) && (item.kind == VAR_PREPOSITION) && (item.order == order_conjunction)) preposition = item.term;
+                });
+                bool similarity = false;
+                similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, adjective, conjunction);
+                if (similarity) similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, conjunction, noun);
+                if ((similarity) && (preposition != string.Empty)) similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, preposition, adjective);
+                if (similarity) return true;
+                return false;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return false;
+            }
+        }
+        
+        private bool VerifyDirectObjectPreposition(List<Word> words, List<Sentenca> sentences, int order_direct_object)
+        {
+            try
+            {
+                HashSet<string> vocabulary = this._wordEmbeddingService.Vocabulary(sentences);
+                Dictionary<(string, string), int> word_2_vec = this._wordEmbeddingService.Word2Vec(sentences);
+                string preposition = string.Empty;
+                string noun = string.Empty;
+                words.ForEach(item =>
+                {
+                    if ((item.sentense == VAR_PREDICATE) && (item.team == VAR_NOUN) && (item.order == order_direct_object)) noun = item.term;
+                    if ((item.sentense == VAR_PREDICATE) && (item.team == VAR_PREPOSITION)) preposition = item.term;
+                });
+                bool similarity = false;
+                similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, noun, preposition);
+                if (similarity) return true;
+                return false;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return false;
+            }
+        }
+        
+        private bool VerifyIndirectObject(List<Word> words, List<Sentenca> sentences, int order_indirect_object)
+        {
+            try
+            {
+                HashSet<string> vocabulary = this._wordEmbeddingService.Vocabulary(sentences);
+                Dictionary<(string, string), int> word_2_vec = this._wordEmbeddingService.Word2Vec(sentences);
+                string preposition = string.Empty;
+                string noun = string.Empty;
+                string adjunct = string.Empty;
+                words.ForEach(item =>
+                {
+                    if ((item.sentense == VAR_PREDICATE) && (item.team == VAR_NOUN) && (item.kind == VAR_NOUN) && (item.order == order_indirect_object)) noun = item.term;
+                    if ((item.sentense == VAR_PREDICATE) && (item.kind == VAR_PRONOUN) && (item.order == order_indirect_object)) noun = item.term;
+                    if ((item.sentense == VAR_PREDICATE) && (item.team == VAR_NOUN) && (item.order == order_indirect_object)
+                        && ((item.kind == VAR_NUMERAL) || (item.kind == VAR_ARTICLE) || (item.kind == VAR_PRONOUN))) adjunct = item.term;
+                    if ((item.sentense == VAR_PREDICATE) && (item.team == VAR_PREPOSITION) && (item.order == order_indirect_object)) preposition = item.term;
+                });
+                bool similarity = false;
+                if (adjunct != string.Empty) similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, preposition, adjunct);
+                else similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, preposition, noun);
+                if (similarity) return true;
+                return false;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return false;
+            }
+        }
+
+        private bool VerifyIndirectObjectAdjectiveNoun(List<Word> words, List<Sentenca> sentences, int order_indirect_object)
+        {
+            try
+            {
+                HashSet<string> vocabulary = this._wordEmbeddingService.Vocabulary(sentences);
+                Dictionary<(string, string), int> word_2_vec = this._wordEmbeddingService.Word2Vec(sentences);
+                string adjective = string.Empty;
+                string adjunct = string.Empty;
+                string preposition = string.Empty;
+                words.ForEach(item =>
+                {
+                    if ((item.sentense == VAR_PREDICATE) && (item.team == VAR_PREPOSITION) && (item.order == order_indirect_object)) preposition = item.term;
+                    if ((item.sentense == VAR_PREDICATE) && (item.team == VAR_ADJECTIVE_NOUN) && (item.order == order_indirect_object)
+                        && ((item.kind == VAR_ARTICLE) || (item.kind == VAR_NUMERAL) || (item.kind == VAR_PRONOUN))) adjunct = item.term;
+                    if ((item.sentense == VAR_PREDICATE) && (item.team == VAR_ADJECTIVE_NOUN) && (item.kind == VAR_ADJECTIVE) && (item.order == order_indirect_object)) adjective = item.term;
+                });
+                bool similarity = false;
+                if (adjunct != string.Empty) similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, preposition, adjunct);
+                else similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, preposition, adjective);
+                if (similarity) return true;
+                return false;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return false;
+            }
+        }
+
+        private bool VerifyDirectObjectPredicative(List<Word> words, List<Sentenca> sentences, int order_predicative)
+        {
+            try
+            {
+                HashSet<string> vocabulary = this._wordEmbeddingService.Vocabulary(sentences);
+                Dictionary<(string, string), int> word_2_vec = this._wordEmbeddingService.Word2Vec(sentences);
+                string adjective = string.Empty;
+                string pronoun = string.Empty;
+                string noun = string.Empty;
+                int order_object_direct = order_predicative - 1;
+                words.ForEach(item =>
+                {
+                    if ((item.sentense == VAR_PREDICATE) && (item.team == VAR_ADJECTIVE_ADVERB) && (item.kind == VAR_ADJECTIVE) && (item.order == order_predicative)) adjective = item.term;
+                    if ((item.sentense == VAR_PREDICATE) && (item.team == VAR_NOUN) && (item.kind == VAR_NOUN) && (item.order == order_object_direct)) noun = item.term;
+                    if ((item.sentense == VAR_PREDICATE) && (item.kind == VAR_PRONOUN) && (item.order == order_object_direct)) pronoun = item.term;
+                });
+                bool similarity = false;
+                if (pronoun != string.Empty) similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, pronoun, adjective);
+                else similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, noun, adjective);
+                if (similarity) return true;
+                return false;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return false;
+            }
+        }
+
+        private bool VerifyPredicativePreposition(List<Word> words, List<Sentenca> sentences, int order_preposicao)
+        {
+            try
+            {
+                HashSet<string> vocabulary = this._wordEmbeddingService.Vocabulary(sentences);
+                Dictionary<(string, string), int> word_2_vec = this._wordEmbeddingService.Word2Vec(sentences);
+                string preposition = string.Empty;
+                string adjective = string.Empty;
+                string adverb = string.Empty;
+                int order_predicative = order_preposicao - 1;
+                words.ForEach(item =>
+                {
+                    if ((item.sentense == VAR_PREDICATE) && (item.team == VAR_ADJECTIVE_ADVERB) && (item.kind == VAR_ADJECTIVE) && (item.order == order_predicative)) adjective = item.term;
+                    if ((item.sentense == VAR_PREDICATE) && (item.team == VAR_ADJECTIVE_ADVERB) && (item.kind == VAR_ADVERB) && (item.order == order_predicative)) adverb = item.term;
+                    if ((item.sentense == VAR_PREDICATE) && (item.team == VAR_PREPOSITION) && (item.order == order_preposicao)) preposition = item.term;
+                });
+                bool similarity = false;
+                if (adverb != string.Empty) similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, adverb, preposition);
+                else similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, adjective, preposition);
                 if (similarity) return true;
                 return false;
             }
@@ -404,24 +612,7 @@ namespace LetterStomach.ViewModels
         }
         #endregion
 
-        #region OBJECT
-        private Word Lecture(string term, string kind, string sentence, string team)
-        {
-            try
-            {
-                Word word = new Word();
-                word.term = term;
-                word.kind = kind;
-                word.sentense = sentence;
-                word.team = term;
-                return word;
-            }
-            catch (Exception e)
-            {
-                return null;
-            }
-        }
-
+        #region UTIL
         private Word Lecture(string term, string kind, string sentence, string team, int order)
         {
             try
@@ -430,7 +621,7 @@ namespace LetterStomach.ViewModels
                 word.term = term;
                 word.kind = kind;
                 word.sentense = sentence;
-                word.team = term;
+                word.team = team;
                 word.order = order;
                 return word;
             }
@@ -462,13 +653,14 @@ namespace LetterStomach.ViewModels
                 return null;
             }
         }
+        #endregion
 
+        #region OBJECT SUBJECT
         private List<Lesson> MountNounVerb(List<Sentenca> sentences, List<Lesson> matters)
         {
             try
             {
                 List<Lesson> lessons = new List<Lesson>();
-                bool is_noun = true;
                 List<string> kind_verb = new List<string>();
                 kind_verb.Add(VAR_VERB);
                 List<string> kind_noun = new List<string>();
@@ -496,7 +688,7 @@ namespace LetterStomach.ViewModels
                             word = Lecture(item.term, item.kind, VAR_SUBJECT, noun.team, order_noun);
                             words.Add(word);
                         });
-                        if (!VerifyVerbSS(words, sentences)) continue;
+                        if (!VerifyVerbSampleSubject(words, sentences)) continue;
                         Lesson lesson = new Lesson();
                         lesson.lecture = words;
                         lessons.Add(lesson);
@@ -512,7 +704,56 @@ namespace LetterStomach.ViewModels
             }
         }
 
-        private List<Lesson> MountNounConjunctionVerb(List<Sentenca> sentences, List<Lesson> matters)
+        private List<Lesson> MountPronounVerb(List<Sentenca> sentences, List<Lesson> matters)
+        {
+            try
+            {
+                List<Lesson> lessons = new List<Lesson>();
+                List<string> kind_verb = new List<string>();
+                kind_verb.Add(VAR_VERB);
+                List<string> kind_pronoun = new List<string>();
+                kind_pronoun.Add(VAR_PERSONAL);
+                kind_pronoun.Add(VAR_DEMONSTRATIVE);
+                List<Lesson> verbs = new List<Lesson>();
+                verbs = FilterLesson(matters, kind_verb);
+                List<Lesson> pronouns = new List<Lesson>();
+                pronouns = FilterLesson(matters, kind_pronoun);
+                int order_pronoun = VAR_ORDER_1;
+                int order_verb = VAR_ORDER_2;
+                foreach (Lesson verb in verbs)
+                {
+                    foreach (Lesson pronoun in pronouns)
+                    {
+                        List<Word> words = new List<Word>();
+                        verb.lecture.ForEach(item =>
+                        {
+                            Word word = new Word();
+                            word = Lecture(item.term, item.kind, VAR_PREDICATE, verb.team, order_verb);
+                            words.Add(word);
+                        });
+                        pronoun.lecture.ForEach(item =>
+                        {
+                            Word word = new Word();
+                            word = Lecture(item.term, item.kind, VAR_SUBJECT, pronoun.team, order_pronoun);
+                            words.Add(word);
+                        });
+                        if (!VerifyVerbSampleSubject(words, sentences)) continue;
+                        Lesson lesson = new Lesson();
+                        lesson.lecture = words;
+                        lessons.Add(lesson);
+                    }
+                }
+                return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return null;
+            }
+        }
+
+        private List<Lesson> MountCompoundVerb(List<Sentenca> sentences, List<Lesson> matters)
         {
             try
             {
@@ -570,7 +811,7 @@ namespace LetterStomach.ViewModels
                                     word = Lecture(item.term, item.kind, VAR_SUBJECT, conjunction.team, order_conjunction);
                                     words.Add(word);
                                 });
-                                if (!VerifyVerbCS(words, sentences)) continue;
+                                if (!VerifyVerbCompoundSubject(words, sentences)) continue;
                                 Lesson lesson = new Lesson();
                                 lesson.lecture = words;
                                 lessons.Add(lesson);
@@ -587,54 +828,9 @@ namespace LetterStomach.ViewModels
                 return null;
             }
         }
+        #endregion
 
-        private List<Lesson> MountPronounVerb(List<Sentenca> sentences, List<Lesson> matters)
-        {
-            try
-            {
-                List<Lesson> lessons = new List<Lesson>();
-                List<string> kind_verb = new List<string>();
-                kind_verb.Add(VAR_VERB);
-                List<string> kind_pronoun = new List<string>();
-                kind_pronoun.Add(VAR_PERSONAL);
-                kind_pronoun.Add(VAR_DEMONSTRATIVE);
-                List<Lesson> verbs = new List<Lesson>();
-                verbs = FilterLesson(matters, kind_verb);
-                List<Lesson> pronouns = new List<Lesson>();
-                pronouns = FilterLesson(matters, kind_pronoun);
-                foreach (Lesson verb in verbs)
-                {
-                    foreach (Lesson pronoun in pronouns)
-                    {
-                        List<Word> words = new List<Word>();
-                        verb.lecture.ForEach(item =>
-                        {
-                            Word word = new Word();
-                            word = Lecture(item.term, item.kind, VAR_PREDICATE, verb.team);
-                            words.Add(word);
-                        });
-                        pronoun.lecture.ForEach(item =>
-                        {
-                            Word word = new Word();
-                            word = Lecture(item.term, item.kind, VAR_SUBJECT, pronoun.team);
-                            words.Add(word);
-                        });
-                        if (!VerifyVerbSS(words, sentences)) continue;
-                        Lesson lesson = new Lesson();
-                        lesson.lecture = words;
-                        lessons.Add(lesson);
-                    }
-                }
-                return lessons;
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
-                return null;
-            }
-        }
-
+        #region OBJECT OBJECT DIRECT
         private List<Lesson> MountVerbNoun(List<Sentenca> sentences, List<Lesson> matters, List<Lesson> sources, int order_noun)
         {
             try
@@ -644,6 +840,7 @@ namespace LetterStomach.ViewModels
                 kind.Add(VAR_NOUN);
                 List<Lesson> nouns = new List<Lesson>();
                 nouns = FilterLesson(matters, kind);
+                if (nouns.Count == 0) return lessons;
                 foreach (Lesson source in sources)
                 {
                     List<Word> words = source.lecture;
@@ -657,10 +854,10 @@ namespace LetterStomach.ViewModels
                         noun.lecture.ForEach(item =>
                         {
                             Word word = new Word();
-                            word = Lecture(item.team, item.kind, VAR_PREDICATE, noun.team, order_noun);
+                            word = Lecture(item.term, item.kind, VAR_PREDICATE, noun.team, order_noun);
                             words1.Add(word);
                         });
-                        if (!VerifyVerbOD(words1, sentences)) continue;
+                        if (!VerifyVerbDirectObject(words1, sentences)) continue;
                         Lesson lesson = new Lesson();
                         lesson.lecture = words1;
                         lessons.Add(lesson);
@@ -683,25 +880,26 @@ namespace LetterStomach.ViewModels
                 List<Lesson> lessons = new List<Lesson>();
                 List<string> kind = new List<string>();
                 kind.Add(VAR_POSSESSIVE);
-                List<Lesson> nouns = new List<Lesson>();
-                nouns = FilterLesson(matters, kind);
+                List<Lesson> pronouns = new List<Lesson>();
+                pronouns = FilterLesson(matters, kind);
+                if (pronouns.Count == 0) return lessons;
                 foreach (Lesson source in sources)
                 {
                     List<Word> words = source.lecture;
-                    foreach (Lesson noun in nouns)
+                    foreach (Lesson pronoun in pronouns)
                     {
                         List<Word> words1 = new List<Word>();
                         words.ForEach(item =>
                         {
                             words1.Add(item);
                         });
-                        noun.lecture.ForEach(item =>
+                        pronoun.lecture.ForEach(item =>
                         {
                             Word word = new Word();
-                            word = Lecture(item.team, item.kind, VAR_PREDICATE, noun.team, order_pronoun);
+                            word = Lecture(item.term, item.kind, VAR_PREDICATE, pronoun.team, order_pronoun);
                             words1.Add(word);
                         });
-                        if (!VerifyVerbOD(words1, sentences)) continue;
+                        if (!VerifyVerbDirectObject(words1, sentences)) continue;
                         Lesson lesson = new Lesson();
                         lesson.lecture = words1;
                         lessons.Add(lesson);
@@ -726,6 +924,7 @@ namespace LetterStomach.ViewModels
                 kind.Add(VAR_ADJECTIVE_NOUN);
                 List<Lesson> adjectives_nouns = new List<Lesson>();
                 adjectives_nouns = FilterLesson(matters, kind);
+                if (adjectives_nouns.Count == 0) return lessons;
                 foreach (Lesson source in sources)
                 {
                     List<Word> words = source.lecture;
@@ -739,10 +938,53 @@ namespace LetterStomach.ViewModels
                         adjective_noun.lecture.ForEach(item =>
                         {
                             Word word = new Word();
-                            word = Lecture(item.team, item.kind, VAR_PREDICATE, adjective_noun.team, order_adjective_noun);
+                            word = Lecture(item.term, item.kind, VAR_PREDICATE, adjective_noun.team, order_adjective_noun);
                             words1.Add(word);
                         });
-                        if (!VerifyVerbODAdjectiveNoun(words1, sentences)) continue;
+                        if (!VerifyVerbAdjectiveNoun(words1, sentences)) continue;
+                        Lesson lesson = new Lesson();
+                        lesson.lecture = words1;
+                        lessons.Add(lesson);
+                    }
+                }
+                return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return null;
+            }
+        }
+        #endregion
+
+        #region OBJECT PREDICATIVE
+        private List<Lesson> MountPredicative(List<Sentenca> sentences, List<Lesson> matters, List<Lesson> sources, int order_predicative)
+        {
+            try
+            {
+                List<Lesson> lessons = new List<Lesson>();
+                List<string> kind = new List<string>();
+                kind.Add(VAR_ADJECTIVE_ADVERB);
+                List<Lesson> adjectives = new List<Lesson>();
+                adjectives = FilterLesson(matters, kind);
+                if (adjectives.Count == 0) return lessons;
+                foreach (Lesson source in sources)
+                {
+                    List<Word> words = source.lecture;
+                    foreach (Lesson adjective in adjectives)
+                    {
+                        List<Word> words1 = new List<Word>();
+                        words.ForEach(item =>
+                        {
+                            words1.Add(item);
+                        });
+                        adjective.lecture.ForEach(item =>
+                        {
+                            Word word = new Word();
+                            word = Lecture(item.term, item.kind, VAR_PREDICATE, adjective.team, order_predicative);
+                            words1.Add(word);
+                        });
                         Lesson lesson = new Lesson();
                         lesson.lecture = words1;
                         lessons.Add(lesson);
@@ -767,6 +1009,7 @@ namespace LetterStomach.ViewModels
                 kind.Add(VAR_ADJECTIVE_ADVERB);
                 List<Lesson> adjectives = new List<Lesson>();
                 adjectives = FilterLesson(matters, kind);
+                if (adjectives.Count == 0) return lessons;
                 foreach (Lesson source in sources)
                 {
                     List<Word> words = source.lecture;
@@ -780,10 +1023,140 @@ namespace LetterStomach.ViewModels
                         adjective.lecture.ForEach(item =>
                         {
                             Word word = new Word();
-                            word = Lecture(item.team, item.kind, VAR_PREDICATE, adjective.team, order_adjective);
+                            word = Lecture(item.term, item.kind, VAR_PREDICATE, adjective.team, order_adjective);
                             words1.Add(word);
                         });
                         if (!VerifyVerbPredicative(words1, sentences)) continue;
+                        Lesson lesson = new Lesson();
+                        lesson.lecture = words1;
+                        lessons.Add(lesson);
+                    }
+                }
+                return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return null;
+            }
+        }
+
+        private List<Lesson> MountObjectPredicative(List<Sentenca> sentences, List<Lesson> matters, List<Lesson> sources, int order_predicative)
+        {
+            try
+            {
+                List<Lesson> lessons = new List<Lesson>();
+                List<string> kind = new List<string>();
+                kind.Add(VAR_ADJECTIVE_ADVERB);
+                List<Lesson> adjectives = new List<Lesson>();
+                adjectives = FilterLesson(matters, kind);
+                if (adjectives.Count == 0) return lessons;
+                foreach (Lesson source in sources)
+                {
+                    List<Word> words = source.lecture;
+                    foreach (Lesson adjective in adjectives)
+                    {
+                        List<Word> words1 = new List<Word>();
+                        words.ForEach(item =>
+                        {
+                            words1.Add(item);
+                        });
+                        adjective.lecture.ForEach(item =>
+                        {
+                            Word word = new Word();
+                            word = Lecture(item.term, item.kind, VAR_PREDICATE, adjective.team, order_predicative);
+                            words1.Add(word);
+                        });
+                        if (!VerifyDirectObjectPredicative(words1, sentences, order_predicative)) continue;
+                        Lesson lesson = new Lesson();
+                        lesson.lecture = words1;
+                        lessons.Add(lesson);
+                    }
+                }
+                return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return null;
+            }
+        }
+
+        private List<Lesson> MountAdjectivePreposition(List<Sentenca> sentences, List<Lesson> matters, List<Lesson> sources, int order_preposition)
+        {
+            try
+            {
+                List<Lesson> lessons = new List<Lesson>();
+                List<string> kind = new List<string>();
+                kind.Add(VAR_PREPOSITION);
+                List<Lesson> prepositions = new List<Lesson>();
+                prepositions = FilterLesson(matters, kind);
+                if (prepositions.Count == 0) return lessons;
+                int order_direct_object = order_preposition - 1;
+                foreach (Lesson source in sources)
+                {
+                    List<Word> words = source.lecture;
+                    foreach (Lesson preposition in prepositions)
+                    {
+                        List<Word> words1 = new List<Word>();
+                        words.ForEach(item =>
+                        {
+                            words1.Add(item);
+                        });
+                        preposition.lecture.ForEach(item =>
+                        {
+                            Word word = new Word();
+                            word = Lecture(item.term, item.kind, VAR_PREDICATE, preposition.team, order_preposition);
+                            words1.Add(word);
+                        });
+                        if (!VerifyPredicativePreposition(words1, sentences, order_direct_object)) continue;
+                        Lesson lesson = new Lesson();
+                        lesson.lecture = words1;
+                        lessons.Add(lesson);
+                    }
+                }
+                return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return null;
+            }
+        }
+        #endregion
+
+        #region OBJECT INDIRECT OBJECT
+        private List<Lesson> MountPreposition(List<Sentenca> sentences, List<Lesson> matters, List<Lesson> sources, int order_preposition)
+        {
+            try
+            {
+                List<Lesson> lessons = new List<Lesson>();
+                List<string> kind = new List<string>();
+                kind.Add(VAR_PREPOSITION);
+                List<Lesson> prepositions = new List<Lesson>();
+                prepositions = FilterLesson(matters, kind);
+                if (prepositions.Count == 0) return lessons;
+                int order_direct_object = order_preposition - 1;
+                foreach (Lesson source in sources)
+                {
+                    List<Word> words = source.lecture;
+                    foreach (Lesson preposition in prepositions)
+                    {
+                        List<Word> words1 = new List<Word>();
+                        words.ForEach(item =>
+                        {
+                            words1.Add(item);
+                        });
+                        preposition.lecture.ForEach(item =>
+                        {
+                            Word word = new Word();
+                            word = Lecture(item.term, item.kind, VAR_PREDICATE, preposition.team, order_preposition);
+                            words1.Add(word);
+                        });
+                        if (!VerifyDirectObjectPreposition(words1, sentences, order_direct_object)) continue;
                         Lesson lesson = new Lesson();
                         lesson.lecture = words1;
                         lessons.Add(lesson);
@@ -808,6 +1181,7 @@ namespace LetterStomach.ViewModels
                 kind.Add(VAR_PREPOSITION);
                 List<Lesson> prepositions = new List<Lesson>();
                 prepositions = FilterLesson(matters, kind);
+                if (prepositions.Count == 0) return lessons;
                 foreach (Lesson source in sources)
                 {
                     List<Word> words = source.lecture;
@@ -821,10 +1195,10 @@ namespace LetterStomach.ViewModels
                         preposition.lecture.ForEach(item =>
                         {
                             Word word = new Word();
-                            word = Lecture(item.team, item.kind, VAR_PREDICATE, preposition.team, order_preposition);
+                            word = Lecture(item.term, item.kind, VAR_PREDICATE, preposition.team, order_preposition);
                             words1.Add(word);
                         });
-                        if (!VerifyVerbOI(words1, sentences)) continue;
+                        if (!VerifyVerbIndirectObject(words1, sentences)) continue;
                         Lesson lesson = new Lesson();
                         lesson.lecture = words1;
                         lessons.Add(lesson);
@@ -840,31 +1214,33 @@ namespace LetterStomach.ViewModels
             }
         }
 
-        private List<Lesson> MountPreposition(List<Sentenca> sentences, List<Lesson> matters, List<Lesson> sources, int order_preposition)
+        private List<Lesson> MountIndirectObjectNoun(List<Sentenca> sentences, List<Lesson> matters, List<Lesson> sources, int order_noun)
         {
             try
             {
                 List<Lesson> lessons = new List<Lesson>();
                 List<string> kind = new List<string>();
-                kind.Add(VAR_PREPOSITION);
-                List<Lesson> prepositions = new List<Lesson>();
-                prepositions = FilterLesson(matters, kind);
+                kind.Add(VAR_NOUN);
+                List<Lesson> nouns = new List<Lesson>();
+                nouns = FilterLesson(matters, kind);
+                if (nouns.Count == 0) return lessons;
                 foreach (Lesson source in sources)
                 {
                     List<Word> words = source.lecture;
-                    foreach (Lesson preposition in prepositions)
+                    foreach (Lesson noun in nouns)
                     {
                         List<Word> words1 = new List<Word>();
                         words.ForEach(item =>
                         {
                             words1.Add(item);
                         });
-                        preposition.lecture.ForEach(item =>
+                        noun.lecture.ForEach(item =>
                         {
                             Word word = new Word();
-                            word = Lecture(item.team, item.kind, VAR_PREDICATE, preposition.team, order_preposition);
+                            word = Lecture(item.term, item.kind, VAR_PREDICATE, noun.team, order_noun);
                             words1.Add(word);
                         });
+                        if (!VerifyIndirectObject(words1, sentences, order_noun)) continue;
                         Lesson lesson = new Lesson();
                         lesson.lecture = words1;
                         lessons.Add(lesson);
@@ -880,31 +1256,33 @@ namespace LetterStomach.ViewModels
             }
         }
 
-        private List<Lesson> MountPredicative(List<Sentenca> sentences, List<Lesson> matters, List<Lesson> sources, int order_predicative)
+        private List<Lesson> MountIndirectObjectPronoun(List<Sentenca> sentences, List<Lesson> matters, List<Lesson> sources, int order_pronoun)
         {
             try
             {
                 List<Lesson> lessons = new List<Lesson>();
                 List<string> kind = new List<string>();
-                kind.Add(VAR_ADJECTIVE_ADVERB);
-                List<Lesson> adjectives = new List<Lesson>();
-                adjectives = FilterLesson(matters, kind);
+                kind.Add(VAR_POSSESSIVE);
+                List<Lesson> pronouns = new List<Lesson>();
+                pronouns = FilterLesson(matters, kind);
+                if (pronouns.Count == 0) return lessons;
                 foreach (Lesson source in sources)
                 {
                     List<Word> words = source.lecture;
-                    foreach (Lesson adjective in adjectives)
+                    foreach (Lesson pronoun in pronouns)
                     {
                         List<Word> words1 = new List<Word>();
                         words.ForEach(item =>
                         {
                             words1.Add(item);
                         });
-                        adjective.lecture.ForEach(item =>
+                        pronoun.lecture.ForEach(item =>
                         {
                             Word word = new Word();
-                            word = Lecture(item.team, item.kind, VAR_PREDICATE, adjective.team, order_predicative);
+                            word = Lecture(item.term, item.kind, VAR_PREDICATE, pronoun.team, order_pronoun);
                             words1.Add(word);
                         });
+                        if (!VerifyIndirectObject(words1, sentences, order_pronoun)) continue;
                         Lesson lesson = new Lesson();
                         lesson.lecture = words1;
                         lessons.Add(lesson);
@@ -920,6 +1298,50 @@ namespace LetterStomach.ViewModels
             }
         }
 
+        private List<Lesson> MountIndirectObjectAdjectiveNoun(List<Sentenca> sentences, List<Lesson> matters, List<Lesson> sources, int order_adjective_noun)
+        {
+            try
+            {
+                List<Lesson> lessons = new List<Lesson>();
+                List<string> kind = new List<string>();
+                kind.Add(VAR_ADJECTIVE_NOUN);
+                List<Lesson> adjectives_nouns = new List<Lesson>();
+                adjectives_nouns = FilterLesson(matters, kind);
+                if (adjectives_nouns.Count == 0) return lessons;
+                foreach (Lesson source in sources)
+                {
+                    List<Word> words = source.lecture;
+                    foreach (Lesson adjective_noun in adjectives_nouns)
+                    {
+                        List<Word> words1 = new List<Word>();
+                        words.ForEach(item =>
+                        {
+                            words1.Add(item);
+                        });
+                        adjective_noun.lecture.ForEach(item =>
+                        {
+                            Word word = new Word();
+                            word = Lecture(item.term, item.kind, VAR_PREDICATE, adjective_noun.team, order_adjective_noun);
+                            words1.Add(word);
+                        });
+                        if (!VerifyIndirectObjectAdjectiveNoun(words1, sentences, order_adjective_noun)) continue;
+                        Lesson lesson = new Lesson();
+                        lesson.lecture = words1;
+                        lessons.Add(lesson);
+                    }
+                }
+                return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return null;
+            }
+        }
+        #endregion
+
+        #region OBJECT CONJUNCTION
         private List<Lesson> MountConjunction(List<Sentenca> sentences, List<Lesson> matters, List<Lesson> sources, int order_conjunction)
         {
             try
@@ -929,6 +1351,7 @@ namespace LetterStomach.ViewModels
                 kind.Add(VAR_CONJUNCTION);
                 List<Lesson> conjunctions = new List<Lesson>();
                 conjunctions = FilterLesson(matters, kind);
+                if (conjunctions.Count == 0) return lessons;
                 foreach (Lesson source in sources)
                 {
                     List<Word> words = source.lecture;
@@ -942,7 +1365,7 @@ namespace LetterStomach.ViewModels
                         conjunction.lecture.ForEach(item =>
                         {
                             Word word = new Word();
-                            word = Lecture(item.team, item.kind, VAR_PREDICATE, conjunction.team, order_conjunction);
+                            word = Lecture(item.term, item.kind, VAR_PREDICATE, conjunction.team, order_conjunction);
                             words1.Add(word);
                         });
                         Lesson lesson = new Lesson();
@@ -960,7 +1383,7 @@ namespace LetterStomach.ViewModels
             }
         }
 
-        private List<Lesson> MountVerbNumeralNounConjunction(List<Sentenca> sentences, List<Lesson> matters, List<Lesson> sources, int order_noun)
+        private List<Lesson> MountVerbNumeralConjunctionNoun(List<Sentenca> sentences, List<Lesson> matters, List<Lesson> sources, int order_noun)
         {
             try
             {
@@ -977,6 +1400,7 @@ namespace LetterStomach.ViewModels
                 numerals = FilterLesson(matters, kind_numeral);
                 List<Lesson> conjunctions = new List<Lesson>();
                 conjunctions = FilterLesson(matters, kind_conjunction);
+                if ((nouns.Count == 0) || (numerals.Count == 0) || (conjunctions.Count == 0)) return lessons;
                 foreach (Lesson source in sources)
                 {
                     List<Word> words = source.lecture;
@@ -994,22 +1418,90 @@ namespace LetterStomach.ViewModels
                                 noun.lecture.ForEach(item =>
                                 {
                                     Word word = new Word();
-                                    word = Lecture(item.team, item.kind, VAR_PREDICATE, noun.team, order_noun);
+                                    word = Lecture(item.term, item.kind, VAR_PREDICATE, noun.team, order_noun);
                                     words1.Add(word);
                                 });
                                 numeral.lecture.ForEach(item =>
                                 {
                                     Word word = new Word();
-                                    word = Lecture(item.team, item.kind, VAR_PREDICATE, numeral.team, order_noun);
+                                    word = Lecture(item.term, item.kind, VAR_PREDICATE, numeral.team, order_noun);
                                     words1.Add(word);
                                 });
                                 conjunction.lecture.ForEach(item =>
                                 {
                                     Word word = new Word();
-                                    word = Lecture(item.team, item.kind, VAR_PREDICATE, conjunction.team, order_noun);
+                                    word = Lecture(item.term, item.kind, VAR_PREDICATE, conjunction.team, order_noun);
                                     words1.Add(word);
                                 });
-                                if (!VerifyVerbOD(words1, sentences)) continue;
+                                if (!VerifyNumeralConjunctionNoun(words1, sentences, order_noun)) continue;
+                                Lesson lesson = new Lesson();
+                                lesson.lecture = words1;
+                                lessons.Add(lesson);
+                            }
+                        }
+                    }
+                }
+                return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return null;
+            }
+        }
+
+        private List<Lesson> MountVerbAdjectiveConjunctionNoun(List<Sentenca> sentences, List<Lesson> matters, List<Lesson> sources, int order_noun)
+        {
+            try
+            {
+                List<Lesson> lessons = new List<Lesson>();
+                List<string> kind_noun = new List<string>();
+                kind_noun.Add(VAR_ADJECTIVE_NOUN);
+                List<string> kind_adjective = new List<string>();
+                kind_adjective.Add(VAR_ADJECTIVE);
+                List<string> kind_conjunction = new List<string>();
+                kind_conjunction.Add(VAR_CONJUNCTION);
+                List<Lesson> nouns = new List<Lesson>();
+                nouns = FilterLesson(matters, kind_noun);
+                List<Lesson> adjectives = new List<Lesson>();
+                adjectives = FilterLesson(matters, kind_adjective);
+                List<Lesson> conjunctions = new List<Lesson>();
+                conjunctions = FilterLesson(matters, kind_conjunction);
+                if ((nouns.Count == 0) || (adjectives.Count == 0) || (conjunctions.Count == 0)) return lessons;
+                foreach (Lesson source in sources)
+                {
+                    List<Word> words = source.lecture;
+                    foreach (Lesson conjunction in conjunctions)
+                    {
+                        foreach (Lesson adjective in adjectives)
+                        {
+                            foreach (Lesson noun in nouns)
+                            {
+                                List<Word> words1 = new List<Word>();
+                                words.ForEach(item =>
+                                {
+                                    words1.Add(item);
+                                });
+                                noun.lecture.ForEach(item =>
+                                {
+                                    Word word = new Word();
+                                    word = Lecture(item.term, item.kind, VAR_PREDICATE, noun.team, order_noun);
+                                    words1.Add(word);
+                                });
+                                adjective.lecture.ForEach(item =>
+                                {
+                                    Word word = new Word();
+                                    word = Lecture(item.term, item.kind, VAR_PREDICATE, adjective.team, order_noun);
+                                    words1.Add(word);
+                                });
+                                conjunction.lecture.ForEach(item =>
+                                {
+                                    Word word = new Word();
+                                    word = Lecture(item.term, item.kind, VAR_PREDICATE, conjunction.team, order_noun);
+                                    words1.Add(word);
+                                });
+                                if (!VerifyAdjectiveConjunctionNoun(words1, sentences, order_noun)) continue;
                                 Lesson lesson = new Lesson();
                                 lesson.lecture = words1;
                                 lessons.Add(lesson);
@@ -1051,7 +1543,7 @@ namespace LetterStomach.ViewModels
             try
             {
                 List<Lesson> lessons = new List<Lesson>();
-                lessons = MountNounConjunctionVerb(sentences, matters);
+                lessons = MountCompoundVerb(sentences, matters);
                 return lessons;
             }
             catch (Exception ex)
@@ -1070,7 +1562,8 @@ namespace LetterStomach.ViewModels
                 lessons = MountVerbNoun(sentences, matters, sources, order_init);
                 lessons = Union(lessons, MountVerbPronoun(sentences, matters, sources, order_init));
                 lessons = Union(lessons, MountVerbAdjectiveNoun(sentences, matters, sources, order_init));
-                lessons = Union(lessons, MountVerbNumeralNounConjunction(sentences, matters, sources, order_init));
+                lessons = Union(lessons, MountVerbNumeralConjunctionNoun(sentences, matters, sources, order_init));
+                lessons = Union(lessons, MountVerbAdjectiveConjunctionNoun(sentences, matters, sources, order_init));
                 return lessons;
             }
             catch (Exception ex)
@@ -1118,19 +1611,25 @@ namespace LetterStomach.ViewModels
             try
             {
                 List<Lesson> lessons = new List<Lesson>();
+
+                List<Lesson> prepositions = new List<Lesson>();
+                prepositions = MountPreposition(sentences, matters, sources, order_init);
                 List<Lesson> nouns = new List<Lesson>();
-                nouns = MountVerbNoun(sentences, matters, sources, order_init);
+                nouns = MountIndirectObjectNoun(sentences, matters, prepositions, order_init);
                 List<Lesson> pronouns = new List<Lesson>();
-                pronouns = MountVerbPronoun(sentences, matters, sources, order_init);
+                pronouns = MountIndirectObjectPronoun(sentences, matters, prepositions, order_init);
                 List<Lesson> adjectives_nouns = new List<Lesson>();
-                adjectives_nouns = MountVerbAdjectiveNoun(sentences, matters, sources, order_init);
-                List<Lesson> numerals_nouns = new List<Lesson>();
-                numerals_nouns = MountVerbNumeralNounConjunction(sentences, matters, sources, order_init);
+                adjectives_nouns = MountIndirectObjectAdjectiveNoun(sentences, matters, prepositions, order_init);
+                
+                List<Lesson> conjunctios_numerals_nouns = new List<Lesson>();
+                conjunctios_numerals_nouns = MountVerbNumeralConjunctionNoun(sentences, matters, prepositions, order_init);
+                List<Lesson> conjunctions_adjectives_nouns = new List<Lesson>();
+                conjunctions_adjectives_nouns = MountVerbAdjectiveConjunctionNoun(sentences, matters, prepositions, order_init);
 
                 lessons = Union(nouns, pronouns);
                 lessons = Union(lessons, adjectives_nouns);
-                lessons = Union(lessons, numerals_nouns);
-                lessons = MountPreposition(sentences, matters, lessons, order_init);
+                lessons = Union(lessons, conjunctios_numerals_nouns);
+                lessons = Union(lessons, conjunctions_adjectives_nouns);
                 return lessons;
             }
             catch (Exception ex)
@@ -1146,7 +1645,7 @@ namespace LetterStomach.ViewModels
             try
             {
                 List<Lesson> lessons = new List<Lesson>();
-                lessons = MountPredicative(sentences, matters, sources, order_init);
+                lessons = MountObjectPredicative(sentences, matters, sources, order_init);
                 return lessons;
             }
             catch (Exception ex)
@@ -1162,7 +1661,7 @@ namespace LetterStomach.ViewModels
             try
             {
                 List<Lesson> lessons = new List<Lesson>();
-                lessons = MountPredicative(sentences, matters, sources, order_init);
+                lessons = MountObjectPredicative(sentences, matters, sources, order_init);
                 return lessons;
             }
             catch (Exception ex)
@@ -1178,19 +1677,24 @@ namespace LetterStomach.ViewModels
             try
             {
                 List<Lesson> lessons = new List<Lesson>();
+                List<Lesson> prepositions = new List<Lesson>();
+                prepositions = MountAdjectivePreposition(sentences, matters, sources, order_init);
+
                 List<Lesson> nouns = new List<Lesson>();
-                nouns = MountVerbNoun(sentences, matters, sources, order_init);
+                nouns = MountIndirectObjectNoun(sentences, matters, prepositions, order_init);
                 List<Lesson> pronouns = new List<Lesson>();
-                pronouns = MountVerbPronoun(sentences, matters, sources, order_init);
+                pronouns = MountIndirectObjectPronoun(sentences, matters, sources, order_init);
                 List<Lesson> adjectives_nouns = new List<Lesson>();
-                adjectives_nouns = MountVerbAdjectiveNoun(sentences, matters, sources, order_init);
-                List<Lesson> numerals_nouns = new List<Lesson>();
-                numerals_nouns = MountVerbNumeralNounConjunction(sentences, matters, sources, order_init);
+                adjectives_nouns = MountIndirectObjectAdjectiveNoun(sentences, matters, sources, order_init);
+                List<Lesson> conjunctions_numerals_nouns = new List<Lesson>();
+                conjunctions_numerals_nouns = MountVerbNumeralConjunctionNoun(sentences, matters, sources, order_init);
+                List<Lesson> conjunctions_adjectives_nouns = new List<Lesson>();
+                conjunctions_adjectives_nouns = MountVerbNumeralConjunctionNoun(sentences, matters, sources, order_init);
 
                 lessons = Union(nouns, pronouns);
                 lessons = Union(lessons, adjectives_nouns);
-                lessons = Union(lessons, numerals_nouns);
-                lessons = MountPreposition(sentences, matters, lessons, order_init);
+                lessons = Union(lessons, conjunctions_numerals_nouns);
+                lessons = Union(lessons, conjunctions_adjectives_nouns);
                 return lessons;
             }
             catch (Exception ex)
