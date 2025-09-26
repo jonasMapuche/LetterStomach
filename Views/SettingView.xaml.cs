@@ -20,12 +20,12 @@ public partial class SettingView : ContentPage
 
     private async void OnError(object sender, string error_message)
     {
-        await DisplayAlert("Erro", error_message, "OK");
+        await DisplayAlert("Error", error_message, "OK");
     }
 
     private async void OnError(string error_message)
     {
-        await DisplayAlert("Erro", error_message, "OK");
+        await DisplayAlert("Error", error_message, "OK");
     }
     #endregion
 
@@ -52,7 +52,7 @@ public partial class SettingView : ContentPage
             this._pitch_init = (int)sldPich.Value;
             this._volume_init = (int)sldVolume.Value;
             ControlCheck(this._upgrade_table, this._update_table, this._selected_table, this._upgrade_init, this._pitch_skeak, this._volume_skeak, this._pitch_init, this._volume_init);
-            if (_error_test) throw new InvalidOperationException("Falha na operação!");
+            if (_error_test) throw new InvalidOperationException("Operation failed!");
         }
         catch (Exception ex)
         {

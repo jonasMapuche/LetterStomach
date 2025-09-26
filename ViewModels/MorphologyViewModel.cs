@@ -39,7 +39,6 @@ namespace LetterStomach.ViewModels
         private string VAR_ADVERB_ADVERB = SettingService.Instance.Adverb_Adverb;
         private string VAR_ADJECTIVE_NOUN = SettingService.Instance.Adjective_Noun;
         private string VAR_ADJECTIVE_ADVERB = SettingService.Instance.Adjective_Adverb;
-        private string VAR_CONJUNCTION_NOUN = SettingService.Instance.Conjunction_Noun;
         private string VAR_CONJUNCTION = SettingService.Instance.Conjunction;
         private string VAR_SINGLE = SettingService.Instance.Single;
         private string VAR_PLURAL = SettingService.Instance.Plural;

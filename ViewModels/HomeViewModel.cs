@@ -13,6 +13,7 @@ namespace LetterStomach.ViewModels
     public partial class HomeViewModel : ObservableObject, IQueryAttributable
     {
         #region ERROR
+        private bool _error_test = false;
         private string _error_message;
 
         public string error_message
@@ -25,6 +26,12 @@ namespace LetterStomach.ViewModels
         }
 
         public event EventHandler<string> OnError;
+
+        private async void OnErrorDown(object sender, string error_message)
+        {
+            this.error_message = error_message;
+            OnError?.Invoke(this, this.error_message);
+        }
         #endregion
 
         #region VARIABLE
@@ -81,16 +88,17 @@ namespace LetterStomach.ViewModels
                 this.SwipedCommand = new Command<SwipeDirection>(OnSwipedCommand);
 
                 this._grammarViewModel = new GrammarViewModel();
+                this._grammarViewModel.OnError += OnErrorDown;
                 _singleton = singleton;
                 bool sqlite_database = this._singleton.SQLiteDatabase;
                 Connect(sqlite_database);
                 Init();
-                Load(MessageService.Instance, false);
+                MountNext();
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                OnError?.Invoke(this, this.error_message);
             }
         }
         #endregion
@@ -217,11 +225,11 @@ namespace LetterStomach.ViewModels
             try
             {
                 this._grammarViewModel.SetGrammar();
-                this._lesson_english = this._grammarViewModel.GetLetter(ENGLISH.Lowercase).Distinct().ToList();
-                this._lesson_deutsch = this._grammarViewModel.GetLetter(DEUTSCH.Lowercase).Distinct().ToList();
-                this._lesson_italiano = this._grammarViewModel.GetLetter(ITALIANO.Lowercase).Distinct().ToList();
-                this._lesson_francais = this._grammarViewModel.GetLetter(FRANCAIS.Lowercase).Distinct().ToList();
-                this._lesson_espanol = this._grammarViewModel.GetLetter(ESPANOL.Lowercase).Distinct().ToList();
+                this._lesson_english = this._grammarViewModel.GetLetter(ENGLISH.Lowercase).OrderBy(index => index.ordem).ToList();
+                this._lesson_deutsch = this._grammarViewModel.GetLetter(DEUTSCH.Lowercase).OrderBy(index => index.ordem).ToList();
+                this._lesson_italiano = this._grammarViewModel.GetLetter(ITALIANO.Lowercase).OrderBy(index => index.ordem).ToList();
+                this._lesson_francais = this._grammarViewModel.GetLetter(FRANCAIS.Lowercase).OrderBy(index => index.ordem).ToList();
+                this._lesson_espanol = this._grammarViewModel.GetLetter(ESPANOL.Lowercase).OrderBy(index => index.ordem).ToList();
 
                 this._word_english = new List<Word>();
                 this._word_deutsch = new List<Word>();
@@ -255,32 +263,30 @@ namespace LetterStomach.ViewModels
         {
             try
             {
-                List<Message> messages = new List<Message>();
-                messages = message_service.Messages;
-
-                Message message = new Message();
-
-                List<Message> new_messages = new List<Message>();
-
                 User user_english = message_service.GetUser(ENGLISH.Lowercase);
                 User user_deutsch = message_service.GetUser(DEUTSCH.Lowercase);
                 User user_italiano = message_service.GetUser(ITALIANO.Lowercase);
                 User user_francais = message_service.GetUser(FRANCAIS.Lowercase);
                 User user_espanol = message_service.GetUser(ESPANOL.Lowercase);
-
+                List<Message> messages = message_service.Messages;
+                List<Message> memos = new List<Message>();
+                message_service.Messages.ForEach(index => memos.Add(index));
                 foreach (Message item in messages)
                 {
-                    if (item.Sender == user_english)
+                    if (((item.Sender == user_english) && (language == ENGLISH.Lowercase))
+                        || ((item.Sender == user_deutsch) && (language == DEUTSCH.Lowercase))
+                        || ((item.Sender == user_italiano) && (language == ITALIANO.Lowercase))
+                        || ((item.Sender == user_francais) && (language == FRANCAIS.Lowercase))
+                        || ((item.Sender == user_espanol) && (language == ESPANOL.Lowercase)))
                     {
-                        if (language == ENGLISH.Name)
-                        {
-                            int index = messages.IndexOf(item);
-                            item.Text = oration;
-                            messages[index] = item;
-                        }
+                        int index = memos.IndexOf(item);
+                        Message message = new Message();
+                        message = memos[index];
+                        message.Text = oration;
+                        memos[index] = message;
                     }
                 }
-                RecentChat = new ObservableCollection<Message>(messages);
+                RecentChat = new ObservableCollection<Message>(memos);
             }
             catch (Exception ex)
             {
@@ -293,46 +299,43 @@ namespace LetterStomach.ViewModels
         {
             try
             {
-                List<Message> messages = new List<Message>();
-                messages = message_service.Messages;
-
-                List<Message> new_messages = new List<Message>();
-
                 User user_english = message_service.GetUser(ENGLISH.Lowercase);
                 User user_deutsch = message_service.GetUser(DEUTSCH.Lowercase);
                 User user_italiano = message_service.GetUser(ITALIANO.Lowercase);
                 User user_francais = message_service.GetUser(FRANCAIS.Lowercase);
                 User user_espanol = message_service.GetUser(ESPANOL.Lowercase);
-
+                List<Message> messages = new List<Message>();
+                messages = message_service.Messages;
+                List<Message> memos = new List<Message>();
                 foreach (Message item in messages)
                 {
                     if (item.Sender == user_english)
                     {
-                        new_messages.Add(item);
+                        memos.Add(item);
                         continue;
                     }
                     if (item.Sender == user_deutsch)
                     {
-                        new_messages.Add(item);
+                        memos.Add(item);
                         continue;
                     }
                     if (item.Sender == user_italiano)
                     {
-                        new_messages.Add(item);
+                        memos.Add(item);
                         continue;
                     }
                     if (item.Sender == user_francais)
                     {
-                        new_messages.Add(item);
+                        memos.Add(item);
                         continue;
                     }
                     if (item.Sender == user_espanol)
                     {
-                        new_messages.Add(item);
+                        memos.Add(item);
                         continue;
                     }
                 };
-                RecentChat = new ObservableCollection<Message>(new_messages);
+                RecentChat = new ObservableCollection<Message>(memos);
             }
             catch (Exception ex)
             {
@@ -347,11 +350,11 @@ namespace LetterStomach.ViewModels
         {
             try
             {
-                if (language == ENGLISH.Name) this._english = materia;
-                if (language == DEUTSCH.Name) this._deutsch = materia;
-                if (language == ITALIANO.Name) this._italiano = materia;
-                if (language == FRANCAIS.Name) this._francais = materia;
-                if (language == ESPANOL.Name) this._espanol = materia;
+                if (language == ENGLISH.Lowercase) this._english = materia;
+                if (language == DEUTSCH.Lowercase) this._deutsch = materia;
+                if (language == ITALIANO.Lowercase) this._italiano = materia;
+                if (language == FRANCAIS.Lowercase) this._francais = materia;
+                if (language == ESPANOL.Lowercase) this._espanol = materia;
             }
             catch (Exception ex)
             {
@@ -364,11 +367,11 @@ namespace LetterStomach.ViewModels
         {
             try
             {
-                if (language == ENGLISH.Name) _word_english = oration;
-                if (language == DEUTSCH.Name) _word_deutsch = oration;
-                if (language == ITALIANO.Name) _word_italiano = oration;
-                if (language == FRANCAIS.Name) _word_francais = oration;
-                if (language == ESPANOL.Name) _word_espanol = oration;
+                if (language == ENGLISH.Lowercase) _word_english = oration;
+                if (language == DEUTSCH.Lowercase) _word_deutsch = oration;
+                if (language == ITALIANO.Lowercase) _word_italiano = oration;
+                if (language == FRANCAIS.Lowercase) _word_francais = oration;
+                if (language == ESPANOL.Lowercase) _word_espanol = oration;
             }
             catch (Exception)
             {
@@ -382,6 +385,7 @@ namespace LetterStomach.ViewModels
         {
             try
             {
+                if (_error_test) throw new InvalidOperationException("Operation failed!");
                 Next(_lesson_english, _english, ENGLISH.Lowercase);
                 Next(_lesson_deutsch, _deutsch, DEUTSCH.Lowercase);
                 Next(_lesson_italiano, _italiano, ITALIANO.Lowercase);
@@ -492,7 +496,7 @@ namespace LetterStomach.ViewModels
             {
                 List<Word> words = this._grammarViewModel.MountSyntax(language, lesson, books);
                 SetOration(words, language);
-                string oration = this._grammarViewModel.GetSyntax(words);
+                string oration = this._grammarViewModel.MountOration(language, words);
                 Load(MessageService.Instance, true, language, oration);
             }
             catch (Exception ex)

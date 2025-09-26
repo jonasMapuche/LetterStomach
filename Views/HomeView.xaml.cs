@@ -4,6 +4,7 @@ namespace LetterStomach.Views;
 
 public partial class HomeView : ContentPage
 {
+    #region ERROR
     private bool _error_test = false;
     private string _error_message;
 
@@ -18,21 +19,24 @@ public partial class HomeView : ContentPage
 
     private async void OnError(object sender, string error_message)
     {
-        await DisplayAlert("Erro", error_message, "OK");
+        await DisplayAlert("Error", error_message, "OK");
     }
 
     private async void OnError(string error_message)
     {
-        await DisplayAlert("Erro", error_message, "OK");
+        await DisplayAlert("Error", error_message, "OK");
     }
+    #endregion
 
-    public HomeView(HomeViewModel DetailView)
+    #region CONSTRUTOR
+    public HomeView(HomeViewModel ViewModel)
 	{
         try
         { 
 		    InitializeComponent();
-            BindingContext = DetailView;
-            if (_error_test) throw new InvalidOperationException("Falha na operação!");
+            BindingContext = ViewModel;
+            ViewModel.OnError += OnError;
+            if (_error_test) throw new InvalidOperationException("Operation failed!");
         }
         catch (Exception ex)
         {
@@ -40,7 +44,9 @@ public partial class HomeView : ContentPage
             OnError(this.error_message);
         }
     }
+    #endregion
 
+    #region BUTTON
     private async void OnSettingClicked(object sender, EventArgs e)
     {
         try
@@ -83,4 +89,5 @@ public partial class HomeView : ContentPage
             OnError(this.error_message);
         }
     }
+    #endregion
 }

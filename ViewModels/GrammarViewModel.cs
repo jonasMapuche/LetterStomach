@@ -8,6 +8,8 @@ namespace LetterStomach.ViewModels
     public class GrammarViewModel : IGrammarViewModel
     {
         #region ERROR
+        private bool _error_test = false;
+
         private string _error_message;
 
         public string error_message
@@ -114,6 +116,10 @@ namespace LetterStomach.ViewModels
         private string VAR_ADVERB = SettingService.Instance.Adverb;
         private string VAR_ADVERB_ADVERB = SettingService.Instance.Adverb_Adverb;
         private string VAR_ADJECTIVE_NOUN = SettingService.Instance.Adjective_Noun;
+        private string VAR_CONJUNCTION = SettingService.Instance.Conjunction;
+        private string VAR_NUMERAL_NOUN = SettingService.Instance.Numeral_Noun;
+        private string VAR_ADJECTIVE_ADVERB = SettingService.Instance.Adjective_Adverb;
+
         private int VAR_ORDER_3 = 3;
         private int VAR_ORDER_4 = 4;
         private int VAR_ORDER_5 = 5;
@@ -125,53 +131,53 @@ namespace LetterStomach.ViewModels
         {
             try
             {
-                this._adverb_english = GetAdverb(ENGLISH.Name).Distinct().ToList();
-                this._adverb_deutsch = GetAdverb(DEUTSCH.Name).Distinct().ToList();
-                this._adverb_italiano = GetAdverb(ITALIANO.Name).Distinct().ToList();
-                this._adverb_francais = GetAdverb(FRANCAIS.Name).Distinct().ToList();
-                this._adverb_espanol = GetAdverb(ESPANOL.Name).Distinct().ToList();
+                this._adverb_english = GetAdverb(ENGLISH.Lowercase).Distinct().ToList();
+                this._adverb_deutsch = GetAdverb(DEUTSCH.Lowercase).Distinct().ToList();
+                this._adverb_italiano = GetAdverb(ITALIANO.Lowercase).Distinct().ToList();
+                this._adverb_francais = GetAdverb(FRANCAIS.Lowercase).Distinct().ToList();
+                this._adverb_espanol = GetAdverb(ESPANOL.Lowercase).Distinct().ToList();
 
-                this._pronoun_english = GetPronoun(ENGLISH.Name).Distinct().ToList();
-                this._pronoun_deutsch = GetPronoun(DEUTSCH.Name).Distinct().ToList();
-                this._pronoun_italiano = GetPronoun(ITALIANO.Name).Distinct().ToList();
-                this._pronoun_francais = GetPronoun(FRANCAIS.Name).Distinct().ToList();
-                this._pronoun_espanol = GetPronoun(ESPANOL.Name).Distinct().ToList();
+                this._pronoun_english = GetPronoun(ENGLISH.Lowercase).Distinct().ToList();
+                this._pronoun_deutsch = GetPronoun(DEUTSCH.Lowercase).Distinct().ToList();
+                this._pronoun_italiano = GetPronoun(ITALIANO.Lowercase).Distinct().ToList();
+                this._pronoun_francais = GetPronoun(FRANCAIS.Lowercase).Distinct().ToList();
+                this._pronoun_espanol = GetPronoun(ESPANOL.Lowercase).Distinct().ToList();
 
-                this._article_english = GetArticle(ENGLISH.Name).Distinct().ToList();
-                this._article_deutsch = GetArticle(DEUTSCH.Name).Distinct().ToList();
-                this._article_italiano = GetArticle(ITALIANO.Name).Distinct().ToList();
-                this._article_francais = GetArticle(FRANCAIS.Name).Distinct().ToList();
-                this._article_espanol = GetArticle(ESPANOL.Name).Distinct().ToList();
+                this._article_english = GetArticle(ENGLISH.Lowercase).Distinct().ToList();
+                this._article_deutsch = GetArticle(DEUTSCH.Lowercase).Distinct().ToList();
+                this._article_italiano = GetArticle(ITALIANO.Lowercase).Distinct().ToList();
+                this._article_francais = GetArticle(FRANCAIS.Lowercase).Distinct().ToList();
+                this._article_espanol = GetArticle(ESPANOL.Lowercase).Distinct().ToList();
 
-                this._numeral_english = GetNumeral(ENGLISH.Name).Distinct().ToList();
-                this._numeral_deutsch = GetNumeral(DEUTSCH.Name).Distinct().ToList();
-                this._numeral_italiano = GetNumeral(ITALIANO.Name).Distinct().ToList();
-                this._numeral_francais = GetNumeral(FRANCAIS.Name).Distinct().ToList();
-                this._numeral_espanol = GetNumeral(ESPANOL.Name).Distinct().ToList();
+                this._numeral_english = GetNumeral(ENGLISH.Lowercase).Distinct().ToList();
+                this._numeral_deutsch = GetNumeral(DEUTSCH.Lowercase).Distinct().ToList();
+                this._numeral_italiano = GetNumeral(ITALIANO.Lowercase).Distinct().ToList();
+                this._numeral_francais = GetNumeral(FRANCAIS.Lowercase).Distinct().ToList();
+                this._numeral_espanol = GetNumeral(ESPANOL.Lowercase).Distinct().ToList();
 
-                this._preposition_english = GetPreposition(ENGLISH.Name).Distinct().ToList();
-                this._preposition_deutsch = GetPreposition(DEUTSCH.Name).Distinct().ToList();
-                this._preposition_italiano = GetPreposition(ITALIANO.Name).Distinct().ToList();
-                this._preposition_francais = GetPreposition(FRANCAIS.Name).Distinct().ToList();
-                this._preposition_espanol = GetPreposition(ESPANOL.Name).Distinct().ToList();
+                this._preposition_english = GetPreposition(ENGLISH.Lowercase).Distinct().ToList();
+                this._preposition_deutsch = GetPreposition(DEUTSCH.Lowercase).Distinct().ToList();
+                this._preposition_italiano = GetPreposition(ITALIANO.Lowercase).Distinct().ToList();
+                this._preposition_francais = GetPreposition(FRANCAIS.Lowercase).Distinct().ToList();
+                this._preposition_espanol = GetPreposition(ESPANOL.Lowercase).Distinct().ToList();
 
-                this._conjunction_english = GetConjunction(ENGLISH.Name).Distinct().ToList();
-                this._conjunction_deutsch = GetConjunction(DEUTSCH.Name).Distinct().ToList();
-                this._conjunction_italiano = GetConjunction(ITALIANO.Name).Distinct().ToList();
-                this._conjunction_francais = GetConjunction(FRANCAIS.Name).Distinct().ToList();
-                this._conjunction_espanol = GetConjunction(ESPANOL.Name).Distinct().ToList();
+                this._conjunction_english = GetConjunction(ENGLISH.Lowercase).Distinct().ToList();
+                this._conjunction_deutsch = GetConjunction(DEUTSCH.Lowercase).Distinct().ToList();
+                this._conjunction_italiano = GetConjunction(ITALIANO.Lowercase).Distinct().ToList();
+                this._conjunction_francais = GetConjunction(FRANCAIS.Lowercase).Distinct().ToList();
+                this._conjunction_espanol = GetConjunction(ESPANOL.Lowercase).Distinct().ToList();
 
-                this._verb_english = GetVerb(ENGLISH.Name).Distinct().ToList();
-                this._verb_deutsch = GetVerb(DEUTSCH.Name).Distinct().ToList();
-                this._verb_italiano = GetVerb(ITALIANO.Name).Distinct().ToList();
-                this._verb_francais = GetVerb(FRANCAIS.Name).Distinct().ToList();
-                this._verb_espanol = GetVerb(ESPANOL.Name).Distinct().ToList();
+                this._verb_english = GetVerb(ENGLISH.Lowercase).Distinct().ToList();
+                this._verb_deutsch = GetVerb(DEUTSCH.Lowercase).Distinct().ToList();
+                this._verb_italiano = GetVerb(ITALIANO.Lowercase).Distinct().ToList();
+                this._verb_francais = GetVerb(FRANCAIS.Lowercase).Distinct().ToList();
+                this._verb_espanol = GetVerb(ESPANOL.Lowercase).Distinct().ToList();
 
-                this._sentence_english = GetSentence(ENGLISH.Name).Distinct().ToList();
-                this._sentence_deutsch = GetSentence(DEUTSCH.Name).Distinct().ToList();
-                this._sentence_italiano = GetSentence(ITALIANO.Name).Distinct().ToList();
-                this._sentence_francais = GetSentence(FRANCAIS.Name).Distinct().ToList();
-                this._sentence_espanol = GetSentence(ESPANOL.Name).Distinct().ToList();
+                this._sentence_english = GetSentence(ENGLISH.Lowercase).Distinct().ToList();
+                this._sentence_deutsch = GetSentence(DEUTSCH.Lowercase).Distinct().ToList();
+                this._sentence_italiano = GetSentence(ITALIANO.Lowercase).Distinct().ToList();
+                this._sentence_francais = GetSentence(FRANCAIS.Lowercase).Distinct().ToList();
+                this._sentence_espanol = GetSentence(ESPANOL.Lowercase).Distinct().ToList();
             }
             catch (Exception ex)
             {
@@ -209,7 +215,6 @@ namespace LetterStomach.ViewModels
                 this._adverbsViewModel = new SQLites.AdverbViewModel();
                 this._articlesViewModel = new SQLites.ArticleViewModel();
                 this._pronounsViewModel = new SQLites.PronounViewModel();
-
                 this._numeralsViewModel = new SQLites.NumeralViewModel();
                 this._prepositionsViewModel = new SQLites.PrepositionViewModel();
                 this._verbsViewModel = new SQLites.VerbViewModel();
@@ -372,11 +377,11 @@ namespace LetterStomach.ViewModels
         {
             try
             {
-                if (language == ENGLISH.Name) _lesson_english = lesson_word;
-                if (language == DEUTSCH.Name) _lesson_deutsch = lesson_word;
-                if (language == ITALIANO.Name) _lesson_italiano = lesson_word;
-                if (language == FRANCAIS.Name) _lesson_francais = lesson_word;
-                if (language == ESPANOL.Name) _lesson_espanol = lesson_word;
+                if (language == ENGLISH.Lowercase) _lesson_english = lesson_word;
+                if (language == DEUTSCH.Lowercase) _lesson_deutsch = lesson_word;
+                if (language == ITALIANO.Lowercase) _lesson_italiano = lesson_word;
+                if (language == FRANCAIS.Lowercase) _lesson_francais = lesson_word;
+                if (language == ESPANOL.Lowercase) _lesson_espanol = lesson_word;
             }
             catch (Exception)
             {
@@ -390,11 +395,11 @@ namespace LetterStomach.ViewModels
         {
             try
             {
-                if (language == ENGLISH.Name) return _lesson_english;
-                if (language == DEUTSCH.Name) return _lesson_deutsch;
-                if (language == ITALIANO.Name) return _lesson_italiano;
-                if (language == FRANCAIS.Name) return _lesson_francais;
-                if (language == ESPANOL.Name) return _lesson_espanol;
+                if (language == ENGLISH.Lowercase) return _lesson_english;
+                if (language == DEUTSCH.Lowercase) return _lesson_deutsch;
+                if (language == ITALIANO.Lowercase) return _lesson_italiano;
+                if (language == FRANCAIS.Lowercase) return _lesson_francais;
+                if (language == ESPANOL.Lowercase) return _lesson_espanol;
                 return null;
             }
             catch (Exception)
@@ -407,11 +412,11 @@ namespace LetterStomach.ViewModels
         {
             try
             {
-                if (language == ENGLISH.Name) return this._sentence_english;
-                if (language == DEUTSCH.Name) return this._sentence_deutsch;
-                if (language == ITALIANO.Name) return this._sentence_italiano;
-                if (language == FRANCAIS.Name) return this._sentence_francais;
-                if (language == ESPANOL.Name) return this._sentence_espanol;
+                if (language == ENGLISH.Lowercase) return this._sentence_english;
+                if (language == DEUTSCH.Lowercase) return this._sentence_deutsch;
+                if (language == ITALIANO.Lowercase) return this._sentence_italiano;
+                if (language == FRANCAIS.Lowercase) return this._sentence_francais;
+                if (language == ESPANOL.Lowercase) return this._sentence_espanol;
                 return null;
             }
             catch (Exception ex)
@@ -426,11 +431,11 @@ namespace LetterStomach.ViewModels
         {
             try
             {
-                if (language == ENGLISH.Name) return _preposition_english;
-                if (language == DEUTSCH.Name) return _preposition_deutsch;
-                if (language == ITALIANO.Name) return _preposition_italiano;
-                if (language == FRANCAIS.Name) return _preposition_francais;
-                if (language == ESPANOL.Name) return _preposition_espanol;
+                if (language == ENGLISH.Lowercase) return _preposition_english;
+                if (language == DEUTSCH.Lowercase) return _preposition_deutsch;
+                if (language == ITALIANO.Lowercase) return _preposition_italiano;
+                if (language == FRANCAIS.Lowercase) return _preposition_francais;
+                if (language == ESPANOL.Lowercase) return _preposition_espanol;
                 return null;
             }
             catch (Exception ex)
@@ -445,11 +450,11 @@ namespace LetterStomach.ViewModels
         {
             try
             {
-                if (language == ENGLISH.Name) return _article_english;
-                if (language == DEUTSCH.Name) return _article_deutsch;
-                if (language == ITALIANO.Name) return _article_italiano;
-                if (language == FRANCAIS.Name) return _article_francais;
-                if (language == ESPANOL.Name) return _article_espanol;
+                if (language == ENGLISH.Lowercase) return _article_english;
+                if (language == DEUTSCH.Lowercase) return _article_deutsch;
+                if (language == ITALIANO.Lowercase) return _article_italiano;
+                if (language == FRANCAIS.Lowercase) return _article_francais;
+                if (language == ESPANOL.Lowercase) return _article_espanol;
                 return null;
             }
             catch (Exception ex)
@@ -464,11 +469,11 @@ namespace LetterStomach.ViewModels
         {
             try
             {
-                if (language == ENGLISH.Name) return _numeral_english;
-                if (language == DEUTSCH.Name) return _numeral_deutsch;
-                if (language == ITALIANO.Name) return _numeral_italiano;
-                if (language == FRANCAIS.Name) return _numeral_francais;
-                if (language == ESPANOL.Name) return _numeral_espanol;
+                if (language == ENGLISH.Lowercase) return _numeral_english;
+                if (language == DEUTSCH.Lowercase) return _numeral_deutsch;
+                if (language == ITALIANO.Lowercase) return _numeral_italiano;
+                if (language == FRANCAIS.Lowercase) return _numeral_francais;
+                if (language == ESPANOL.Lowercase) return _numeral_espanol;
                 return null;
             }
             catch (Exception ex)
@@ -483,11 +488,11 @@ namespace LetterStomach.ViewModels
         {
             try
             {
-                if (language == ENGLISH.Name) return _adverb_english;
-                if (language == DEUTSCH.Name) return _adverb_deutsch;
-                if (language == ITALIANO.Name) return _adverb_italiano;
-                if (language == FRANCAIS.Name) return _adverb_francais;
-                if (language == ESPANOL.Name) return _adverb_espanol;
+                if (language == ENGLISH.Lowercase) return _adverb_english;
+                if (language == DEUTSCH.Lowercase) return _adverb_deutsch;
+                if (language == ITALIANO.Lowercase) return _adverb_italiano;
+                if (language == FRANCAIS.Lowercase) return _adverb_francais;
+                if (language == ESPANOL.Lowercase) return _adverb_espanol;
                 return null;
             }
             catch (Exception ex)
@@ -502,11 +507,11 @@ namespace LetterStomach.ViewModels
         {
             try
             {
-                if (language == ENGLISH.Name) return _conjunction_english;
-                if (language == DEUTSCH.Name) return _conjunction_deutsch;
-                if (language == ITALIANO.Name) return _conjunction_italiano;
-                if (language == FRANCAIS.Name) return _conjunction_francais;
-                if (language == ESPANOL.Name) return _conjunction_espanol;
+                if (language == ENGLISH.Lowercase) return _conjunction_english;
+                if (language == DEUTSCH.Lowercase) return _conjunction_deutsch;
+                if (language == ITALIANO.Lowercase) return _conjunction_italiano;
+                if (language == FRANCAIS.Lowercase) return _conjunction_francais;
+                if (language == ESPANOL.Lowercase) return _conjunction_espanol;
                 return null;
             }
             catch (Exception ex)
@@ -521,11 +526,11 @@ namespace LetterStomach.ViewModels
         {
             try
             {
-                if (language == ENGLISH.Name) return _verb_english;
-                if (language == DEUTSCH.Name) return _verb_deutsch;
-                if (language == ITALIANO.Name) return _verb_italiano;
-                if (language == FRANCAIS.Name) return _verb_francais;
-                if (language == ESPANOL.Name) return _verb_espanol;
+                if (language == ENGLISH.Lowercase) return _verb_english;
+                if (language == DEUTSCH.Lowercase) return _verb_deutsch;
+                if (language == ITALIANO.Lowercase) return _verb_italiano;
+                if (language == FRANCAIS.Lowercase) return _verb_francais;
+                if (language == ESPANOL.Lowercase) return _verb_espanol;
                 return null;
             }
             catch (Exception ex)
@@ -540,11 +545,11 @@ namespace LetterStomach.ViewModels
         {
             try
             {
-                if (language == ENGLISH.Name) return _pronoun_english;
-                if (language == DEUTSCH.Name) return _pronoun_deutsch;
-                if (language == ITALIANO.Name) return _pronoun_italiano;
-                if (language == FRANCAIS.Name) return _pronoun_francais;
-                if (language == ESPANOL.Name) return _pronoun_espanol;
+                if (language == ENGLISH.Lowercase) return _pronoun_english;
+                if (language == DEUTSCH.Lowercase) return _pronoun_deutsch;
+                if (language == ITALIANO.Lowercase) return _pronoun_italiano;
+                if (language == FRANCAIS.Lowercase) return _pronoun_francais;
+                if (language == ESPANOL.Lowercase) return _pronoun_espanol;
                 return null;
             }
             catch (Exception ex)
@@ -556,7 +561,7 @@ namespace LetterStomach.ViewModels
         }
         #endregion
 
-        #region SYNTAX
+        #region PERIOD
         private List<Lesson> OrderLesson(List<Lesson> firsts)
         {
             try
@@ -640,7 +645,7 @@ namespace LetterStomach.ViewModels
                 words = Union(words, predicateDirectObjectIndirectObject);
                 predicateDirectObjectPredicative = this._syntaxViewMode.PredicateDirectObjectPredicativo(sentences, terms, predicateDirectObject, order_predicate);
                 words = Union(words, predicateDirectObjectPredicative);
-                predicateIndirectObjectPredicative = this._syntaxViewMode.PredicateIndirectObjectPredicativo(sentences, terms, predicateDirectObject, order_predicate);
+                predicateIndirectObjectPredicative = this._syntaxViewMode.PredicateIndirectObjectPredicativo(sentences, terms, predicateIndirectObject, order_predicate);
                 words = Union(words, predicateIndirectObjectPredicative);
                 predicatePredicativeIndirectObject = this._syntaxViewMode.PredicatePredicativoIndirectObject(sentences, terms, predicatePredicative, order_predicate);
                 words = Union(words, predicatePredicativeIndirectObject);
@@ -682,7 +687,7 @@ namespace LetterStomach.ViewModels
                 words = Union(words, predicateDirectObjectIndirectObject);
                 predicateDirectObjectPredicative = this._syntaxViewMode.PredicateDirectObjectPredicativo(sentences, terms, predicateDirectObject, order_predicate);
                 words = Union(words, predicateDirectObjectPredicative);
-                predicateIndirectObjectPredicative = this._syntaxViewMode.PredicateIndirectObjectPredicativo(sentences, terms, predicateDirectObject, order_predicate);
+                predicateIndirectObjectPredicative = this._syntaxViewMode.PredicateIndirectObjectPredicativo(sentences, terms, predicateIndirectObject, order_predicate);
                 words = Union(words, predicateIndirectObjectPredicative);
                 predicatePredicativeIndirectObject = this._syntaxViewMode.PredicatePredicativoIndirectObject(sentences, terms, predicatePredicative, order_predicate);
                 words = Union(words, predicatePredicativeIndirectObject);
@@ -697,7 +702,466 @@ namespace LetterStomach.ViewModels
         }
         #endregion
 
-        #region MORPHOLOGY
+        #region ORATION
+        private Word? SubjectBefore(string language, List<Word> words)
+        {
+            try
+            {
+                string team = words.First().team;
+                Word? noun = words.Find(index => index.kind == VAR_NOUN);
+                Word? pronoun = words.Find(index => index.kind == VAR_PRONOUN);
+                Word? conjunction = words.Find(index => index.kind == VAR_CONJUNCTION);
+                if (team == VAR_CONJUNCTION)
+                {
+                    return conjunction;
+                }
+                if (team == VAR_PERSONAL)
+                {
+                    return pronoun;
+                }
+                return noun;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return null;
+            }
+        }
+
+        private Word? PredicateBefore(string language, List<Word> words)
+        {
+            try
+            {
+                string team = words.Find(index => index.team != VAR_PREPOSITION).team;
+                Word? noun = words.Find(index => index.kind == VAR_NOUN);
+                Word? pronoun = words.Find(index => index.kind == VAR_PRONOUN);
+                Word? conjunction = words.Find(index => index.kind == VAR_CONJUNCTION);
+                Word? adjective = words.Find(index => index.kind == VAR_ADJECTIVE);
+                Word? verb = words.Find(index => index.kind == VAR_VERB);
+                Word? adverb = words.Find(index => index.kind == VAR_ADVERB);
+                Word? adverb_adverb = words.Find(index => index.kind == VAR_ADVERB_ADVERB);
+                if (team == VAR_CONJUNCTION)
+                {
+                    return conjunction;
+                }
+                if ((team == VAR_POSSESSIVE) || (team == VAR_DEMONSTRATIVE))
+                {
+                    return pronoun;
+                }
+                if (team == VAR_ADJECTIVE_ADVERB)
+                {
+                    if (adverb_adverb !=  null) 
+                        return adverb_adverb;
+                    else
+                    {
+                        if (adverb != null)
+                            return adverb;
+                        else
+                            return adjective;
+                    }
+                }
+                if (team == VAR_VERB)
+                {
+                    if (adverb_adverb != null)
+                        return adverb_adverb;
+                    else
+                    {
+                        if (adverb != null)
+                            return adverb;
+                        else
+                            return verb;
+                    }
+                }
+                return noun;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return null;
+            }
+        }
+
+        private Word? SubjectCurrent(string language, List<Word> words)
+        {
+            try
+            {
+                string team = words.First().team;
+                Word? noun = words.Find(index => index.kind == VAR_NOUN);
+                Word? conjunction = words.Find(index => index.kind == VAR_CONJUNCTION);
+                Word? article = words.Find(index => index.kind == VAR_ARTICLE);
+                Word? numeral = words.Find(index => index.kind == VAR_NUMERAL);
+                Word? pronoun = words.Find(index => index.kind == VAR_PRONOUN);
+                Word? adjective = words.Find(index => index.kind == VAR_ADJECTIVE_NOUN);
+                if (team == VAR_CONJUNCTION)
+                {
+                    return conjunction;
+                }
+                if (team == VAR_ADJECTIVE_NOUN)
+                {
+                    return adjective;
+                }
+                if (team == VAR_PERSONAL) 
+                {
+                    return pronoun;
+                }
+                if ((team == VAR_NOUN) || (team == VAR_NUMERAL_NOUN))
+                {
+                    if (article != null) return article;
+                    if (numeral != null) return numeral;
+                    if (pronoun != null) return pronoun;
+                }
+                return noun;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return null;
+            }
+        }
+
+        private Word? PredicateCurrent(string language, List<Word> words)
+        {
+            try
+            {
+                Word? team_preposition = words.Find(index => index.team == VAR_PREPOSITION);
+                Word? team_different = words.Find(index => index.team != VAR_PREPOSITION);
+                string? team = string.Empty;
+                if ((team_preposition != null) && (team_different == null)) team = team_preposition.team;
+                if ((team_preposition == null) && (team_different != null)) team = team_different.team;
+                if ((team_preposition != null) && (team_different != null)) team = team_different.team;
+                Word? noun = words.Find(index => index.kind == VAR_NOUN);
+                Word? conjunction = words.Find(index => index.kind == VAR_CONJUNCTION);
+                Word? article = words.Find(index => index.kind == VAR_ARTICLE);
+                Word? numeral = words.Find(index => index.kind == VAR_NUMERAL);
+                Word? pronoun = words.Find(index => index.kind == VAR_PRONOUN);
+                Word? adjective_noun = words.Find(index => index.kind == VAR_ADJECTIVE_NOUN);
+                Word? adjective = words.Find(index => index.kind == VAR_ADJECTIVE);
+                Word? verb = words.Find(index => index.kind == VAR_VERB);
+                List<Word> preposition = words.FindAll(index => index.kind == VAR_PREPOSITION);
+                if (team == VAR_CONJUNCTION)
+                {
+                    return conjunction;
+                }
+                if (team == VAR_PREPOSITION)
+                {
+                    Word? term = preposition.Find(index => index.team == VAR_PREPOSITION);
+                    return term;
+                }
+                if ((team == VAR_DEMONSTRATIVE) || (team == VAR_POSSESSIVE))
+                {
+                    return pronoun;
+                }
+                if ((team == VAR_ADJECTIVE_NOUN) || (team == VAR_ADJECTIVE_ADVERB))
+                {
+                    return adjective;
+                }
+                if ((team == VAR_NOUN) || (team == VAR_NUMERAL_NOUN))
+                {
+                    if (article != null) return article;
+                    if (numeral != null) return numeral;
+                    if (pronoun != null) return pronoun;
+                }
+                if (team == VAR_VERB)
+                {
+                    return verb;
+                }
+                return noun;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return null;
+            }
+        }
+
+        private List<Word> MountSubject(List<Sentenca> sentences, string language, List<Word> matters)
+        {
+            try
+            {
+                List<Word> lessons = new List<Word>();
+                Dictionary<(string, string), int> word_2_vec = this._wordEmbeddingService.Word2Vec(sentences);
+                HashSet<string> vocabulary = this._wordEmbeddingService.Vocabulary(sentences);
+                List<Word> filter_matters = new List<Word>();
+                filter_matters = matters.FindAll(index => index.sentense == VAR_SUBJECT).ToList();
+                List<Word> words = new List<Word>();
+                Word? word = new Word();
+                List<Word> befores = new List<Word>();
+                Word? before = new Word();
+                bool last = false;
+                int order = filter_matters.OrderBy(index => index.order).Last().order;
+                for (int quantity = 1; quantity <= order; quantity++)
+                {
+                    last = false;
+                    words = filter_matters.FindAll(index => index.order == quantity);
+                    if (befores.Count == 0)
+                    {
+                        befores = words;
+                        last = true;
+                        continue;
+                    }
+                    word = new Word();
+                    word = SubjectCurrent(language, words);
+                    before = new Word();
+                    before = SubjectBefore(language, befores);
+                    bool similarity = false;
+                    similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, before.term, word.term);
+                    if (!similarity) break;
+                    foreach (Word item in words)
+                    {
+                        lessons.Add(item);
+                    }
+                    befores = words;
+                    last = true;
+                }
+                if (last)
+                {
+                    foreach (Word item in befores)
+                    {
+                        lessons.Add(item);
+                    }
+                }
+                return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return null;
+            }
+        }
+
+        private List<Word> MountPredicate(List<Sentenca> sentences, string language, List<Word> matters)
+        {
+            try
+            {
+                List<Word> lessons = new List<Word>();
+                Dictionary<(string, string), int> word_2_vec = this._wordEmbeddingService.Word2Vec(sentences);
+                HashSet<string> vocabulary = this._wordEmbeddingService.Vocabulary(sentences);
+                List<Word> filter_matters = new List<Word>();
+                filter_matters = matters.FindAll(index => index.sentense == VAR_PREDICATE).ToList();
+                List<Word> words = new List<Word>();
+                Word? word = new Word();
+                List<Word> befores = new List<Word>();
+                Word? before = new Word();
+                bool last = false;
+                int first = filter_matters.OrderBy(index => index.order).First().order;
+                int order = filter_matters.OrderBy(index => index.order).Last().order;
+                for (int quantity = first; quantity <= order; quantity++)
+                {
+                    last = false;
+                    words = filter_matters.FindAll(index => index.order == quantity);
+                    if (befores.Count == 0)
+                    {
+                        befores = words;
+                        last = true;
+                        continue;
+                    }
+                    word = new Word();
+                    word = PredicateCurrent(language, words);
+                    before = new Word();
+                    before = PredicateBefore(language, befores);
+                    bool similarity = false;
+                    similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, before.term, word.term);
+                    if (!similarity) break;
+                    foreach (Word item in words)
+                    {
+                        lessons.Add(item);
+                    }
+                    befores = words;
+                    last = true;
+                }
+                if (last)
+                {
+                    foreach (Word item in befores)
+                    {
+                        lessons.Add(item);
+                    }
+                }
+                return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return null;
+            }
+        }
+
+        private List<Word> MountOration(List<Sentenca> sentences, string language, List<Word> lessons)
+        {
+            try
+            {
+                List<Word> words = new List<Word>();
+                List<Word> terms = new List<Word>();
+                terms = MountSubject(sentences, language, lessons);
+                foreach (Word item in terms) 
+                {
+                    words.Add(item);
+                }
+                terms = MountPredicate(sentences, language, lessons);
+                foreach (Word item in terms)
+                {
+                    words.Add(item);
+                }
+                return words;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return null;
+            }
+        }
+
+        private string? MountExpression(string language, List<Word> words)
+        {
+            try
+            {
+                Word? team_preposition = words.Find(index => index.team == VAR_PREPOSITION);
+                Word? team_different = words.Find(index => index.team != VAR_PREPOSITION);
+                string? team = string.Empty;
+                if ((team_preposition != null) && (team_different == null)) team = team_preposition.team;
+                if ((team_preposition == null) && (team_different != null)) team = team_different.team;
+                if ((team_preposition != null) && (team_different != null)) team = team_different.team;
+                Word? noun = words.Find(index => index.kind == VAR_NOUN);
+                Word? conjunction = words.Find(index => index.kind == VAR_CONJUNCTION);
+                Word? article = words.Find(index => index.kind == VAR_ARTICLE);
+                Word? numeral = words.Find(index => index.kind == VAR_NUMERAL);
+                Word? pronoun = words.Find(index => index.kind == VAR_PRONOUN);
+                Word? adjective = words.Find(index => index.kind == VAR_ADJECTIVE);
+                Word? adverb = words.Find(index => index.kind == VAR_ADVERB);
+                Word? adverb_adverb = words.Find(index => index.kind == VAR_ADVERB_ADVERB);
+                Word? verb = words.Find(index => index.kind == VAR_VERB);
+                List<Word> preposition = words.FindAll(index => index.kind == VAR_PREPOSITION);
+                string word = string.Empty;
+                if (team == VAR_CONJUNCTION)
+                {
+                    word = conjunction.term;
+                }
+                if (preposition.Count == 1)
+                {
+                    if (team == VAR_PREPOSITION)
+                    {
+                        if (word != string.Empty) word += " "; 
+                        word += preposition.First().term;
+                    }
+                }
+                else
+                {
+                    if (preposition.Count > 1)
+                    {
+                        if (word != string.Empty) word += " ";
+                        word += team_preposition.term;
+                    }
+                }
+                if (team == VAR_ADJECTIVE_NOUN)
+                {
+                    string term = string.Empty;
+                    term = preposition.Find(index => index.team == team).term;
+                    if (term != string.Empty)
+                    {
+                        if (word != string.Empty) word += " ";
+                        if (adverb_adverb != null)
+                            word += adjective.term + " " + adverb.term + " " + term + " " + noun.term;
+                        else
+                            word += adverb.term + " " + term + " " + noun.term;
+                    }
+                    else
+                    {
+                        if (word != string.Empty) word += " ";
+                        if (adverb_adverb != null)
+                            word += adjective.term + " " + adverb.term + " " + noun.term;
+                        else
+                            word += adverb.term + " " + noun.term;
+                    }
+                }
+                if (team == VAR_ADJECTIVE_ADVERB)
+                {
+                    if (word != string.Empty) word += " ";
+                    if (adverb_adverb != null)
+                        word += adjective.term + " " + adverb.term + " " + adverb_adverb.term;
+                    else
+                    {
+                        if (adverb != null)
+                            word += adjective.term + " " + adverb.term;
+                        else
+                            word += adjective.term;
+                    }
+                }
+                if ((team == VAR_DEMONSTRATIVE) || (team == VAR_POSSESSIVE) || (team == VAR_PERSONAL))
+                {
+                    if (word != string.Empty) word += " ";
+                    word += pronoun.term;
+                }
+                if ((team == VAR_NOUN) || (team == VAR_NUMERAL_NOUN))
+                {
+                    if (word != string.Empty) word += " ";
+                    if (article != null)
+                        word += article.term + " " + noun.term;
+                    if (numeral != null)
+                        word += numeral.term + " " + noun.term;
+                    if (pronoun != null)
+                        word += pronoun.term + " " + noun.term;
+                }
+                if (team == VAR_NOUN)
+                {
+                    if (word != string.Empty) word += " ";
+                    word += noun.term;
+                }
+                if (team == VAR_VERB)
+                {
+                    if (word != string.Empty) word += " ";
+                    if (adverb_adverb != null)
+                        word += adjective.term + " " + adverb.term + " " + adverb_adverb.term;
+                    else
+                    {
+                        if (adverb != null)
+                            word += adjective.term + " " + adverb.term;
+                        else
+                            word += verb.term;
+                    }
+                }
+                return word;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return null;
+            }
+        }
+
+        public string MountOration(string language, List<Word> words)
+        {
+            try
+            {
+                string word = string.Empty;
+                if (words.Count == 0) return word;
+                int order = words.OrderBy(index => index.order).Last().order;
+                for (int quantity = 1; quantity <= order; quantity++)
+                {
+                    List<Word> terms = new List<Word>();
+                    terms = words.FindAll(index => index.order == quantity);
+                    word += MountExpression(language, terms);
+                    if (quantity < order)
+                        word += " ";
+                }
+                return word;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return string.Empty;
+            }
+        }
+        #endregion
+
+        #region SYNTAX
         private List<Lesson> Union(List<Lesson> fists, List<Lesson> lasts)
         {
             try
@@ -727,156 +1191,13 @@ namespace LetterStomach.ViewModels
             }
         }
 
-        private List<Word> Authenticate(string language, List<Word> lessons)
+        public List<Word> MountSyntax(string language, List<Word> terms, bool reverse)
         {
             try
             {
-                List<Word> new_word = new List<Word>();
-                List<Sentenca> sentences = SelectSentence(language).Distinct().ToList();
-                Dictionary<(string, string), int> word_2_vec = this._wordEmbeddingService.Word2Vec(sentences);
-                HashSet<string> vocabulary = this._wordEmbeddingService.Vocabulary(sentences);
-
-                string pronoun_subject = string.Empty;
-                string pronoun_predicate = string.Empty;
-                string article_subject = string.Empty;
-                string article_predicate = string.Empty;
-                string digit_subject = string.Empty;
-                string digit_predicate = string.Empty;
-                string noun_subject = string.Empty;
-                string noun_predicate = string.Empty;
-                string verb = string.Empty;
-                string model = string.Empty;
-                string preposition = string.Empty;
-                foreach (Word word in lessons)
-                {
-                    if ((word.kind == VAR_PRONOUN) && (word.sentense == VAR_SUBJECT)) pronoun_subject = word.term;
-                    if ((word.kind == VAR_ARTICLE) && (word.sentense == VAR_SUBJECT)) article_subject = word.term;
-                    if ((word.kind == VAR_NUMERAL) && (word.sentense == VAR_SUBJECT)) digit_subject = word.term;
-                    if ((word.kind == VAR_NOUN) && (word.sentense == VAR_SUBJECT)) noun_subject = word.term;
-                    if (word.kind == VAR_VERB)
-                    {
-                        verb = word.term;
-                        model = word.model;
-                    }
-                    if ((word.kind == VAR_PREPOSITION) && (word.sentense == VAR_PREDICATE)) preposition = word.term;
-                    if ((word.kind == VAR_PRONOUN) && (word.sentense == VAR_PREDICATE)) pronoun_predicate = word.term;
-                    if ((word.kind == VAR_NUMERAL) && (word.sentense == VAR_PREDICATE)) digit_predicate = word.term;
-                    if ((word.kind == VAR_ARTICLE) && (word.sentense == VAR_PREDICATE)) article_predicate = word.term;
-                    if ((word.kind == VAR_NOUN) && (word.sentense == VAR_PREDICATE)) noun_predicate = word.term;
-                }
-                bool similarity = false;
-                if ((pronoun_subject != string.Empty) && (noun_subject == string.Empty))
-                {
-                    similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, pronoun_subject, verb);
-                }
-                if ((noun_subject != string.Empty) && (digit_subject == string.Empty) && (pronoun_subject == string.Empty) && (article_subject == string.Empty))
-                {
-                    similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, noun_subject, verb);
-                }
-                if ((noun_subject != string.Empty) && (digit_subject != string.Empty))
-                {
-                    similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, digit_subject, noun_subject);
-                    if (similarity) similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, noun_subject, verb);
-                }
-                if ((noun_subject != string.Empty) && (pronoun_subject != string.Empty))
-                {
-                    similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, pronoun_subject, noun_subject);
-                    if (similarity) similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, noun_subject, verb);
-                }
-                if ((noun_subject != string.Empty) && (article_subject != string.Empty))
-                {
-                    similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, article_subject, noun_subject);
-                    if (similarity) similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, noun_subject, verb);
-                }
-                if (!similarity) return new_word;
-                else
-                {
-                    if ((preposition == string.Empty) && (pronoun_predicate == string.Empty) && (digit_predicate == string.Empty) && (article_predicate == string.Empty) && (noun_predicate == string.Empty))
-                    {
-                        List<Word> item = new List<Word>();
-                        item = this._morphologyViewModel.GetSuject(pronoun_subject, noun_subject, article_subject, digit_subject, verb, model);
-                        item.ForEach(index =>
-                        {
-                            new_word.Add(index);
-                        });
-                        return new_word;
-                    }
-                }
-                if ((pronoun_predicate != string.Empty) && (noun_predicate == string.Empty) && (preposition == string.Empty))
-                {
-                    similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, verb, pronoun_predicate);
-                }
-                if ((pronoun_predicate != string.Empty) && (noun_predicate == string.Empty) && (preposition != string.Empty))
-                {
-                    similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, verb, preposition);
-                    if (similarity) similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, preposition, pronoun_predicate);
-                }
-                if ((pronoun_predicate != string.Empty) && (noun_predicate != string.Empty) && (preposition == string.Empty))
-                {
-                    similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, verb, pronoun_predicate);
-                    if (similarity) similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, pronoun_predicate, noun_predicate);
-                }
-                if ((pronoun_predicate != string.Empty) && (noun_predicate != string.Empty) && (preposition != string.Empty))
-                {
-                    similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, verb, preposition);
-                    if (similarity) similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, preposition, pronoun_predicate);
-                    if (similarity) similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, pronoun_predicate, noun_predicate);
-                }
-                if ((article_predicate != string.Empty) && (noun_predicate != string.Empty) && (preposition == string.Empty))
-                {
-                    similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, verb, article_predicate);
-                    if (similarity) similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, article_predicate, noun_predicate);
-                }
-                if ((article_predicate != string.Empty) && (noun_predicate != string.Empty) && (preposition != string.Empty))
-                {
-                    similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, verb, preposition);
-                    if (similarity) similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, preposition, article_predicate);
-                    if (similarity) similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, article_predicate, noun_predicate);
-                }
-                if ((digit_predicate != string.Empty) && (noun_predicate != string.Empty) && (preposition == string.Empty))
-                {
-                    similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, verb, digit_predicate);
-                    if (similarity) similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, digit_predicate, noun_predicate);
-                }
-                if ((digit_predicate != string.Empty) && (noun_predicate != string.Empty) && (preposition != string.Empty))
-                {
-                    similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, verb, preposition);
-                    if (similarity) similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, preposition, digit_predicate);
-                    if (similarity) similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, digit_predicate, noun_predicate);
-                }
-                if (similarity)
-                {
-                    List<Word> item_two = new List<Word>();
-                    item_two = this._morphologyViewModel.GetPredicate(pronoun_predicate, noun_predicate, article_predicate, digit_predicate, preposition);
-                    item_two.ForEach(index =>
-                    {
-                        new_word.Add(index);
-                    });
-
-                    item_two = new List<Word>();
-                    item_two = this._morphologyViewModel.GetSuject(pronoun_subject, noun_subject, article_subject, digit_subject, verb, model);
-                    item_two.ForEach(index =>
-                    {
-                        new_word.Add(index);
-                    });
-                }
-                return new_word;
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
-                return null;
-            }
-        }
-
-        public List<Word> MountSyntax(string language, List<Word> words, bool reverse)
-        {
-            try
-            {
-                List<Word> new_word = new List<Word>();
+                List<Word> words = new List<Word>();
                 List<Lesson> lessons = SelectOration(language).OrderBy(index => index.order).ToList();
-
+                List<Sentenca> sentence = SelectSentence(language).Distinct().ToList();
                 if (reverse) lessons.Reverse();
                 bool next = false;
                 int count_foreach = 0;
@@ -884,26 +1205,25 @@ namespace LetterStomach.ViewModels
                 {
                     if (!next)
                     {
-                        string word = GetSyntax(words);
+                        string word = GetSyntax(terms);
                         string word_lesson = GetSyntax(lesson.lecture);
                         if (word == word_lesson)
                             next = true;
                     }
                     else
                     {
-                        new_word = Authenticate(language, lesson.lecture);
-                        if (new_word != null) break;
+                        words = MountOration(sentence, language, lesson.lecture);
+                        if (words != null) break;
                     }
-
                     count_foreach++;
                     if (lessons.Count == count_foreach)
                     {
-                        new_word = words;
+                        words = terms;
                         break;
                     }
                 }
                 if (reverse) lessons.Reverse();
-                return new_word;
+                return words;
             }
             catch (Exception ex)
             {
@@ -917,8 +1237,8 @@ namespace LetterStomach.ViewModels
         {
             try
             {
+                if (_error_test) throw new InvalidOperationException("Falha na operação!");
                 List<Sentenca> sentence = SelectSentence(language).Distinct().ToList();
-                List<Word> result = new List<Word>();
 
                 List<string> list_noun = this._morphologyViewModel.GetLessonNoun(language, lesson, book);
                 List<string> list_adjective = this._morphologyViewModel.GetLessonAdjective(lesson, book);
@@ -941,7 +1261,6 @@ namespace LetterStomach.ViewModels
                 List<Lesson> mount_pronoun = this._morphologyViewModel.GetPronoun(sentence, list_pronoun);
                 List<Lesson> mount_conjunction = this._morphologyViewModel.GetConjunction(sentence, list_conjunction);
                 List<Lesson> mount_numeral_noun = this._morphologyViewModel.GetNumeralNoun(sentence, list_noun, list_article, list_numeral);
-
                 List <Lesson> mount_numeral = this._morphologyViewModel.GetNumeral(sentence, list_numeral);
                 List<Lesson> mount_article = this._morphologyViewModel.GetArticle(sentence, list_article);
 
@@ -955,18 +1274,19 @@ namespace LetterStomach.ViewModels
                 matters = Union(matters, mount_conjunction);
                 matters = Union(matters, mount_numeral_noun);
 
-                List<Lesson> words = new List<Lesson>();
-                words = OrderLesson(MountOrationSample(sentence, matters));
-                words = OrderLesson(words, MountOrationCompound(sentence, matters));
+                List<Lesson> terms = new List<Lesson>();
+                terms = OrderLesson(MountOrationSample(sentence, matters));
+                terms = OrderLesson(terms, MountOrationCompound(sentence, matters));
 
-                SetOration(language, words);
+                SetOration(language, terms);
+                List<Word> words = new List<Word>();
 
-                foreach (Lesson phrase in words)
+                foreach (Lesson phrase in terms)
                 {
-                    result = Authenticate(language, phrase.lecture);
-                    if (result.Count() > 0) break;
+                    words = MountOration(sentence, language, phrase.lecture);
+                    if (words.Count() > 0) break;
                 }
-                return result;
+                return words;
             }
             catch (Exception ex)
             {

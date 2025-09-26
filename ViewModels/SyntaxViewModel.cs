@@ -610,9 +610,7 @@ namespace LetterStomach.ViewModels
                 return null;
             }
         }
-        #endregion
 
-        #region UTIL
         private Word Lecture(string term, string kind, string sentence, string team, int order)
         {
             try
@@ -765,7 +763,7 @@ namespace LetterStomach.ViewModels
                 kind_noun.Add(VAR_PERSONAL);
                 kind_noun.Add(VAR_ADJECTIVE_NOUN);
                 List<string> kind_conjunction = new List<string>();
-                kind_noun.Add(VAR_CONJUNCTION);
+                kind_conjunction.Add(VAR_CONJUNCTION);
                 List<Lesson> verbs = new List<Lesson>();
                 verbs = FilterLesson(matters, kind_verb);
                 List<Lesson> nouns = new List<Lesson>();
