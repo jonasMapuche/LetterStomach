@@ -420,11 +420,11 @@ namespace LetterStomach.ViewModels
         {
             try
             {
-                Down(_lesson_english, _english, ENGLISH.Lowercase, _word_english);
-                Down(_lesson_deutsch, _deutsch, DEUTSCH.Lowercase, _word_deutsch);
-                Down(_lesson_italiano, _italiano, ITALIANO.Lowercase, _word_italiano);
-                Down(_lesson_francais, _francais, FRANCAIS.Lowercase, _word_francais);
-                Down(_lesson_espanol, _espanol, ESPANOL.Lowercase, _word_espanol);
+                if (SingletonService.Instance.PauseEnglish) Down(_english, ENGLISH.Lowercase, _word_english);
+                if (SingletonService.Instance.PauseDeutsch) Down(_deutsch, DEUTSCH.Lowercase, _word_deutsch);
+                if (SingletonService.Instance.PauseItaliano) Down(_italiano, ITALIANO.Lowercase, _word_italiano);
+                if (SingletonService.Instance.PauseFrancais) Down(_francais, FRANCAIS.Lowercase, _word_francais);
+                if (SingletonService.Instance.PauseEspanol) Down(_espanol, ESPANOL.Lowercase, _word_espanol);
             }
             catch (Exception ex)
             {
@@ -437,11 +437,11 @@ namespace LetterStomach.ViewModels
         {
             try
             {
-                Up(_lesson_english, _english, ENGLISH.Lowercase, _word_english);
-                Up(_lesson_deutsch, _deutsch, DEUTSCH.Lowercase, _word_deutsch);
-                Up(_lesson_italiano, _italiano, ITALIANO.Lowercase, _word_italiano);
-                Up(_lesson_francais, _francais, FRANCAIS.Lowercase, _word_francais);
-                Up(_lesson_espanol, _espanol, ESPANOL.Lowercase, _word_espanol);
+                if (SingletonService.Instance.PauseEnglish) Up(_english, ENGLISH.Lowercase, _word_english);
+                if (SingletonService.Instance.PauseDeutsch) Up(_deutsch, DEUTSCH.Lowercase, _word_deutsch);
+                if (SingletonService.Instance.PauseItaliano) Up(_italiano, ITALIANO.Lowercase, _word_italiano);
+                if (SingletonService.Instance.PauseFrancais) Up(_francais, FRANCAIS.Lowercase, _word_francais);
+                if (SingletonService.Instance.PauseEspanol) Up(_espanol, ESPANOL.Lowercase, _word_espanol);
             }
             catch (Exception ex)
             {
@@ -512,7 +512,7 @@ namespace LetterStomach.ViewModels
             {
                 List<Word> terms = this._grammarViewModel.MountSyntax(language, words, reverse);
                 SetOration(terms, language);
-                string oration = this._grammarViewModel.GetSyntax(terms);
+                string oration = this._grammarViewModel.MountOration(language, terms);
                 Load(MessageService.Instance, true, language, oration);
             }
             catch (Exception ex)
@@ -522,7 +522,7 @@ namespace LetterStomach.ViewModels
             }
         }
 
-        private void Down(List<Materia> books, Materia lesson, string language, List<Word> words)
+        private void Down(Materia lesson, string language, List<Word> words)
         {
             try
             {
@@ -535,7 +535,7 @@ namespace LetterStomach.ViewModels
             }
         }
 
-        private void Up(List<Materia> books, Materia lesson, string language, List<Word> words)
+        private void Up(Materia lesson, string language, List<Word> words)
         {
             try
             {

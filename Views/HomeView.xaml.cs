@@ -17,7 +17,7 @@ public partial class HomeView : ContentPage
         }
     }
 
-    private async void OnError(object sender, string error_message)
+    private async void OnErrorDown(object sender, string error_message)
     {
         await DisplayAlert("Error", error_message, "OK");
     }
@@ -34,8 +34,8 @@ public partial class HomeView : ContentPage
         try
         { 
 		    InitializeComponent();
+            ViewModel.OnError += OnErrorDown;
             BindingContext = ViewModel;
-            ViewModel.OnError += OnError;
             if (_error_test) throw new InvalidOperationException("Operation failed!");
         }
         catch (Exception ex)

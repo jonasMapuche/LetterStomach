@@ -556,61 +556,6 @@ namespace LetterStomach.ViewModels
         #endregion
 
         #region WORD
-        public string GetOration(List<Word> words)
-        {
-            try
-            {
-                string pronoun_subject = string.Empty;
-                string article_subject = string.Empty;
-                string digit_subject = string.Empty;
-                string noun_subject = string.Empty;
-                string verb = string.Empty;
-                string model = string.Empty;
-                string pronoun_predicate = string.Empty;
-                string article_predicate = string.Empty;
-                string digit_predicate = string.Empty;
-                string noun_predicate = string.Empty;
-                string preposition = string.Empty;
-
-                words.ForEach(word =>
-                {
-                    if ((word.sentense == VAR_SUBJECT) && (word.kind == VAR_PRONOUN)) pronoun_subject = word.term;
-                    if ((word.sentense == VAR_SUBJECT) && (word.kind == VAR_NUMERAL)) digit_subject = word.term;
-                    if ((word.sentense == VAR_SUBJECT) && (word.kind == VAR_ARTICLE)) article_subject = word.term;
-                    if ((word.sentense == VAR_SUBJECT) && (word.kind == VAR_NOUN)) noun_subject = word.term;
-                    if ((word.sentense == VAR_PREDICATE) && (word.kind == VAR_VERB))
-                    {
-                        verb = word.term;
-                        model = word.term;
-                    }
-                    if ((word.sentense == VAR_PREDICATE) && (word.kind == VAR_PREPOSITION)) preposition = word.term;
-                    if ((word.sentense == VAR_PREDICATE) && (word.kind == VAR_PRONOUN)) pronoun_predicate = word.term;
-                    if ((word.sentense == VAR_PREDICATE) && (word.kind == VAR_NUMERAL)) digit_predicate = word.term;
-                    if ((word.sentense == VAR_PREDICATE) && (word.kind == VAR_ARTICLE)) article_predicate = word.term;
-                    if ((word.sentense == VAR_PREDICATE) && (word.kind == VAR_NOUN)) noun_predicate = word.term;
-                });
-
-                string term = string.Empty;
-                if ((pronoun_subject != string.Empty) && (noun_subject == string.Empty)) term = pronoun_subject + " " + verb;
-                if ((noun_subject != string.Empty) && (pronoun_subject == string.Empty) && (digit_subject == string.Empty) && (article_subject == string.Empty)) term = noun_subject + " " + verb;
-                if ((noun_subject != string.Empty) && (digit_subject != string.Empty)) term = digit_subject + " " + pronoun_subject + " " + verb;
-                if ((noun_subject != string.Empty) && (article_subject != string.Empty)) term = article_subject + " " + pronoun_subject + " " + verb;
-                if (preposition != string.Empty) term = term + " " + preposition;
-                if ((pronoun_predicate != string.Empty) && (noun_predicate == string.Empty)) term = term + " " + pronoun_predicate;
-                if ((pronoun_predicate != string.Empty) && (noun_predicate != string.Empty)) term = term + " " + pronoun_predicate + " " + noun_predicate;
-                if ((noun_predicate != string.Empty) && (pronoun_predicate == string.Empty) && (article_predicate == string.Empty) && (digit_predicate == string.Empty)) term = term + " " + noun_predicate;
-                if ((noun_predicate != string.Empty) && (article_predicate != string.Empty)) term = term + " " + article_predicate + " " + noun_predicate;
-                if ((noun_predicate != string.Empty) && (digit_predicate != string.Empty)) term = term + " " + digit_predicate + " " + noun_predicate;
-                return term;
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
-                return null;
-            }
-        }
-
         private Word Lecture(string term, string kind, string sentence, string team, int order)
         {
             try

@@ -2,6 +2,7 @@
 using LetterStomach.Services;
 using LetterStomach.Services.Interfaces;
 using LetterStomach.ViewModels.Interfaces;
+using System.Collections.Generic;
 
 namespace LetterStomach.ViewModels
 {
@@ -348,20 +349,6 @@ namespace LetterStomach.ViewModels
             try
             {
                 return this._lettersViewModel.GetLessonSimple(true, language);
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
-                return null;
-            }
-        }
-
-        public string GetSyntax(List<Word> oration)
-        {
-            try
-            {
-                return this._syntaxViewMode.GetOration(oration);
             }
             catch (Exception ex)
             {
@@ -967,7 +954,7 @@ namespace LetterStomach.ViewModels
                     bool similarity = false;
                     similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, before.term, word.term);
                     if (!similarity) break;
-                    foreach (Word item in words)
+                    foreach (Word item in befores)
                     {
                         lessons.Add(item);
                     }
@@ -1060,23 +1047,31 @@ namespace LetterStomach.ViewModels
                 }
                 if (team == VAR_ADJECTIVE_NOUN)
                 {
-                    string term = string.Empty;
-                    term = preposition.Find(index => index.team == team).term;
-                    if (term != string.Empty)
+                    List<Word> term = preposition.FindAll(index => index.team == team);
+                    if (word != string.Empty) word += " ";
+                    if (term.Count > 0)
                     {
-                        if (word != string.Empty) word += " ";
                         if (adverb_adverb != null)
-                            word += adjective.term + " " + adverb.term + " " + term + " " + noun.term;
+                            word += adjective.term + " " + adverb.term + " " + adverb_adverb.term + " " + term[0].term + " " + noun.term;
                         else
-                            word += adverb.term + " " + term + " " + noun.term;
+                        {
+                            if (adverb != null) 
+                                word += adjective.term + " " + adverb.term + " " + term[0].term + " " + noun.term;
+                            else
+                                word += adjective.term + " " + term[0].term + " " + noun.term;
+                        }
                     }
                     else
                     {
-                        if (word != string.Empty) word += " ";
                         if (adverb_adverb != null)
-                            word += adjective.term + " " + adverb.term + " " + noun.term;
+                            word += adjective.term + " " + adverb.term + " " + adverb_adverb.term + " " + noun.term;
                         else
-                            word += adverb.term + " " + noun.term;
+                        {
+                            if (adverb != null)
+                                word += adjective.term + " " + adverb.term + " " + noun.term;
+                            else
+                                word += adjective.term + " " + noun.term;
+                        }
                     }
                 }
                 if (team == VAR_ADJECTIVE_ADVERB)
@@ -1196,7 +1191,7 @@ namespace LetterStomach.ViewModels
             try
             {
                 List<Word> words = new List<Word>();
-                List<Lesson> lessons = SelectOration(language).OrderBy(index => index.order).ToList();
+                List<Lesson> lessons = SelectOration(language).OrderBy(index => index.order).Distinct().ToList();
                 List<Sentenca> sentence = SelectSentence(language).Distinct().ToList();
                 if (reverse) lessons.Reverse();
                 bool next = false;
@@ -1205,15 +1200,21 @@ namespace LetterStomach.ViewModels
                 {
                     if (!next)
                     {
-                        string word = GetSyntax(terms);
-                        string word_lesson = GetSyntax(lesson.lecture);
-                        if (word == word_lesson)
+                        string term = MountOration(language, terms);
+                        string word = MountOration(language, lesson.lecture);
+                        if (term == word)
                             next = true;
                     }
                     else
                     {
                         words = MountOration(sentence, language, lesson.lecture);
-                        if (words != null) break;
+                        if (words != null)
+                        {
+                            string word = MountOration(language, words);
+                            string term = MountOration(language, terms);
+                            if (term != word)
+                                break;
+                        }
                     }
                     count_foreach++;
                     if (lessons.Count == count_foreach)
@@ -1276,7 +1277,7 @@ namespace LetterStomach.ViewModels
 
                 List<Lesson> terms = new List<Lesson>();
                 terms = OrderLesson(MountOrationSample(sentence, matters));
-                terms = OrderLesson(terms, MountOrationCompound(sentence, matters));
+                //terms = OrderLesson(terms, MountOrationCompound(sentence, matters));
 
                 SetOration(language, terms);
                 List<Word> words = new List<Word>();
