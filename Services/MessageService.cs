@@ -4,9 +4,41 @@ namespace LetterStomach.Services
 {
     public class MessageService
     {
+        #region ERROR
+        private string _error_message;
+
+        public string error_message
+        {
+            get => _error_message;
+            set
+            {
+                _error_message = value;
+            }
+        }
+
+        public event EventHandler<string> OnError;
+        #endregion
+
+        #region VARIABLE
         private static MessageService _instance;
         private static readonly object _lock = new object();
+        private List<Message> _messages = new List<Message>();
+        private List<Message> _messages_english = new List<Message>();
+        private List<Message> _messages_deutsch = new List<Message>();
+        private List<Message> _messages_italiano = new List<Message>();
+        private List<Message> _messages_francais = new List<Message>();
+        private List<Message> _messages_espanol = new List<Message>();
+        private List<Message> _messages_portugues = new List<Message>();
 
+        private Language ENGLISH = SettingService.Instance.English;
+        private Language DEUTSCH = SettingService.Instance.Deutsch;
+        private Language ITALIANO = SettingService.Instance.Italino;
+        private Language FRANCAIS = SettingService.Instance.Francais;
+        private Language ESPANOL = SettingService.Instance.Espanol;
+        private Language PORTUGUES = SettingService.Instance.Portugues;
+        #endregion
+
+        #region CONSTRUCTOR
         public static MessageService Instance
         {
             get
@@ -21,9 +53,9 @@ namespace LetterStomach.Services
                 }
             }
         }
+        #endregion
 
-        public List<Message> Messages { get; set; } = new List<Message>();
-
+        #region USER
         readonly User user1 = new()
         {
             Name = "Deutsch",
@@ -127,7 +159,111 @@ namespace LetterStomach.Services
                 throw;
             }
         }
+        #endregion
 
+        #region MESSAGES
+        public List<Message> Chats { get; set; } = new List<Message>();
+
+        public List<Message> Messages(User sender, string text, string language)
+        {
+            try
+            {
+                Message message = new Message();
+                message.Sender = sender;
+                message.Text = text;
+                if (language == ENGLISH.Uppercase)
+                {
+                    _messages_english.Add(message);
+                    return _messages_english;
+                }
+                if (language == DEUTSCH.Uppercase)
+                {
+                    _messages_deutsch.Add(message);
+                    return _messages_deutsch;
+                }
+                if (language == ITALIANO.Uppercase)
+                {
+                    _messages_italiano.Add(message);
+                    return _messages_italiano;
+                }
+                if (language == FRANCAIS.Uppercase)
+                {
+                    _messages_francais.Add(message);
+                    return _messages_francais;
+                }
+                if (language == ESPANOL.Uppercase)
+                {
+                    _messages_espanol.Add(message);
+                    return _messages_espanol;
+                }
+                if (language == ESPANOL.Uppercase)
+                {
+                    _messages_portugues.Add(message);
+                    return _messages_portugues;
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return null;
+            }
+        }
+
+        public void Clear(string language)
+        {
+            try
+            {
+                if (language == ENGLISH.Uppercase)
+                    _messages_english.Clear();
+                if (language == DEUTSCH.Uppercase)
+                    _messages_deutsch.Clear();
+                if (language == ITALIANO.Uppercase)
+                    _messages_italiano.Clear();
+                if (language == FRANCAIS.Uppercase)
+                    _messages_francais.Clear();
+                if (language == ESPANOL.Uppercase)
+                    _messages_espanol.Clear();
+                if (language == PORTUGUES.Uppercase)
+                    _messages_portugues.Clear();
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+            }
+        }
+
+        public List<Message> Messages(string language)
+        {
+            try
+            {
+                if (language == ENGLISH.Uppercase)
+                    return _messages_english;
+                if (language == DEUTSCH.Uppercase)
+                    return _messages_deutsch;
+                if (language == ITALIANO.Uppercase)
+                    return _messages_italiano;
+                if (language == FRANCAIS.Uppercase)
+                    return _messages_francais;
+                if (language == ESPANOL.Uppercase)
+                    return _messages_espanol;
+                if (language == PORTUGUES.Uppercase)
+                    return _messages_portugues;
+                return null;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return null;
+            }
+        }
+
+        #endregion
+
+        #region CHATS
         public List<Message> GetChats()
         {
             try 
@@ -215,48 +351,7 @@ namespace LetterStomach.Services
                 throw;
             }
         }
+        #endregion
 
-        public List<Message> GetMessages(User sender)
-        {
-            try 
-            { 
-                return new List<Message> {
-                    new Message
-                    {
-                        Sender = null,
-                        Time = "18:42",
-                        Text = "Yeah I know. I\'m in the same position 😂",
-                    },
-                    new Message
-                    {
-                        Sender = sender,
-                        Time = "18:39",
-                        Text = "It\'s hard to be productive, man 😞",
-                    },
-                    new Message
-                    {
-                        Sender = sender,
-                        Time = "18:39",
-                        Text = "Same here! Been watching YouTube for the past 5 hours despite of having so much to do! 😅",
-                    },
-                    new Message
-                    {
-                        Sender = null,
-                        Time = "18:36",
-                        Text = "Nothing. Just chilling and watching YouTube. What about you?",
-                    },
-                    new Message
-                    {
-                        Sender= sender,
-                        Time = "18:35",
-                        Text= "Hey there! What\'s up?",
-                    },
-                };
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
     }
 }

@@ -75,6 +75,15 @@ namespace LetterStomach.Services
             Region = "ES",
         };
 
+        public readonly Language Portugues = new Language
+        {
+            Name = "portugues",
+            Uppercase = "Português",
+            Lowercase = "português",
+            Code = "pt",
+            Region = "PT",
+        };
+
         public readonly string Suject = "sujeito";
         public readonly string Predicate = "predicado";
 

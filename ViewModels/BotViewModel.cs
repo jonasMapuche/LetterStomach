@@ -11,6 +11,7 @@ namespace LetterStomach.ViewModels
     [QueryProperty(nameof(username), "Username")]
     public partial class BotViewModel : ObservableObject, IQueryAttributable
     {
+        #region ERROR
         private string _error_message;
 
         public string error_message
@@ -23,7 +24,9 @@ namespace LetterStomach.ViewModels
         }
 
         public event EventHandler<string> OnError;
+        #endregion
 
+        #region VARIABLE
         private string PORTUGUES = "português";
 
         public ICommand BackCommand { get; set; }
@@ -48,26 +51,15 @@ namespace LetterStomach.ViewModels
         ICameraProvider _cameraProvider;
 
         public ICameraProvider MediaCamera {  get => _cameraProvider; set => _cameraProvider = value; }
+        #endregion
 
+        #region CONTRUCTOR
         public BotViewModel() 
         {
             try 
             { 
                 BackCommand = new AsyncRelayCommand(OnBackCommand);
                 SendCommand = new AsyncRelayCommand<string>(OnSendCommand);
-                MessageService message_service = new MessageService();
-                Username = message_service.GetUser(PORTUGUES);
-                if (HomeViewModel.Messages.Count > 0)
-                {
-                    Messages = message_service.GetMessages(Username);
-                    HomeViewModel.Messages.ForEach(value =>
-                    {
-                        Messages.Add(value); 
-                    });
-                } else
-                {
-                    Messages = message_service.GetMessages(Username);
-                };
             }
             catch (Exception ex)
             {
@@ -75,19 +67,15 @@ namespace LetterStomach.ViewModels
                 OnError?.Invoke(this, error_message);
             }
         }
+        #endregion
 
+        #region COMMAND
         private async Task OnSendCommand(string parameter)
         {
             try
-            { 
-                Message new_message = new Message()
-                {
-                    Sender = null,
-                    Time = "18:32",
-                    Text = parameter
-                };
-                Messages.Add(new_message);
-                HomeViewModel.Messages.Add(new_message);
+            {
+                string language = Username.Name;
+                Messages = MessageService.Instance.Messages(null, parameter, language);
             }
             catch (Exception ex)
             {
@@ -114,22 +102,28 @@ namespace LetterStomach.ViewModels
             try 
             { 
                 Username = query["username"] as User;
-                MessageService message_service = new MessageService();
                 if (Username == null)
                 {
-                    Username = message_service.GetUser(PORTUGUES);
+                    Username = MessageService.Instance.GetUser(PORTUGUES);
                 }
-                if (HomeViewModel.Messages.Count > 0)
+                List<Message> message_language = MessageService.Instance.Messages(Username.Name);
+                if (message_language.Count > 0)
                 {
-                    Messages = message_service.GetMessages(Username);
-                    HomeViewModel.Messages.ForEach(value =>
-                    {
-                        Messages.Add(value);
-                    });
+                    Messages = message_language;
                 }
                 else
                 {
-                    Messages = message_service.GetMessages(Username);
+                    if (Username.Name != PORTUGUES)
+                    {
+                        List<Message> chats = MessageService.Instance.Chats;
+                        Message? chat = chats.Find(index => index.Sender == Username);
+                        List<Message> reports = MessageService.Instance.Messages(chat.Sender, chat.Text, chat.Sender.Name);
+                        Messages = reports;
+                    }
+                    else
+                    {
+                        Messages = MessageService.Instance.Messages(Username, "What can I do for you?", Username.Name);
+                    }
                 }
             }
             catch (Exception ex)
@@ -138,7 +132,9 @@ namespace LetterStomach.ViewModels
                 OnError?.Invoke(this, error_message);
             }
         }
+        #endregion
 
+        #region BUTTON
         private async Task FlashCamera(string kind)
         {
             try
@@ -184,5 +180,6 @@ namespace LetterStomach.ViewModels
                 OnError?.Invoke(this, error_message);
             }
         }
+        #endregion
     }
 }

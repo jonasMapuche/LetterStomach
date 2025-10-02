@@ -47,8 +47,6 @@ namespace LetterStomach.ViewModels
         public ICommand SpeakCommand { get; set; }
         public ICommand SwipedCommand { get; set; }
 
-        public static List<Message> Messages = new List<Message>();
-
         private readonly SettingService _singleton;
 
         private IGrammarViewModel _grammarViewModel;
@@ -133,27 +131,27 @@ namespace LetterStomach.ViewModels
                 int volume_speak = _singleton.VolumeSpeak;
                 if (SingletonService.Instance.SpeakEnglish)
                 {
-                    speak_service.SpeakText(MessageService.Instance.Messages, ENGLISH.Uppercase, pitch_speak, volume_speak);
+                    speak_service.SpeakText(MessageService.Instance.Chats, ENGLISH.Uppercase, pitch_speak, volume_speak);
                 }
                 ;
                 if (SingletonService.Instance.SpeakDeutsch)
                 {
-                    speak_service.SpeakText(MessageService.Instance.Messages, DEUTSCH.Uppercase, pitch_speak, volume_speak);
+                    speak_service.SpeakText(MessageService.Instance.Chats, DEUTSCH.Uppercase, pitch_speak, volume_speak);
                 }
                 ;
                 if (SingletonService.Instance.SpeakItaliano)
                 {
-                    speak_service.SpeakText(MessageService.Instance.Messages, ITALIANO.Uppercase, pitch_speak, volume_speak);
+                    speak_service.SpeakText(MessageService.Instance.Chats, ITALIANO.Uppercase, pitch_speak, volume_speak);
                 }
                 ;
                 if (SingletonService.Instance.SpeakFrancais)
                 {
-                    speak_service.SpeakText(MessageService.Instance.Messages, FRANCAIS.Uppercase, pitch_speak, volume_speak);
+                    speak_service.SpeakText(MessageService.Instance.Chats, FRANCAIS.Uppercase, pitch_speak, volume_speak);
                 }
                 ;
                 if (SingletonService.Instance.SpeakEspanol)
                 {
-                    speak_service.SpeakText(MessageService.Instance.Messages, ESPANOL.Uppercase, pitch_speak, volume_speak);
+                    speak_service.SpeakText(MessageService.Instance.Chats, ESPANOL.Uppercase, pitch_speak, volume_speak);
                 }
                 ;
             }
@@ -205,12 +203,12 @@ namespace LetterStomach.ViewModels
                 if (sqlite_database)
                 {
                     this._grammarViewModel.SQLite();
-                    MessageService.Instance.Messages = MessageService.Instance.GetChatsSQLite();
+                    MessageService.Instance.Chats = MessageService.Instance.GetChatsSQLite();
                 }
                 else
                 {
                     this._grammarViewModel.MongoDB();
-                    MessageService.Instance.Messages = MessageService.Instance.GetChats();
+                    MessageService.Instance.Chats = MessageService.Instance.GetChats();
                 };
             }
             catch (Exception ex)
@@ -250,7 +248,7 @@ namespace LetterStomach.ViewModels
             {
                 Connect(sqlite_database);
                 Init();
-                Load(MessageService.Instance, true);
+                Load(MessageService.Instance);
             }
             catch (Exception ex)
             {
@@ -268,9 +266,9 @@ namespace LetterStomach.ViewModels
                 User user_italiano = message_service.GetUser(ITALIANO.Lowercase);
                 User user_francais = message_service.GetUser(FRANCAIS.Lowercase);
                 User user_espanol = message_service.GetUser(ESPANOL.Lowercase);
-                List<Message> messages = message_service.Messages;
+                List<Message> messages = message_service.Chats;
                 List<Message> memos = new List<Message>();
-                message_service.Messages.ForEach(index => memos.Add(index));
+                message_service.Chats.ForEach(index => memos.Add(index));
                 foreach (Message item in messages)
                 {
                     if (((item.Sender == user_english) && (language == ENGLISH.Lowercase))
@@ -287,6 +285,7 @@ namespace LetterStomach.ViewModels
                     }
                 }
                 RecentChat = new ObservableCollection<Message>(memos);
+                MessageService.Instance.Chats = memos;
             }
             catch (Exception ex)
             {
@@ -295,7 +294,7 @@ namespace LetterStomach.ViewModels
             }
         }
 
-        private void Load(MessageService message_service, bool update)
+        private void Load(MessageService message_service)
         {
             try
             {
@@ -305,7 +304,7 @@ namespace LetterStomach.ViewModels
                 User user_francais = message_service.GetUser(FRANCAIS.Lowercase);
                 User user_espanol = message_service.GetUser(ESPANOL.Lowercase);
                 List<Message> messages = new List<Message>();
-                messages = message_service.Messages;
+                messages = message_service.Chats;
                 List<Message> memos = new List<Message>();
                 foreach (Message item in messages)
                 {
@@ -336,6 +335,7 @@ namespace LetterStomach.ViewModels
                     }
                 };
                 RecentChat = new ObservableCollection<Message>(memos);
+                MessageService.Instance.Chats = memos;
             }
             catch (Exception ex)
             {

@@ -109,7 +109,7 @@
                     </Grid>
                     <Grid
                         Grid.Row="1"
-                        Style="{StaticResource ChatEntryBotGridStyle}"> 
+                        Style="{StaticResource ChatEntryBotGridStyle}">  
                         <Grid
                             ColumnDefinitions="*, Auto">
                             <controls:BorderlessEntry

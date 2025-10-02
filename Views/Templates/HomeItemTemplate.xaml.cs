@@ -5,12 +5,15 @@ namespace LetterStomach.Views.Templates;
 
 public partial class HomeItemTemplate : ContentView
 {
+    #region VARIABLE
     private Language ENGLISH = SettingService.Instance.English;
     private Language DEUTSCH = SettingService.Instance.Deutsch;
     private Language ITALIANO = SettingService.Instance.Italino;
     private Language FRANCAIS = SettingService.Instance.Francais;
     private Language ESPANOL = SettingService.Instance.Espanol;
+    #endregion
 
+    #region CONSTRUCTOR
     public HomeItemTemplate()
 	{
         try 
@@ -22,7 +25,9 @@ public partial class HomeItemTemplate : ContentView
             throw;
         }
     }
+    #endregion
 
+    #region BUTTON
     private async void OnLeftClicked(object sender, EventArgs e)
     {
         try
@@ -100,4 +105,5 @@ public partial class HomeItemTemplate : ContentView
             throw;
         }
     }
+    #endregion
 }

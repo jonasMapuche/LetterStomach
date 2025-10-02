@@ -5,6 +5,7 @@ namespace LetterStomach.Views;
 
 public partial class BotView : ContentPage
 {
+    #region ERROR
     private bool _error_test = false;
     private string _error_message;
 
@@ -17,7 +18,7 @@ public partial class BotView : ContentPage
         }
     }
 
-    private async void OnError(object sender, string error_message)
+    private async void OnDownError(object sender, string error_message)
     {
         await DisplayAlert("Erro", error_message, "OK");
     }
@@ -26,19 +27,24 @@ public partial class BotView : ContentPage
     {
         await DisplayAlert("Erro", error_message, "OK");
     }
+    #endregion
 
+    #region VARIABLE
     private ICameraProvider _cameraProvider;
     private BotViewModel _botViewModel;
+    #endregion
 
+    #region CONSTRUCTOR
     public BotView(BotViewModel ViewModel)
 	{
 		try
-		{ 
-		    InitializeComponent();
+		{
+            if (_error_test) throw new InvalidOperationException("Falha na operação!");
+            InitializeComponent();
+            ViewModel.OnError += OnDownError;
 		    BindingContext = ViewModel;
             this._botViewModel = ViewModel;
             this._botViewModel.MediaCamera = this._cameraProvider;
-            if (_error_test) throw new InvalidOperationException("Falha na operação!");
         }
         catch (Exception ex)
         {
@@ -46,11 +52,14 @@ public partial class BotView : ContentPage
             OnError(this.error_message);
         }
     }
+    #endregion
 
+    #region EVENT
     private void OnMediaCaptured(object sender, MediaCapturedEventArgs e)
     {
         var memoryStream = new MemoryStream();
         e.Media.CopyTo(memoryStream);
         this._botViewModel.Bytes = memoryStream.ToArray();
     }
+    #endregion
 }
