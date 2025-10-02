@@ -80,6 +80,28 @@ namespace LetterStomach.Services
                 return null;
             }
         }
+
+        public async Task<Locution> HttpGo(GoMessage message)
+        {
+            try
+            {
+                string path = "Go";
+                string uri = URL + path;
+                string json = JsonConvert.SerializeObject(message);
+                var data = new StringContent(json, Encoding.UTF8, "application/json");
+                using HttpResponseMessage response = await _client.PostAsync(URL, data);
+                string result = await response.Content.ReadAsStringAsync();
+                Locution request = new Locution();
+                request = JsonConvert.DeserializeObject<Locution>(result);
+                return request;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return null;
+            }
+        }
         #endregion
 
         #region GET

@@ -16,5 +16,6 @@ namespace LetterStomach.Services.Interfaces
         Task<List<Sentencas>> HttpSentence();
         Task<List<Conjuncoes>> HttpConjunction();
         Task<List<Auxiliares>> HttpAuxiliary();
+        Task<Locution> HttpGo(GoMessage message);
     }
 }

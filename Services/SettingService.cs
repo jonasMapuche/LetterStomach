@@ -109,5 +109,83 @@ namespace LetterStomach.Services
 
         public readonly string Single = "singular";
         public readonly string Plural = "plural";
+
+        public readonly string Declarative = "declarativa";
+
+        public readonly HashSet<string> Execute = new HashSet<string>()
+        {
+            "load",
+            "execute",
+            "see",
+            "view",
+            "click",
+            "play",
+            "record",
+            "download",
+            "upload",
+            "record",
+            "rotate",
+            "preview",
+            "stop"
+        };
+
+        public readonly HashSet<string> Load = new HashSet<string>()
+        {
+            "load",
+            "execute",
+            "click"
+        };
+
+        public readonly HashSet<string> View = new HashSet<string>()
+        {
+            "view",
+            "see"
+        };
+
+        public readonly HashSet<string> Play = new HashSet<string>()
+        {
+            "play"
+        };
+
+        public readonly HashSet<string> Record = new HashSet<string>()
+        {
+            "record"
+        };
+
+        public readonly HashSet<string> Stop = new HashSet<string>()
+        {
+            "stop"
+        };
+
+        public readonly HashSet<string> Speak = new HashSet<string>()
+        {
+            "speak"
+        };
+
+        public readonly HashSet<string> Rotate = new HashSet<string>()
+        {
+            "rotate"
+        };
+
+        public readonly HashSet<string> Download = new HashSet<string>()
+        {
+            "download"
+        };
+
+        public readonly HashSet<string> Upload = new HashSet<string>()
+        {
+            "upload"
+        };
+
+        public readonly HashSet<string> Activity = new HashSet<string>()
+        {
+            "gps",
+            "bluetooth",
+            "battery",
+            "camera",
+            "wav",
+            "mp3",
+            "file"
+        };
     }
 }
