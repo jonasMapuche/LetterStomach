@@ -1,10 +1,12 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Maui.Extensions;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LetterStomach.Models;
 using LetterStomach.Services;
 using LetterStomach.ViewModels.Interfaces;
 using LetterStomach.Views;
 using System.Collections.ObjectModel;
+using System.Runtime.InteropServices;
 using System.Windows.Input;
 
 namespace LetterStomach.ViewModels
@@ -39,9 +41,6 @@ namespace LetterStomach.ViewModels
 
         [ObservableProperty]
         public ObservableCollection<Message> recentChat;
-
-        [ObservableProperty]
-        public string leftImage;
 
         public ICommand BotCommand { get; set; }
         public ICommand SpeakCommand { get; set; }
@@ -83,7 +82,7 @@ namespace LetterStomach.ViewModels
             {
                 this.BotCommand = new AsyncRelayCommand<object>(OnBotCommand);
                 this.SpeakCommand = new AsyncRelayCommand<object>(OnSpeakCommand);
-                this.SwipedCommand = new Command<SwipeDirection>(OnSwipedCommand);
+                this.SwipedCommand = new AsyncRelayCommand<SwipeDirection>(OnSwipedCommand);
 
                 this._grammarViewModel = new GrammarViewModel();
                 this._grammarViewModel.OnError += OnErrorDown;
@@ -102,23 +101,40 @@ namespace LetterStomach.ViewModels
         #endregion
 
         #region COMMAND
-        private void OnSwipedCommand(SwipeDirection direction)
+        private async Task OnSwipedCommand(SwipeDirection direction)
         {
-            if (direction == SwipeDirection.Left)
+            try
             {
-                MountPrevious();
+                await Shell.Current.GoToAsync(nameof(ModalView));
+                Thread backgroundThread = new Thread(async () =>
+                {
+                    if (direction == SwipeDirection.Left)
+                    {
+                        MountPrevious();
+                    }
+                    else if (direction == SwipeDirection.Right)
+                    {
+                        MountNext();
+                    }
+                    else if (direction == SwipeDirection.Up)
+                    {
+                        MountUp();
+                    }
+                    else if (direction == SwipeDirection.Down)
+                    {
+                        MountDown();
+                    }
+                    MainThread.BeginInvokeOnMainThread(async () =>
+                    {
+                        await Shell.Current.GoToAsync("..");
+                    });
+                });
+                backgroundThread.Start();
             }
-            else if (direction == SwipeDirection.Right)
+            catch (Exception ex)
             {
-                MountNext();
-            }
-            else if (direction == SwipeDirection.Up)
-            {
-                MountUp();
-            }
-            else if (direction == SwipeDirection.Down)
-            {
-                MountDown();
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
             }
         }
 

@@ -123,10 +123,10 @@ namespace LetterStomach.Services
             "record",
             "download",
             "upload",
-            "record",
             "rotate",
             "preview",
-            "stop"
+            "stop",
+            "capture"
         };
 
         public readonly HashSet<string> Load = new HashSet<string>()
@@ -177,6 +177,27 @@ namespace LetterStomach.Services
             "upload"
         };
 
+        public readonly HashSet<string> Charge = new HashSet<string>()
+        {
+            "charge"
+        };
+
+        public readonly HashSet<string> Vibrate = new HashSet<string>()
+        {
+            "vibrate"
+        };
+
+        public readonly HashSet<string> Capture = new HashSet<string>()
+        {
+            "capture",
+            "record"
+        };
+
+        public readonly HashSet<string> Save = new HashSet<string>()
+        {
+            "save"
+        };
+
         public readonly HashSet<string> Activity = new HashSet<string>()
         {
             "gps",
@@ -185,7 +206,8 @@ namespace LetterStomach.Services
             "camera",
             "wav",
             "mp3",
-            "file"
+            "file",
+            "phone"
         };
     }
 }

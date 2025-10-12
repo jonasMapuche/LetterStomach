@@ -1,6 +1,9 @@
 ﻿using FftSharp;
 using LetterStomach.Helpers;
+using LetterStomach.Models;
 using LetterStomach.Services.Interfaces;
+using SceneKit;
+using System.Collections.ObjectModel;
 using System.Numerics;
 
 namespace LetterStomach.Services
@@ -22,6 +25,10 @@ namespace LetterStomach.Services
         public event EventHandler<string> OnError;
         #endregion
 
+        #region VARIABLE
+        public List<Audio> _audios;
+        #endregion
+
         #region GPS
         public async Task<Location> GetCurrentLocation()
         {
@@ -41,10 +48,12 @@ namespace LetterStomach.Services
         #endregion
 
         #region AUDIO
-        public async Task DownloadAudio(string file_path)
+        public async Task DownloadAudio()
         {
             try
             {
+                Audio audios = _audios.First();
+                string file_path = audios.url;
                 FileStream fs = new FileStream(file_path, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true);
                 MemoryStream ms = new MemoryStream();
                 await fs.CopyToAsync(ms);
@@ -64,7 +73,7 @@ namespace LetterStomach.Services
         {
             try
             {
-                FileResult result = await FilePicker.Default.PickAsync();
+                FileResult? result = await FilePicker.Default.PickAsync();
                 if (result != null)
                 {
                     Stream sourceStream = await result.OpenReadAsync();
@@ -106,6 +115,119 @@ namespace LetterStomach.Services
                 OnError?.Invoke(this, error_message);
             }
         }
+
+        public void SendRecording(string file_path)
+        {
+            try
+            {
+                Audio audio = new Audio() { url = file_path};
+                if (audio != null)
+                {
+                    audio.name = Path.GetFileName(file_path);
+                    _audios.Insert(0, audio);
+                }
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+            }
+        }
+
+        public string ReceiveRecording()
+        {
+            try
+            {
+                Audio audio = _audios.First();
+                string file_path = audio.url;
+                return file_path;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+                return string.Empty;
+            }
+        }
+        #endregion
+
+        #region IMAGE
+        public async Task SaveImage(byte[] bytes)
+        {
+            try
+            {
+                string file_name = FilePath.SetFileName("jpeg");
+                string file_path = FilePath.SetAudioFilePath(file_name);
+                Audio audio = new Audio() { url = file_path };
+                if (audio != null)
+                {
+                    await File.WriteAllBytesAsync(file_path, bytes);
+                }
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+            }
+        }
+        public async Task DownloadImage()
+        {
+            try
+            {
+                Audio audios = _audios.First();
+                string file_path = audios.url;
+                FileStream fs = new FileStream(file_path, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true);
+                MemoryStream ms = new MemoryStream();
+                await fs.CopyToAsync(ms);
+                ms.Position = 0;
+                using StreamContent streamContent = new StreamContent(ms);
+                IHttpService httpService = new HttpService();
+                await httpService.HttpPost(streamContent, file_path);
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                OnError?.Invoke(this, error_message);
+            }
+        }
+        #endregion
+
+        #region VIBRATION
+        public void SetVibration(int time)
+        {
+            int secondsToVibrate = Random.Shared.Next(1, time);
+            TimeSpan vibrationLength = TimeSpan.FromSeconds(secondsToVibrate);
+
+            Vibration.Default.Vibrate(vibrationLength);
+        }
+        #endregion
+
+        #region BATTERY
+        public double GetCharge()
+        {
+            return (Battery.ChargeLevel * 100);
+        }
+
+        public string GetMode()
+        {
+            return Battery.Default.EnergySaverStatus == EnergySaverStatus.On ? "On" : Battery.Default.EnergySaverStatus == EnergySaverStatus.Off ? "Off" : "Unknown";
+        }
+
+        public BatteryState GetState()
+        {
+            return Battery.Default.State;
+        }
+
+        public BatteryPowerSource GetSource()
+        {
+            return Battery.Default.PowerSource;
+        }
+        #endregion
+
+        #region BLUETOOTH LE
+        #endregion
+
+        #region BLUETOOTH CLASSIC
         #endregion
     }
 }

@@ -82,14 +82,16 @@
                         Grid.Column="1">
                         <toolkit:CameraView 
                             x:Name="cavCamera"
+                            x:DataType="viewmodels:BotViewModel"
                             CameraFlashMode="{Binding FlashMode}"
-                            IsVisible="True"
+                            IsVisible="{Binding ShowCamera}"
                             MediaCaptured="OnMediaCaptured"
                             SelectedCamera="{Binding SelectedCamera}"/>
                         <Image
                             x:Name="imgCamera"
+                            x:DataType="viewmodels:BotViewModel"
                             Aspect="AspectFit"
-                            IsVisible="False"
+                            IsVisible="{Binding ShowPhoto}"
                             Source="{Binding Bytes, Converter={StaticResource ToImage}}" />
                     </Grid>
                 </Grid>

@@ -19,7 +19,11 @@
         {
             try
             {
-                string file_name = "/Record_" + DateTime.UtcNow.ToString("ddMMM_hhmmss") + (extension == "mp3" ? ".mp3" : ".wav");
+                string file_name = string.Empty;
+                if (extension == "jpeg")
+                    file_name = "/Image_" + DateTime.UtcNow.ToString("ddMMM_hhmmss") + ".jpeg";
+                else
+                    file_name = "/Record_" + DateTime.UtcNow.ToString("ddMMM_hhmmss") + (extension == "mp3" ? ".mp3" : ".wav");
                 return file_name;
             }
             catch (Exception ex)
