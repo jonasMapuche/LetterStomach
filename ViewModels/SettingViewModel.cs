@@ -10,6 +10,8 @@ namespace LetterStomach.ViewModels
     public class SettingViewModel
     {
         #region ERROR
+        private bool _error_on = true;
+        private bool _error_off = false;
         private string _error_message;
 
         public string error_message
@@ -50,6 +52,9 @@ namespace LetterStomach.ViewModels
         {
             try
             {
+                if (this._error_on) throw new InvalidOperationException("Operation contructor \"Setting\" view model failed!");
+                else this.error_message = string.Empty;
+
                 _sqlite_service = App.DataService;
                 _setting = setting;
 
@@ -89,7 +94,6 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
             }
         }
         #endregion
@@ -98,21 +102,25 @@ namespace LetterStomach.ViewModels
         private async Task OnBackCommand()
         {
             try
-            { 
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation back command \"Setting\" view model failed!");
+
                 bool sqlite_database = _setting.SQLiteDatabase;
                 await Shell.Current.GoToAsync($"..?refresh={sqlite_database}");
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
             }
         }
 
         private async Task OnCheckCommand(object parameter)
         {
             try
-            { 
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation check command \"Setting\" view model failed!");
+
                 bool answer = false;
                 Setting setting = (Setting)parameter;
                 bool update_database = setting.UpdateDatabase == "True" ? true : false;
@@ -162,7 +170,7 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
             }
         }
         #endregion
@@ -171,7 +179,9 @@ namespace LetterStomach.ViewModels
         public async Task UpdateSQLite(int select_table)
         {
             try 
-            { 
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation update sqlite \"Setting\" view model failed!");
+
                 if (select_table == 0)
                 {
                     await this._sqlite_service.CreateAll();
@@ -207,14 +217,16 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
             }
         }
 
         public async Task UpgradeSQLite()
         {
             try
-            { 
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation upgrade sqlite \"Setting\" view model failed!");
+
                 await this._sqlite_service.LoadAdverb();
                 await this._sqlite_service.LoadPronoun();
                 await this._sqlite_service.LoadArticle();
@@ -230,7 +242,7 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
             }
         }
         #endregion

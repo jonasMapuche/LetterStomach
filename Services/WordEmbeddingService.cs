@@ -9,14 +9,16 @@ namespace LetterStomach.Services
     public class WordEmbeddingService : ObservableObject, IWordEmbeddingService
     {
         #region ERROR
+        private bool _error_on = true;
+        private bool _error_off = false;
         private string _error_message;
 
         public string error_message
         {
-            get => _error_message;
+            get => this._error_message;
             set
             {
-                _error_message = value;
+                this._error_message = value;
             }
         }
 
@@ -28,6 +30,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation saw \"Word Embedding\" service failed!");
+
                 string ditado = "";
                 sentences.ForEach(index =>
                 {
@@ -45,7 +49,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
                 return null;
             }
         }
@@ -54,6 +58,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation remove score \"Word Embedding\" service failed!");
+
                 string[] new_words = new string[words.Length];
                 int quantity = 0;
                 for (int i = 0; i < words.Length - 1; i++)
@@ -94,7 +100,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
                 return null;
             }
         }
@@ -103,6 +109,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation remove accent \"Word Embedding\" service failed!");
+
                 string normalized_string = input.Normalize(NormalizationForm.FormD);
                 StringBuilder builder = new StringBuilder();
                 foreach (char i in normalized_string)
@@ -117,7 +125,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
                 return null;
             }
         }
@@ -128,6 +136,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation similarity \"Word Embedding\" service failed!");
+
                 if ((Array.IndexOf(vocabulary.ToArray(), target) == -1) || (Array.IndexOf(vocabulary.ToArray(), target1) == -1))
                 {
                     return false;
@@ -146,7 +156,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
                 return false;
             }
         }
@@ -157,6 +167,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation vocabulary \"Word Embedding\" service failed!");
+
                 string ditado = Saw(sentences);
                 HashSet<string> vocabulary = new HashSet<string>(ditado.Split(' '));
                 return vocabulary;
@@ -164,7 +176,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
                 return null;
             }
         }
@@ -174,7 +186,9 @@ namespace LetterStomach.Services
         public Dictionary<(string, string), int> Word2Vec(List<Sentenca> sentences)
         {
             try 
-            { 
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation word 2 vec \"Word Embedding\" service failed!");
+
                 Dictionary<(string, string), int> word_pairs = new Dictionary<(string, string), int>();
                 string[] words = Saw(sentences).Split(' ');
                 string[] new_words = RemoveScore(words);
@@ -196,7 +210,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
                 return null;
             }
         }

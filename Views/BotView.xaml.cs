@@ -6,26 +6,28 @@ namespace LetterStomach.Views;
 public partial class BotView : ContentPage
 {
     #region ERROR
-    private bool _error_test = false;
+    private bool _error_on = true;
+    private bool _error_off = false;
     private string _error_message;
 
     public string error_message
     {
-        get => _error_message;
+        get => this._error_message;
         set
         {
-            _error_message = value;
+            this._error_message = value;
         }
     }
 
-    private async void OnDownError(object sender, string error_message)
+    private async void OnError(object sender, string error_message)
     {
-        await DisplayAlert("Erro", error_message, "OK");
+        await DisplayAlert("Error", error_message, "OK");
     }
 
     private async void OnError(string error_message)
     {
-        await DisplayAlert("Erro", error_message, "OK");
+        await DisplayAlert("Error", error_message, "OK");
+        await Shell.Current.GoToAsync("..");
     }
     #endregion
 
@@ -39,9 +41,11 @@ public partial class BotView : ContentPage
 	{
 		try
 		{
-            if (_error_test) throw new InvalidOperationException("Falha na operação!");
+            if (this._error_off) throw new InvalidOperationException("Operation contructor \"Bot\" view failed!");
+            else this.error_message = string.Empty;
+
             InitializeComponent();
-            ViewModel.OnError += OnDownError;
+            ViewModel.OnError += OnError;
 		    BindingContext = ViewModel;
             this._botViewModel = ViewModel;
             this._botViewModel.MediaCamera = this._cameraProvider;
@@ -49,7 +53,7 @@ public partial class BotView : ContentPage
         catch (Exception ex)
         {
             this.error_message = ex.Message;
-            OnError(this.error_message);
+            this.OnError(this.error_message);
         }
     }
     #endregion
@@ -57,9 +61,19 @@ public partial class BotView : ContentPage
     #region EVENT
     private void OnMediaCaptured(object sender, MediaCapturedEventArgs e)
     {
-        var memoryStream = new MemoryStream();
-        e.Media.CopyTo(memoryStream);
-        this._botViewModel.Bytes = memoryStream.ToArray();
+        try
+        {
+            if (this._error_off) throw new InvalidOperationException("Operation media captured \"Bot\" view failed!");
+
+            var memoryStream = new MemoryStream();
+            e.Media.CopyTo(memoryStream);
+            this._botViewModel.Bytes = memoryStream.ToArray();
+        }
+        catch (Exception ex)
+        {
+            this.error_message = ex.Message;
+            this.OnError(this.error_message);
+        }
     }
     #endregion
 }

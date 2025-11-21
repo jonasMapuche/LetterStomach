@@ -6,14 +6,16 @@ namespace LetterStomach.Services
     public class ModelService : IModelService
     {
         #region ERROR
+        private bool _error_on = true;
+        private bool _error_off = false;
         private string _error_message;
 
         public string error_message
         {
-            get => _error_message;
+            get => this._error_message;
             set
             {
-                _error_message = value;
+                this._error_message = value;
             }
         }
 
@@ -25,6 +27,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation insert circustancia \"Model\" service failed!");
+
                 Circunstancia circunstancia = new Circunstancia();
                 circunstancia.nome = name;
                 circunstancia.linguagem = language;
@@ -34,7 +38,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
                 return null;
             }
         }
@@ -44,6 +48,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation insert preceito \"Model\" service failed!");
+
                 Preceito preceito = new Preceito();
                 preceito.nome = name;
                 preceito.linguagem = language;
@@ -55,7 +61,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
                 return null;
             }
         }
@@ -64,6 +70,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation insert contento \"Model\" service failed!");
+
                 Contento contento = new Contento();
                 contento.pessoa = persons;
                 contento.numero = numbers;
@@ -74,7 +82,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
                 return null;
             }
         }
@@ -83,6 +91,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation insert estoutro \"Model\" service failed!");
+
                 Estoutro estoutro = new Estoutro();
                 estoutro.nome = name;
                 estoutro.linguagem = language;
@@ -93,7 +103,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
                 return null;
             }
         }
@@ -102,6 +112,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation insert algarismo \"Model\" service failed!");
+
                 Algarismo algarismo = new Algarismo();
                 algarismo.nome = name;
                 algarismo.linguagem = language;
@@ -112,7 +124,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
                 return null;
             }
         }
@@ -121,6 +133,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation insert juncao \"Model\" service failed!");
+
                 Juncao juncao = new Juncao();
                 juncao.nome = name;
                 juncao.linguagem = language;
@@ -130,7 +144,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
                 return null;
             }
         }
@@ -139,6 +153,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation insert substantivo \"Model\" service failed!");
+
                 Conteudo conteudo = new Conteudo();
                 conteudo.substantivo = substantivos;
                 return conteudo;
@@ -146,7 +162,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
                 return null;
             }
         }
@@ -155,6 +171,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation insert adjetivo \"Model\" service failed!");
+
                 Conteudo conteudo = new Conteudo();
                 conteudo.adjetivo = adjetivos;
                 return conteudo;
@@ -162,7 +180,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
                 return null;
             }
         }
@@ -171,6 +189,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation insert materia \"Model\" service failed!");
+
                 Materia materia = new Materia();
                 materia.nome = lesson;
                 materia.linguagem = language;
@@ -183,7 +203,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
                 return null;
             }
         }
@@ -192,6 +212,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation insert sentenca \"Model\" service failed!");
+
                 Sentenca sentenca = new Sentenca();
                 sentenca.linguagem = language;
                 sentenca.impulso = impulse;
@@ -201,7 +223,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
                 return null;
             }
         }
@@ -210,6 +232,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation insert ligacao \"Model\" service failed!");
+
                 Ligacao ligacao = new Ligacao();
                 ligacao.linguagem = language;
                 ligacao.nome = name;
@@ -219,7 +243,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
                 return null;
             }
         }
@@ -228,6 +252,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation insert teor \"Model\" service failed!");
+
                 Teor teor = new Teor();
                 teor.modo = mode;
                 teor.pronome = pronoun;
@@ -236,7 +262,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
                 return null;
             }
         }
@@ -245,6 +271,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation insert elocucao \"Model\" service failed!");
+
                 Elocucao elocucao = new Elocucao();
                 elocucao.nome = name;
                 elocucao.linguagem = language;
@@ -255,7 +283,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
                 return null;
             }
         }
@@ -265,6 +293,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation insert tematica \"Model\" service failed!");
+
                 Tematica tematica = new Tematica();
                 tematica.modo = mode;
                 tematica.prefixo = prefix;
@@ -275,7 +305,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
                 return null;
             }
         }
@@ -284,6 +314,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation insert assistente \"Model\" service failed!");
+
                 Assistente assistente = new Assistente();
                 assistente.nome = name;
                 assistente.linguagem = language;
@@ -293,7 +325,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
                 return null;
             }
         }
@@ -304,6 +336,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation mount noun \"Model\" service failed!");
+
                 List<Substantivo> nouns = new List<Substantivo>();
                 nouns = noun.OrderBy(index => index.language).ThenBy(index => index.lesson).ThenBy(index => index.name).ToList();
                 List<Materia> materias = new List<Materia>();
@@ -380,7 +414,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
                 return null;
             }
         }
@@ -389,6 +423,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation mount adjective \"Model\" service failed!");
+
                 List<Adjetivo> adjectives = new List<Adjetivo>();
                 adjectives = adjective.OrderBy(index => index.language).ThenBy(index => index.lesson).ThenBy(index => index.name).ToList();
                 List<Materia> materias = new List<Materia>();
@@ -465,7 +501,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
                 return null;
             }
         }
@@ -476,6 +512,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation load adverb \"Model\" service failed!");
+
                 List<Adverbios> adverbs = new List<Adverbios>();
                 adverbs = adverb.OrderBy(index => index.language).ThenBy(index => index.name).ThenBy(index => index.type).ToList();
                 string before_name = "";
@@ -518,7 +556,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
                 return null;
             }
         }
@@ -527,6 +565,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation load article \"Model\" service failed!");
+
                 List<Artigos> articles = new List<Artigos>();
                 articles = article.OrderBy(index => index.language).ThenBy(index => index.name).ThenBy(index => index.type).ThenBy(index => index.number).ThenBy(index => index.gender).ToList();
                 string before_name = "";
@@ -583,7 +623,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
                 return null;
             }
         }
@@ -592,6 +632,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation load pronoun \"Model\" service failed!");
+
                 List<Pronomes> pronouns = new List<Pronomes>();
                 pronouns = pronoun.OrderBy(index => index.language).ThenBy(index => index.name).ThenBy(index => index.type).ThenBy(index => index.person).ThenBy(index => index.number).ThenBy(index => index.gender).ThenBy(index => index.context).ToList();
                 string before_name = "";
@@ -712,7 +754,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
                 return null;
             }
         }
@@ -721,6 +763,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation load numeral \"Model\" service failed!");
+
                 List<Numerais> numerais = new List<Numerais>();
                 numerais = numeral.OrderBy(index => index.language).ThenBy(index => index.name).ThenBy(index => index.initial).ThenBy(index => index.type).ToList();
                 string before_name = "";
@@ -768,7 +812,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
                 return null;
             }
         }
@@ -777,6 +821,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation load preposition \"Model\" service failed!");
+
                 List<Preposicoes> prepositions = new List<Preposicoes>();
                 prepositions = preposition.OrderBy(index => index.language).ThenBy(index => index.name).ThenBy(index => index.type).ToList();
                 string before_language = "";
@@ -819,7 +865,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
                 return null;
             }
         }
@@ -828,6 +874,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation load materia \"Model\" service failed!");
+
                 List<Materia> materias = new List<Materia>();
                 materias = await MountAdjective(adjective, materias);
                 materias = await MountNoun(noun, materias);
@@ -836,7 +884,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
                 return null;
             }
         }
@@ -845,6 +893,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation load sentenca \"Model\" service failed!");
+
                 List<Sentencas> sentances = new List<Sentencas>();
                 sentances = sentence.OrderBy(index => index.language).ThenBy(index => index.impulse).ThenBy(index => index.rest).ToList();
                 string before_impulse = "";
@@ -887,7 +937,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
                 return null;
             }
         }
@@ -896,6 +946,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation load ligacao \"Model\" service failed!");
+
                 List<Conjuncoes> conjuncoes = new List<Conjuncoes>();
                 conjuncoes = conjunction.OrderBy(index => index.language).ThenBy(index => index.name).ThenBy(index => index.type).ToList();
                 string before_name = "";
@@ -938,7 +990,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
                 return null;
             }
         }
@@ -947,6 +999,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation load locucao \"Model\" service failed!");
+
                 List<Verbos> verbs = new List<Verbos>();
                 verbs = verb.OrderBy(index => index.language).ThenBy(index => index.name).ThenBy(index => index.model).ThenBy(index => index.mode).ThenBy(index => index.pronoun).ToList();
                 string before_name = "";
@@ -1026,7 +1080,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
                 return null;
             }
         }
@@ -1034,6 +1088,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation load assistente \"Model\" service failed!");
+
                 List<Auxiliares> auxiliaries = new List<Auxiliares>();
                 auxiliaries = auxiliary.OrderBy(index => index.language).ThenBy(index => index.name).ThenBy(index => index.mode).ThenBy(index => index.prefix).ThenBy(index => index.preverb).ThenBy(index => index.premode).ToList();
                 string before_name = "";
@@ -1156,7 +1212,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
                 return null;
             }
         }

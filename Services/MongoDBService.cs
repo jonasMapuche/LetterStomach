@@ -7,14 +7,16 @@ namespace LetterStomach.Services
     public class MongoDBService : IMongoDBService
     {
         #region ERROR
+        private bool _error_on = true;
+        private bool _error_off = false;
         private string _error_message;
 
         public string error_message
         {
-            get => _error_message;
+            get => this._error_message;
             set
             {
-                _error_message = value;
+                this._error_message = value;
             }
         }
 
@@ -38,7 +40,9 @@ namespace LetterStomach.Services
         public void Connect()
         {
             try 
-            { 
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation connect \"Mongo DB\" service failed!");
+
                 LoadCircustancia();
                 LoadEstoutro();
                 LoadPreceito();
@@ -53,7 +57,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
             }
         }
         #endregion
@@ -62,7 +66,9 @@ namespace LetterStomach.Services
         public void LoadCircustancia() 
         {
             try 
-            { 
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation load circunstancia \"Mongo DB\" service failed!");
+
                 string connection = "mongodb://labrouste:freedown@ac-qs3nere-shard-00-00.twimpt2.mongodb.net:27017,ac-qs3nere-shard-00-01.twimpt2.mongodb.net:27017,ac-qs3nere-shard-00-02.twimpt2.mongodb.net:27017/?ssl=true&replicaSet=atlas-a5rh82-shard-0&authSource=admin&retryWrites=true&w=majority&appName=clusteradverb";
                 string database = "stomach";
                 string collection = "adverb";
@@ -74,14 +80,16 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
             }
         }
 
         public void LoadEstoutro()
         {
             try
-            { 
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation load estoutro \"Mongo DB\" service failed!");
+
                 string connection = "mongodb://labrouste:freedown@ac-4droh61-shard-00-00.trwpuy0.mongodb.net:27017,ac-4droh61-shard-00-01.trwpuy0.mongodb.net:27017,ac-4droh61-shard-00-02.trwpuy0.mongodb.net:27017/?ssl=true&replicaSet=atlas-xrl9qi-shard-0&authSource=admin&retryWrites=true&w=majority&appName=clusterpronoun";
                 string database = "stomach";
                 string collection = "pronoun";
@@ -93,14 +101,16 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
             }
         }
 
         public void LoadPreceito()
         {
             try 
-            { 
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation load preceito \"Mongo DB\" service failed!");
+
                 string connection = "mongodb://labrouste:freedown@ac-dzsg50m-shard-00-00.brox8ik.mongodb.net:27017,ac-dzsg50m-shard-00-01.brox8ik.mongodb.net:27017,ac-dzsg50m-shard-00-02.brox8ik.mongodb.net:27017/?ssl=true&replicaSet=atlas-143za4-shard-0&authSource=admin&retryWrites=true&w=majority&appName=clusterarticle";
                 string database = "stomach";
                 string collection = "article";
@@ -112,7 +122,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
             }
         }
 
@@ -120,6 +130,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation load algarismo \"Mongo DB\" service failed!");
+
                 string connection = "mongodb://labrouste:freedown@clusternumeral-shard-00-00.m6ca3.mongodb.net:27017,clusternumeral-shard-00-01.m6ca3.mongodb.net:27017,clusternumeral-shard-00-02.m6ca3.mongodb.net:27017/?ssl=true&replicaSet=atlas-zqs044-shard-0&authSource=admin&retryWrites=true&w=majority&appName=clusternumeral";
                 string database = "stomach";
                 string collection = "numeral";
@@ -131,7 +143,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
             }
         }
 
@@ -139,6 +151,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation load elocucao \"Mongo DB\" service failed!");
+
                 string connection = "mongodb://labrouste:freedown@clusterverb-shard-00-00.yhx9b.mongodb.net:27017,clusterverb-shard-00-01.yhx9b.mongodb.net:27017,clusterverb-shard-00-02.yhx9b.mongodb.net:27017/?ssl=true&replicaSet=atlas-bgtfxu-shard-0&authSource=admin&retryWrites=true&w=majority&appName=clusterverb";
                 string database = "stomach";
                 string collection = "verb";
@@ -150,7 +164,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
             }
         }
 
@@ -158,6 +172,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation load juncao \"Mongo DB\" service failed!");
+
                 string connection = "mongodb://labrouste:freedown@ac-qbpfxxr-shard-00-00.hjeuzew.mongodb.net:27017,ac-qbpfxxr-shard-00-01.hjeuzew.mongodb.net:27017,ac-qbpfxxr-shard-00-02.hjeuzew.mongodb.net:27017/?ssl=true&replicaSet=atlas-ket9j8-shard-0&authSource=admin&retryWrites=true&w=majority&appName=clusterpreposition";
                 string database = "stomach";
                 string collection = "preposition";
@@ -169,7 +185,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
             }
         }
 
@@ -177,6 +193,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation load materia \"Mongo DB\" service failed!");
+
                 string connection = "mongodb://labrouste:freedown@ac-jiagffd-shard-00-00.hh85dxs.mongodb.net:27017,ac-jiagffd-shard-00-01.hh85dxs.mongodb.net:27017,ac-jiagffd-shard-00-02.hh85dxs.mongodb.net:27017/?ssl=true&replicaSet=atlas-ryd5gy-shard-0&authSource=admin&retryWrites=true&w=majority&appName=clusterletter";
                 string database = "stomach";
                 string collection = "letter";
@@ -188,7 +206,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
             }
         }
 
@@ -196,6 +214,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation load sentence \"Mongo DB\" service failed!");
+
                 string connection = "mongodb://labrouste:freedown@ac-3y1axe2-shard-00-00.n5y9bze.mongodb.net:27017,ac-3y1axe2-shard-00-01.n5y9bze.mongodb.net:27017,ac-3y1axe2-shard-00-02.n5y9bze.mongodb.net:27017/?ssl=true&replicaSet=atlas-ifgens-shard-0&authSource=admin&retryWrites=true&w=majority&appName=clustersentence";
                 string database = "stomach";
                 string collection = "sentence";
@@ -207,7 +227,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
             }
         }
 
@@ -215,6 +235,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation load ligacao \"Mongo DB\" service failed!");
+
                 string connection = "mongodb://labrouste:freedown@ac-mtuqyju-shard-00-00.nqdittm.mongodb.net:27017,ac-mtuqyju-shard-00-01.nqdittm.mongodb.net:27017,ac-mtuqyju-shard-00-02.nqdittm.mongodb.net:27017/?ssl=true&replicaSet=atlas-cffrmz-shard-0&authSource=admin&retryWrites=true&w=majority&appName=clusterconjunction";
                 string database = "stomach";
                 string collection = "conjunction";
@@ -226,7 +248,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
             }
         }
 
@@ -234,6 +256,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation load assistente \"Mongo DB\" service failed!");
+
                 string connection = "mongodb://labrouste:freedown@clusterauxiliary-shard-00-00.kwsaj.mongodb.net:27017,clusterauxiliary-shard-00-01.kwsaj.mongodb.net:27017,clusterauxiliary-shard-00-02.kwsaj.mongodb.net:27017/?ssl=true&replicaSet=atlas-3mfvr2-shard-0&authSource=admin&retryWrites=true&w=majority&appName=clusterauxiliary";
                 string database = "stomach";
                 string collection = "auxiliary";
@@ -245,7 +269,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
             }
         }
         #endregion

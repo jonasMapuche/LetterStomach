@@ -5,14 +5,16 @@ namespace LetterStomach.Services
     public class MessageService
     {
         #region ERROR
+        private bool _error_on = true;
+        private bool _error_off = false;
         private string _error_message;
 
         public string error_message
         {
-            get => _error_message;
+            get => this._error_message;
             set
             {
-                _error_message = value;
+                this._error_message = value;
             }
         }
 
@@ -168,6 +170,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation messagens \"Message\" service failed!");
+
                 Message message = new Message();
                 message.Sender = sender;
                 message.Text = text;
@@ -206,7 +210,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
                 return null;
             }
         }
@@ -215,6 +219,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation clear \"Message\" service failed!");
+
                 if (language == ENGLISH.Uppercase)
                     _messages_english.Clear();
                 if (language == DEUTSCH.Uppercase)
@@ -231,7 +237,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
             }
         }
 
@@ -239,6 +245,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation messagens \"Message\" service failed!");
+
                 if (language == ENGLISH.Uppercase)
                     return _messages_english;
                 if (language == DEUTSCH.Uppercase)
@@ -256,7 +264,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
                 return null;
             }
         }
@@ -268,6 +276,8 @@ namespace LetterStomach.Services
         {
             try 
             {
+                if (this._error_off) throw new InvalidOperationException("Operation get chats \"Message\" service failed!");
+
                 return new List<Message>
                 {
                     new Message
@@ -302,16 +312,20 @@ namespace LetterStomach.Services
                     },
                 };
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return null;
             }
         }
 
         public List<Message> GetChatsSQLite()
         {
             try 
-            { 
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation get chats sqlite \"Message\" service failed!");
+
                 return new List<Message>
                 {
                     new Message
@@ -346,12 +360,13 @@ namespace LetterStomach.Services
                     },
                 };
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return null;
             }
         }
         #endregion
-
     }
 }

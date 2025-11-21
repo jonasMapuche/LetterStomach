@@ -2,40 +2,48 @@ namespace LetterStomach.Views;
 
 public partial class ExitView : ContentPage
 {
-    private bool _error_test = false;
+    #region ERROR
+    private bool _error_on = true;
+    private bool _error_off = false;
     private string _error_message;
 
     public string error_message
     {
-        get => _error_message;
+        get => this._error_message;
         set
         {
-            _error_message = value;
+            this._error_message = value;
         }
     }
 
     private async void OnError(object sender, string error_message)
     {
-        await DisplayAlert("Erro", error_message, "OK");
+        await DisplayAlert("Error", error_message, "OK");
     }
 
     private async void OnError(string error_message)
     {
-        await DisplayAlert("Erro", error_message, "OK");
+        await DisplayAlert("Error", error_message, "OK");
+        await Shell.Current.GoToAsync("..");
     }
+    #endregion
 
+    #region CONSTRUCTOR
     public ExitView()
 	{
 		try
-		{ 
-		    InitializeComponent();
+		{
+            if (this._error_off) throw new InvalidOperationException("Operation contructor \"Exit\" view failed!");
+            else this.error_message = string.Empty;
+
+            InitializeComponent();
             System.Environment.Exit(0);
-            if (_error_test) throw new InvalidOperationException("Falha na operação!");
         }
         catch (Exception ex)
         {
             this.error_message = ex.Message;
-            OnError(this.error_message);
+            this.OnError(this.error_message);
         }
     }
+    #endregion
 }

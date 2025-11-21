@@ -2,24 +2,33 @@
 using Java.IO;
 using LetterStomach.Helpers;
 using LetterStomach.Interfaces;
+using System.Runtime.CompilerServices;
 
 namespace LetterStomach.Platforms.Android.Services
 {
     public class RecordService : IRecordService
     {
+        #region ERROR
+        private bool _error_on = true;
+        private bool _error_off = false;
         private string _error_message;
+
+        private static bool _static_error_on = true;
+        private static bool _static_error_false = false;
 
         public string error_message
         {
-            get => _error_message;
+            get => this._error_message;
             set
             {
-                _error_message = value;
+                this._error_message = value;
             }
         }
 
         public event EventHandler<string> OnError;
+        #endregion
 
+        #region VARIABLE
         private MediaRecorder _mediaRecorder;
         private string _storage_path;
         public string StoragePath { get => _storage_path; set => _storage_path = value; }
@@ -32,11 +41,15 @@ namespace LetterStomach.Platforms.Android.Services
         private int _bit_depth = 16;
         const int WAVHEADERLENGTH = 44;
         private int _channel_mono = 1;
+        #endregion
 
+        #region BUTTON
         public void StartRecordMP3()
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation start record mp3 \"Record\" service failed!");
+
                 if (this._mediaRecorder == null)
                 {
                     string file_name = FilePath.SetFileName("mp3");
@@ -56,7 +69,7 @@ namespace LetterStomach.Platforms.Android.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
             }
         }
 
@@ -64,6 +77,8 @@ namespace LetterStomach.Platforms.Android.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation start record wav \"Record\" service failed!");
+
                 if (this._mediaRecorder == null)
                 {
                     string file_name = FilePath.SetFileName("mp3");
@@ -78,7 +93,7 @@ namespace LetterStomach.Platforms.Android.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
             }
         }
 
@@ -86,6 +101,8 @@ namespace LetterStomach.Platforms.Android.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation stop record mp3 \"Record\" service failed!");
+
                 if (this._mediaRecorder == null)
                 {
                     return string.Empty;
@@ -98,23 +115,38 @@ namespace LetterStomach.Platforms.Android.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
-                return null;
+                this.OnError?.Invoke(this, this.error_message);
+                return string.Empty;
             }
         }
 
         public string StopRecordWav()
         {
-            if (this._audioRecord?.RecordingState == RecordState.Recording)
-                this._audioRecord?.Stop();
-            UpdateAudioHeaderToFile();
-            return this._storage_path;
-        }
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation stop record mp3 \"Record\" service failed!");
 
+                if (this._audioRecord?.RecordingState == RecordState.Recording)
+                this._audioRecord?.Stop();
+                UpdateAudioHeaderToFile();
+                return this._storage_path;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return string.Empty;
+            }
+        }
+        #endregion
+
+        #region SET
         private void WriteAudioDataToFile()
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation write audio data to file \"Record\" service failed!");
+
                 byte[] data = new byte[this._buffer_size];
                 string audio_file_path = this._storage_path;
                 FileOutputStream? outputStream;
@@ -137,7 +169,7 @@ namespace LetterStomach.Platforms.Android.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
             }
         }
 
@@ -145,6 +177,8 @@ namespace LetterStomach.Platforms.Android.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation update audio header to file \"Record\" service failed!");
+
                 RandomAccessFile randomAccessFile = new(this._storage_path, "rw");
 
                 long total_audio_length = randomAccessFile.Length();
@@ -160,7 +194,7 @@ namespace LetterStomach.Platforms.Android.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
             }
         }
 
@@ -168,6 +202,8 @@ namespace LetterStomach.Platforms.Android.Services
         {
             try
             {
+                if (_static_error_false) throw new InvalidOperationException("Operation get wave file header \"Record\" service failed!");
+
                 int block_align = (int)(channels * (bit_depth / 8));
                 long byte_rate = sample_rate * block_align;
                 byte[] header = new byte[WAVHEADERLENGTH];
@@ -221,8 +257,10 @@ namespace LetterStomach.Platforms.Android.Services
             }
             catch (Exception ex)
             {
-                throw new InvalidOperationException(ex.Message);
+                throw new InvalidOperationException("Operation get wave file header \"Record\" service failed!");
+                return null;
             }
         }
+        #endregion
     }
 }

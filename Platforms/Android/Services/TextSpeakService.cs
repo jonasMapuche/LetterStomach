@@ -8,39 +8,52 @@ namespace LetterStomach.Platforms.Android.Services
 {
     public class TextSpeakService : Java.Lang.Object, ITextSpeakService, TextToSpeech.IOnInitListener
     {
+        #region ERROR
+        private bool _error_on = true;
+        private bool _error_off = false;
         private string _error_message;
 
         public string error_message
         {
-            get => _error_message;
+            get => this._error_message;
             set
             {
-                _error_message = value;
+                this._error_message = value;
             }
         }
 
         public event EventHandler<string> OnError;
+        #endregion
 
+        #region VARIABLE
         private TextToSpeech _textToSpeech;
         private string _text;
+        #endregion
 
+        #region CONSTRUCTOR
         public TextSpeakService()
         {
             try 
-            { 
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation contructor \"Text Speak\" service failed!");
+                else this.error_message = string.Empty;
+
                 this._textToSpeech = new TextToSpeech(Platform.AppContext, this);
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
             }
         }
+        #endregion
 
+        #region BUTTON
         public string FileText(string text)
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation file text \"Text Speak\" service failed!");
+
                 this._text = text;
                 OperationResult result = OperationResult.Error;
                 string file_name = FilePath.SetFileName("mp3");
@@ -57,15 +70,35 @@ namespace LetterStomach.Platforms.Android.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
-                return null;
+                this.OnError?.Invoke(this, this.error_message);
+                return string.Empty;
             }
         }
 
+        public void SpeakText(string text)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation speak text \"Text Speak\" service failed!");
+
+                if (this._textToSpeech != null && this._textToSpeech.IsSpeaking == false)
+                    this._textToSpeech.Speak(text, QueueMode.Flush, null, null);
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+            }
+        }
+        #endregion
+
+        #region EVENT
         public void OnInit([GeneratedEnum] OperationResult status)
         {
             try 
             {
+                if (this._error_off) throw new InvalidOperationException("Operation on init \"Text Speak\" service failed!");
+
                 if (status == OperationResult.Success)
                 {
                     if (!string.IsNullOrEmpty(this._text))
@@ -77,22 +110,9 @@ namespace LetterStomach.Platforms.Android.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
             }
         }
-
-        public void SpeakText(string text)
-        {
-            try 
-            { 
-                if (this._textToSpeech != null && this._textToSpeech.IsSpeaking == false)
-                    this._textToSpeech.Speak(text, QueueMode.Flush, null, null);
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
-            }
-        }
+        #endregion
     }
 }

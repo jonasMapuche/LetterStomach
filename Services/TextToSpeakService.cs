@@ -6,14 +6,16 @@ namespace LetterStomach.Services
     public class TextToSpeakService : ITextToSpeakService
     {
         #region ERROR
+        private bool _error_on = true;
+        private bool _error_off = false;
         private string _error_message;
 
         public string error_message
         {
-            get => _error_message;
+            get => this._error_message;
             set
             {
-                _error_message = value;
+                this._error_message = value;
             }
         }
 
@@ -32,7 +34,9 @@ namespace LetterStomach.Services
         public async void SpeakText(List<Message> messages, string language, int pitch_speak, int volume_speak)
         {
             try
-            { 
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation speak text \"Text to Speak\" service failed!");
+
                 List<Message> message_chat = new List<Message>();
                 string text_speak = string.Empty;
                 foreach (Message item in messages)
@@ -66,7 +70,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
             }
         }
         #endregion

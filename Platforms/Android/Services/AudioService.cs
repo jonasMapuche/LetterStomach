@@ -6,27 +6,36 @@ namespace LetterStomach.Platforms.Android.Services
 {
     public class AudioService : IAudioService
     {
+        #region ERROR
+        private bool _error_on = true;
+        private bool _error_off = false;
         private string _error_message;
 
         public string error_message
         {
-            get => _error_message;
+            get => this._error_message;
             set
             {
-                _error_message = value;
+                this._error_message = value;
             }
         }
 
         public event EventHandler<string> OnError;
+        #endregion
 
+        #region VARIABLE
         private MediaPlayer _mediaPlayer;
         private bool _prepared;
         private int _position;
+        #endregion
 
+        #region BUTTON
         public void PlayAudio(string file_path)
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation play audio \"Audio\" service failed!");
+
                 if ((this._mediaPlayer != null) && (!this._mediaPlayer.IsPlaying))
                 {
                     this._mediaPlayer.SeekTo(this._position);
@@ -49,7 +58,7 @@ namespace LetterStomach.Platforms.Android.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
             }
         }
 
@@ -57,6 +66,8 @@ namespace LetterStomach.Platforms.Android.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation stop audio \"Audio\" service failed!");
+
                 if (this._mediaPlayer != null)
                 {
                     if (_prepared)
@@ -71,8 +82,9 @@ namespace LetterStomach.Platforms.Android.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
             }
         }
+        #endregion
     }
 }

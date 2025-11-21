@@ -2,7 +2,6 @@
 using LetterStomach.Services;
 using LetterStomach.Services.Interfaces;
 using LetterStomach.ViewModels.Interfaces;
-using System.Collections.Generic;
 
 namespace LetterStomach.ViewModels
 {

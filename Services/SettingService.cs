@@ -1,4 +1,5 @@
 ﻿using LetterStomach.Models;
+using System.Collections.Generic;
 
 namespace LetterStomach.Services
 {
@@ -30,11 +31,18 @@ namespace LetterStomach.Services
 
         public int VolumeSpeak { get; set; } = 50;
 
+        private static string english = "english";
+        private static string deutsch = "deutsch";
+        private static string italiano = "italiano";
+        private static string français = "français";
+        private static string espanol = "español";
+        private static string portugues = "português";
+
         public readonly Language English = new Language
         {
             Name = "english",
             Uppercase = "English",
-            Lowercase = "english",
+            Lowercase = english,
             Code = "en",
             Region = "US",
         };
@@ -43,7 +51,7 @@ namespace LetterStomach.Services
         {
             Name = "deutsch",
             Uppercase = "Deutsch",
-            Lowercase = "deutsch",
+            Lowercase = deutsch,
             Code = "de",
             Region = "DE",
         };
@@ -52,7 +60,7 @@ namespace LetterStomach.Services
         {
             Name = "italiano",
             Uppercase = "Italiano",
-            Lowercase = "italiano",
+            Lowercase = italiano,
             Code = "it",
             Region = "IT",
         };
@@ -61,7 +69,7 @@ namespace LetterStomach.Services
         {
             Name = "francais",
             Uppercase = "Français",
-            Lowercase = "français",
+            Lowercase = français,
             Code = "fr",
             Region = "FR",
         };
@@ -70,7 +78,7 @@ namespace LetterStomach.Services
         {
             Name = "espanol",
             Uppercase = "Español",
-            Lowercase = "español",
+            Lowercase = espanol,
             Code = "es",
             Region = "ES",
         };
@@ -79,7 +87,7 @@ namespace LetterStomach.Services
         {
             Name = "portugues",
             Uppercase = "Português",
-            Lowercase = "português",
+            Lowercase = portugues,
             Code = "pt",
             Region = "PT",
         };
@@ -112,102 +120,196 @@ namespace LetterStomach.Services
 
         public readonly string Declarative = "declarativa";
 
-        public readonly HashSet<string> Execute = new HashSet<string>()
+        private static readonly string load_english = "load";
+        private static readonly string execute_english = "execute";
+        private static readonly string see_english = "see";
+        private static readonly string view_english = "view";
+        private static readonly string click_english = "click";
+        private static readonly string play_english = "play";
+        private static readonly string record_english = "record";
+        private static readonly string download_english = "download";
+        private static readonly string upload_english = "upload";
+        private static readonly string rotate_english = "rotate";
+        private static readonly string preview_english = "preview";
+        private static readonly string stop_english = "stop";
+        private static readonly string capture_english = "capture";
+        private static readonly string speak_english = "speak";
+        private static readonly string save_english = "save";
+
+        private static readonly string gps_english = "gps";
+        private static readonly string bluetooth_english = "bluetooth";
+        private static readonly string battery_english = "battery";
+        private static readonly string wav_english = "wav";
+        private static readonly string mp3_english = "mp3";
+        private static readonly string camera_english = "camera";
+        private static readonly string file_english = "file";
+        private static readonly string vibration_english = "vibration";
+        private static readonly string phone_english = "phone";
+        private static readonly string text_english = "text";
+        private static readonly string flash_english = "flash";
+
+        private static readonly string on_english = "on";
+        private static readonly string off_english = "off";
+        private static readonly string auto_english = "auto";
+
+        public Dictionary<string, string> Execute = new Dictionary<string, string>()
         {
-            "load",
-            "execute",
-            "see",
-            "view",
-            "click",
-            "play",
-            "record",
-            "download",
-            "upload",
-            "rotate",
-            "preview",
-            "stop",
-            "capture"
+            { load_english, english},
+            { execute_english, english},
+            { see_english, english },
+            { click_english, english },
+            { play_english, english },
+            { record_english, english },
+            { download_english, english },
+            { upload_english, english },
+            { rotate_english, english },
+            { preview_english, english },
+            { stop_english, english },
+            { capture_english, english },
+            { speak_english, english },
         };
 
-        public readonly HashSet<string> Load = new HashSet<string>()
+        public Dictionary<string, string> Load = new Dictionary<string, string>()
         {
-            "load",
-            "execute",
-            "click"
+            { load_english, english },
+            { execute_english, english },
+            { click_english, english },
         };
 
-        public readonly HashSet<string> View = new HashSet<string>()
+        public Dictionary<string, string> View = new Dictionary<string, string>()
         {
-            "view",
-            "see"
+            { view_english, english },
+            { see_english, english }
         };
 
-        public readonly HashSet<string> Play = new HashSet<string>()
+        public Dictionary<string, string> Play = new Dictionary<string, string>()
         {
-            "play"
+            { play_english, english }
         };
 
-        public readonly HashSet<string> Record = new HashSet<string>()
+        public Dictionary<string, string> Record = new Dictionary<string, string>()
         {
-            "record"
+            { record_english, english }
         };
 
-        public readonly HashSet<string> Stop = new HashSet<string>()
+        public Dictionary<string, string> Stop = new Dictionary<string, string>()
         {
-            "stop"
+            { stop_english, english }
         };
 
-        public readonly HashSet<string> Speak = new HashSet<string>()
+        public Dictionary<string, string> Speak = new Dictionary<string, string>()
         {
-            "speak"
+            { speak_english, english }
         };
 
-        public readonly HashSet<string> Rotate = new HashSet<string>()
+        public Dictionary<string, string> Rotate = new Dictionary<string, string>()
         {
-            "rotate"
+            { rotate_english, english }
         };
 
-        public readonly HashSet<string> Download = new HashSet<string>()
+        public Dictionary<string, string> Download = new Dictionary<string, string>()
         {
-            "download"
+            { download_english, english }
         };
 
-        public readonly HashSet<string> Upload = new HashSet<string>()
+        public Dictionary<string, string> Upload = new Dictionary<string, string>()
         {
-            "upload"
+            { upload_english, english }
         };
 
-        public readonly HashSet<string> Charge = new HashSet<string>()
+        public Dictionary<string, string> Capture = new Dictionary<string, string>()
         {
-            "charge"
+            { capture_english, english },
+            { record_english, english }
         };
 
-        public readonly HashSet<string> Vibrate = new HashSet<string>()
+        public Dictionary<string, string> Save = new Dictionary<string, string>()
         {
-            "vibrate"
+            { save_english,english }
         };
 
-        public readonly HashSet<string> Capture = new HashSet<string>()
+        public Dictionary<string, string> Activity = new Dictionary<string, string>()
         {
-            "capture",
-            "record"
+            { gps_english, english },
+            { bluetooth_english, english },
+            { battery_english, english },
+            { camera_english, english },
+            { wav_english, english },
+            { mp3_english, english },
+            { file_english, english },
+            { vibration_english, english },
+            { phone_english, english }
         };
 
-        public readonly HashSet<string> Save = new HashSet<string>()
+        public Dictionary<string, string> GPS = new Dictionary<string, string>()
         {
-            "save"
+            { gps_english, english }
         };
 
-        public readonly HashSet<string> Activity = new HashSet<string>()
+        public Dictionary<string, string> Bluetooth = new Dictionary<string, string>()
         {
-            "gps",
-            "bluetooth",
-            "battery",
-            "camera",
-            "wav",
-            "mp3",
-            "file",
-            "phone"
+            { bluetooth_english, english }
         };
+
+        public Dictionary<string, string> Battery = new Dictionary<string, string>()
+        {
+            { battery_english, english }
+        };
+
+        public Dictionary<string, string> Camera = new Dictionary<string, string>()
+        {
+            { camera_english, english }
+        };
+
+        public Dictionary<string, string> WAV = new Dictionary<string, string>()
+        {
+            { wav_english, english }
+        };
+
+        public Dictionary<string, string> MP3 = new Dictionary<string, string>()
+        {
+            { mp3_english, english }
+        };
+
+        public Dictionary<string, string> File = new Dictionary<string, string>()
+        {
+            { file_english, english }
+        };
+
+        public Dictionary<string, string> Vibration = new Dictionary<string, string>()
+        {
+            { vibration_english, english }
+        };
+
+        public Dictionary<string, string> Phone = new Dictionary<string, string>()
+        {
+            { phone_english, english }
+        };
+
+        public Dictionary<string, string> Text = new Dictionary<string, string>()
+        {
+            { text_english, english }
+        };
+
+        public Dictionary<string, string> Flash = new Dictionary<string, string>()
+        {
+            { flash_english, english }
+        };
+
+        public Dictionary<string, string> On = new Dictionary<string, string>()
+        {
+            { on_english, english }
+        };
+
+        public Dictionary<string, string> Off = new Dictionary<string, string>()
+        {
+            { off_english, english }
+        };
+
+        public Dictionary<string, string> Auto = new Dictionary<string, string>()
+        {
+            { auto_english, english }
+        };
+
     }
 }

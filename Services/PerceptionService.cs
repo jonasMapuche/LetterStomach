@@ -2,8 +2,6 @@
 using LetterStomach.Helpers;
 using LetterStomach.Models;
 using LetterStomach.Services.Interfaces;
-using SceneKit;
-using System.Collections.ObjectModel;
 using System.Numerics;
 
 namespace LetterStomach.Services
@@ -11,14 +9,16 @@ namespace LetterStomach.Services
     public class PerceptionService
     {
         #region ERROR
+        private bool _error_on = true;
+        private bool _error_off = false;
         private string _error_message;
 
         public string error_message
         {
-            get => _error_message;
+            get => this._error_message;
             set
             {
-                _error_message = value;
+                this._error_message = value;
             }
         }
 
@@ -34,6 +34,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation gps \"Perception\" service failed!");
+
                 GeolocationRequest request = new GeolocationRequest(GeolocationAccuracy.Default, TimeSpan.FromSeconds(10));
                 Location location = await Geolocation.GetLocationAsync(request);
                 return location;
@@ -41,7 +43,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
                 return null;
             }
         }
@@ -52,6 +54,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation download audio \"Perception\" service failed!");
+
                 Audio audios = _audios.First();
                 string file_path = audios.url;
                 FileStream fs = new FileStream(file_path, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true);
@@ -65,7 +69,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
             }
         }
 
@@ -73,6 +77,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation upload audio \"Perception\" service failed!");
+
                 FileResult? result = await FilePicker.Default.PickAsync();
                 if (result != null)
                 {
@@ -95,7 +101,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
                 return null;
             }
         }
@@ -104,6 +110,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation audio fft \"Perception\" service failed!");
+
                 int sampleRate = 48_000;
                 Complex[] spectrum = FFT.Forward(audioData);
                 double[] psd = FFT.Power(spectrum);
@@ -112,7 +120,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
             }
         }
 
@@ -120,6 +128,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation send recording \"Perception\" service failed!");
+
                 Audio audio = new Audio() { url = file_path};
                 if (audio != null)
                 {
@@ -130,7 +140,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
             }
         }
 
@@ -138,6 +148,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation receive recording \"Perception\" service failed!");
+
                 Audio audio = _audios.First();
                 string file_path = audio.url;
                 return file_path;
@@ -145,7 +157,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
                 return string.Empty;
             }
         }
@@ -156,6 +168,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation save image \"Perception\" service failed!");
+
                 string file_name = FilePath.SetFileName("jpeg");
                 string file_path = FilePath.SetAudioFilePath(file_name);
                 Audio audio = new Audio() { url = file_path };
@@ -167,13 +181,15 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
             }
         }
         public async Task DownloadImage()
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation download image \"Perception\" service failed!");
+
                 Audio audios = _audios.First();
                 string file_path = audios.url;
                 FileStream fs = new FileStream(file_path, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true);
@@ -187,7 +203,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
             }
         }
         #endregion
@@ -195,32 +211,86 @@ namespace LetterStomach.Services
         #region VIBRATION
         public void SetVibration(int time)
         {
-            int secondsToVibrate = Random.Shared.Next(1, time);
-            TimeSpan vibrationLength = TimeSpan.FromSeconds(secondsToVibrate);
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation set vibration \"Perception\" service failed!");
 
-            Vibration.Default.Vibrate(vibrationLength);
+                int secondsToVibrate = Random.Shared.Next(1, time);
+                TimeSpan vibrationLength = TimeSpan.FromSeconds(secondsToVibrate);
+
+                Vibration.Default.Vibrate(vibrationLength);
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+            }
         }
         #endregion
 
         #region BATTERY
         public double GetCharge()
         {
-            return (Battery.ChargeLevel * 100);
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation get charge \"Perception\" service failed!");
+
+                return (Battery.ChargeLevel * 100);
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return -1;
+            }
         }
 
         public string GetMode()
         {
-            return Battery.Default.EnergySaverStatus == EnergySaverStatus.On ? "On" : Battery.Default.EnergySaverStatus == EnergySaverStatus.Off ? "Off" : "Unknown";
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation get mode \"Perception\" service failed!");
+
+                return Battery.Default.EnergySaverStatus == EnergySaverStatus.On ? "On" : Battery.Default.EnergySaverStatus == EnergySaverStatus.Off ? "Off" : "Unknown";
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return string.Empty;
+            }
         }
 
         public BatteryState GetState()
         {
-            return Battery.Default.State;
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation get state \"Perception\" service failed!");
+
+                return Battery.Default.State;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return BatteryState.Unknown;
+            }
         }
 
         public BatteryPowerSource GetSource()
         {
-            return Battery.Default.PowerSource;
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation get source \"Perception\" service failed!");
+
+                return Battery.Default.PowerSource;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return BatteryPowerSource.Unknown;
+            }
         }
         #endregion
 

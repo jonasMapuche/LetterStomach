@@ -23,6 +23,13 @@
         <Grid      
             BackgroundColor="{StaticResource PrimaryColor}"
             RowDefinitions="20, *, 150">
+<!--
+            <Label 
+                Text="{Binding ErrorMessage}" 
+                TextColor="Red" 
+                x:DataType="viewmodels:HomeViewModel"
+                IsVisible="{Binding ErrorMessage, Converter={StaticResource StringToIsVisibleConverter}}" />
+-->
             <Grid
                 Grid.Row="0"
                 RowDefinitions="Auto, *">

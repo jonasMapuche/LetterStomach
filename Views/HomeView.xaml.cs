@@ -5,26 +5,23 @@ namespace LetterStomach.Views;
 public partial class HomeView : ContentPage
 {
     #region ERROR
-    private bool _error_test = false;
+    private bool _error_on = true;
+    private bool _error_off = false;
     private string _error_message;
 
     public string error_message
     {
-        get => _error_message;
+        get => this._error_message;
         set
         {
-            _error_message = value;
+            this._error_message = value;
         }
-    }
-
-    private async void OnErrorDown(object sender, string error_message)
-    {
-        await DisplayAlert("Error", error_message, "OK");
     }
 
     private async void OnError(string error_message)
     {
-        await DisplayAlert("Error", error_message, "OK");
+        await Application.Current.MainPage.DisplayAlert("Error", error_message, "OK");
+        System.Environment.Exit(0);
     }
     #endregion
 
@@ -32,16 +29,19 @@ public partial class HomeView : ContentPage
     public HomeView(HomeViewModel ViewModel)
 	{
         try
-        { 
-		    InitializeComponent();
-            ViewModel.OnError += OnErrorDown;
+        {
+            if (this._error_off) throw new InvalidOperationException("Operation contructor \"Home\" view failed!!");
+            else ViewModel.error_message = string.Empty;
+            if (ViewModel.error_message != string.Empty) throw new InvalidOperationException(ViewModel.error_message);
+
+            InitializeComponent();
             BindingContext = ViewModel;
-            if (_error_test) throw new InvalidOperationException("Operation failed!");
+            ViewModel.Start();
         }
         catch (Exception ex)
         {
             this.error_message = ex.Message;
-            OnError(this.error_message);
+            this.OnError(this.error_message);
         }
     }
     #endregion
@@ -50,21 +50,24 @@ public partial class HomeView : ContentPage
     private async void OnSettingClicked(object sender, EventArgs e)
     {
         try
-        { 
+        {
+            if (this._error_off) throw new InvalidOperationException("Operation setting clicked \"Home\" view failed!!");
+
             await Shell.Current.GoToAsync(nameof(SettingView));
-            if (_error_test) throw new InvalidOperationException("Falha na operação!");
         }
         catch (Exception ex)
         {
             this.error_message = ex.Message;
-            OnError(this.error_message);
+            this.OnError(this.error_message);
         }
     }
 
     private async void OnDirectionSwiped(object sender, SwipedEventArgs e)
     {
         try 
-        { 
+        {
+            if (this._error_off) throw new InvalidOperationException("Operation direction swiped \"Home\" view failed!!");
+
             var box = (BoxView)sender;
             switch (e.Direction)
             {
@@ -81,12 +84,11 @@ public partial class HomeView : ContentPage
                     box.Color = Colors.Yellow;
                     break;
             }
-            if (_error_test) throw new InvalidOperationException("Falha na operação!");
         }
         catch (Exception ex)
         {
             this.error_message = ex.Message;
-            OnError(this.error_message);
+            this.OnError(this.error_message);
         }
     }
     #endregion

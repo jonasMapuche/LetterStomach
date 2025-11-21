@@ -2,8 +2,8 @@
 {
     public class GoMessage
     {
-        public int id { get; set; }
-        public int sender { get; set; }
+        public User sender { get; set; }
+        public string language { get; set; }
         public string message { get; set; }
     }
 }

@@ -5,23 +5,30 @@ namespace LetterStomach.ViewModels.SQLites
 {
     public class SentenceViewModel : ISentenceViewModel
     {
+        #region ERROR
+        private bool _error_on = true;
+        private bool _error_off = false;
         private string _error_message;
 
         public string error_message
         {
-            get => _error_message;
+            get => this._error_message;
             set
             {
-                _error_message = value;
+                this._error_message = value;
             }
         }
 
         public event EventHandler<string> OnError;
+        #endregion
 
+        #region FILTER
         private List<Sentenca> FilterLanguage(List<Sentenca> list, string language)
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation filter language \"Sentence\" view model failed!");
+
                 List<Sentenca> new_list = new List<Sentenca>();
                 list.ForEach(value =>
                 {
@@ -33,23 +40,28 @@ namespace LetterStomach.ViewModels.SQLites
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
                 return null;
             }
         }
+        #endregion
 
+        #region GET
         public List<Sentenca> GetLanguage(string language)
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation get language \"Sentence\" view model failed!");
+
                 return FilterLanguage(App.DataService.Sentenca, language);
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
                 return null;
             }
         }
+        #endregion
     }
 }

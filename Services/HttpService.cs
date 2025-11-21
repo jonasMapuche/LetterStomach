@@ -8,14 +8,16 @@ namespace LetterStomach.Services
     public class HttpService : IHttpService
     {
         #region ERROR
+        private bool _error_on = true;
+        private bool _error_off = false;
         private string _error_message;
 
         public string error_message
         {
-            get => _error_message;
+            get => this._error_message;
             set
             {
-                _error_message = value;
+                this._error_message = value;
             }
         }
 
@@ -34,12 +36,14 @@ namespace LetterStomach.Services
         {
             try 
             {
+                if (this._error_off) throw new InvalidOperationException("Operation contructor \"Http\" service failed!");
+                else this.error_message = string.Empty;
+
                 _client = new HttpClient();
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
             }
         }
         #endregion
@@ -49,6 +53,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation http post \"Http\" service failed!");
+
                 string json = JsonConvert.SerializeObject(message);
                 var data = new StringContent(json, Encoding.UTF8, "application/json");
                 using HttpResponseMessage response = await _client.PostAsync(URL, data);
@@ -57,8 +63,8 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
-                return null;
+                this.OnError?.Invoke(this, this.error_message);
+                return string.Empty;
             }
         }
 
@@ -66,6 +72,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation http post \"Http\" service failed!");
+
                 string path = "File";
                 string uri = URL + path;
                 using var content = new MultipartFormDataContent();
@@ -76,8 +84,8 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
-                return null;
+                this.OnError?.Invoke(this, this.error_message);
+                return string.Empty;
             }
         }
 
@@ -85,7 +93,9 @@ namespace LetterStomach.Services
         {
             try
             {
-                string path = "Go";
+                if (this._error_off) throw new InvalidOperationException("Operation http go \"Http\" service failed!");
+
+                string path = "Message";
                 string uri = URL + path;
                 string json = JsonConvert.SerializeObject(message);
                 var data = new StringContent(json, Encoding.UTF8, "application/json");
@@ -98,7 +108,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
                 return null;
             }
         }
@@ -108,7 +118,9 @@ namespace LetterStomach.Services
         private async Task<string> HttpGet(string path)
         {
             try 
-            { 
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation http get \"Http\" service failed!");
+
                 string uri = URL + path;
                 using HttpResponseMessage response = await _client.GetAsync(uri);
                 return await response.Content.ReadAsStringAsync();
@@ -116,15 +128,17 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
-                return null;
+                this.OnError?.Invoke(this, this.error_message);
+                return string.Empty;
             }
         }
 
         public async Task<List<Adverbios>> HttpAdverb()
         {
             try 
-            { 
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation http adverb \"Http\" service failed!");
+
                 string path = "Adverb";
                 string result = await HttpGet(path);
                 List<Adverbios> request = new List<Adverbios>();
@@ -134,7 +148,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
                 return null;
             }
         }
@@ -142,7 +156,9 @@ namespace LetterStomach.Services
         public async Task<List<Pronomes>> HttpPronoun()
         {
             try 
-            { 
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation http pronoun \"Http\" service failed!");
+
                 string path = "Pronoun";
                 string result = await HttpGet(path);
                 List<Pronomes> request = new List<Pronomes>();
@@ -152,7 +168,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
                 return null;
             }
         }
@@ -160,7 +176,9 @@ namespace LetterStomach.Services
         public async Task<List<Artigos>> HttpArticle()
         {
             try 
-            { 
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation http article \"Http\" service failed!");
+
                 string path = "Article";
                 string result = await HttpGet(path);
                 List<Artigos> request = new List<Artigos>();
@@ -170,7 +188,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
                 return null;
             }
         }
@@ -179,6 +197,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation http numeral \"Http\" service failed!");
+
                 string path = "Numeral";
                 string result = await HttpGet(path);
                 List<Numerais> request = new List<Numerais>();
@@ -188,7 +208,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
                 return null;
             }
         }
@@ -197,6 +217,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation http preposition \"Http\" service failed!");
+
                 string path = "Preposition";
                 string result = await HttpGet(path);
                 List<Preposicoes> request = new List<Preposicoes>();
@@ -206,7 +228,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
                 return null;
             }
         }
@@ -215,6 +237,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation http noun \"Http\" service failed!");
+
                 string path = "Noun";
                 string result = await HttpGet(path);
                 List<Substantivo> request = new List<Substantivo>();
@@ -224,7 +248,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
                 return null;
             }
         }
@@ -233,6 +257,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation http adjective \"Http\" service failed!");
+
                 string path = "Adjective";
                 string result = await HttpGet(path);
                 List<Adjetivo> request = new List<Adjetivo>();
@@ -242,7 +268,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
                 return null;
             }
         }
@@ -251,6 +277,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation http verb \"Http\" service failed!");
+
                 string path = "Verb";
                 string result = await HttpGet(path);
                 List<Verbos> request = new List<Verbos>();
@@ -260,7 +288,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
                 return null;
             }
         }
@@ -269,6 +297,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation http sentence \"Http\" service failed!");
+
                 string path = "Sentence";
                 string result = await HttpGet(path);
                 List<Sentencas> request = new List<Sentencas>();
@@ -278,7 +308,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
                 return null;
             }
         }
@@ -287,6 +317,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation http conjunction \"Http\" service failed!");
+
                 string path = "Conjunction";
                 string result = await HttpGet(path);
                 List<Conjuncoes> request = new List<Conjuncoes>();
@@ -296,7 +328,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
                 return null;
             }
         }
@@ -305,6 +337,8 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation http auxiliary \"Http\" service failed!");
+
                 string path = "Auxiliary";
                 string result = await HttpGet(path);
                 List<Auxiliares> request = new List<Auxiliares>();
@@ -314,7 +348,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                OnError?.Invoke(this, error_message);
+                this.OnError?.Invoke(this, this.error_message);
                 return null;
             }
         }
