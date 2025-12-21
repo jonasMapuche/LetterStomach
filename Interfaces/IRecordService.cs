@@ -6,5 +6,6 @@
         string StopRecordMP3();
         void StartRecordWav();
         string StopRecordWav();
+        event EventHandler<string> OnError;
     }
 }

@@ -1,7 +1,6 @@
 ﻿using LetterStomach.Bot.Interface;
 using LetterStomach.Models;
-using System.Text.RegularExpressions;
-using Capture = LetterStomach.Models.Capture;
+using LetterStomach.Services;
 
 namespace LetterStomach.Bot
 {
@@ -25,274 +24,287 @@ namespace LetterStomach.Bot
         #endregion
 
         #region VARIABLE
-        private bool is_insert = false;
-        private const string DARK = "dark";
-        private const string LIGHT = "light";
-        private const string FRONT = "front";
-        private const string REAR = "rear";
+        private Dictionary<string, string> VAR_SHOOT = SettingService.Instance.Shoot;
+        private Dictionary<string, string> VAR_DONT_SHOOT = SettingService.Instance.Dont_Shoot;
 
+        private Dictionary<string, string> VAR_FRONT = SettingService.Instance.Front;
+        private Dictionary<string, string> VAR_REAR = SettingService.Instance.Rear;
+
+        private Dictionary<string, string> VAR_ON = SettingService.Instance.On;
+        private Dictionary<string, string> VAR_OFF = SettingService.Instance.Off;
+        private Dictionary<string, string> VAR_AUTO = SettingService.Instance.Auto;
+
+        private Dictionary<string, string> VAR_CATCH_FLASH = SettingService.Instance.Catch_Flash;
+        private Dictionary<string, string> VAR_CATCH_ROTATE = SettingService.Instance.Catch_Rotate;
+        private Dictionary<string, string> VAR_CATCH_CAPTURE = SettingService.Instance.Catch_Capture;
+
+        private Dictionary<string, string> VAR_TURN = SettingService.Instance.Turn;
+        private Dictionary<string, string> VAR_FLASH = SettingService.Instance.Flash;
+
+        private Dictionary<string, string> VAR_ROTATE = SettingService.Instance.Rotate;
+        private Dictionary<string, string> VAR_CAMERA = SettingService.Instance.Camera;
         #endregion
 
         #region BUTTON
-        public async Task<string[]> Picker()
+        public async Task<string> Flash(string language)
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation picker \"Capture\" bot failed!");
-                FileResult pick_result = await FilePicker.Default.PickAsync();
-                string file_name = pick_result.FileName;
-                Stream file_stream = await pick_result.OpenReadAsync();
-                string value = string.Empty;
-                StreamReader reader = new StreamReader(file_stream);
-                string conteudo = await reader.ReadToEndAsync();
-                value = conteudo;
-                string[] lines = value.Split('\n');
-                return lines;
+                if (this._error_off) throw new InvalidOperationException("Operation flash \"Capture\" bot failed!");
+
+                HashSet<string> on = VAR_ON
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                HashSet<string> off = VAR_OFF
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                HashSet<string> auto = VAR_AUTO
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                string ask = $"Choose options: \"{on}\", \"{off}\" or \"{auto}\".";
+                return ask;
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
                 this.OnError?.Invoke(this, this.error_message);
-                return null;
+                return string.Empty;
             }
         }
 
-        public async Task<List<Capture>> ReadCapture(string[] lines)
+        private async Task<string> Flash(string language, string parameter)
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation read \"Capture\" bot failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation flash \"Capture\" bot failed!");
 
-                List<Capture> captures = new List<Capture>();
-                int quantity = 0;
-                foreach (string line in lines)
-                {
-                    quantity++;
-                    if (quantity == 1) continue;
-                    if (line == string.Empty) break;
+                HashSet<string> on = VAR_ON
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                    string terms = line.Replace("\r", "");
-                    string[] parts = terms.Split(';');
-                    captures.Add(new Capture
-                    {
-                        environment = parts[0],
-                        rotate = parts[1],
-                        flash = parts[2],
-                        result = parts[3].ToUpper() == "TRUE"? true : false,
-                    });
-                }
-                return captures;
+                HashSet<string> off = VAR_OFF
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                HashSet<string> auto = VAR_AUTO
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                HashSet<string> turn = VAR_TURN
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                HashSet<string> flash = VAR_FLASH
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                string ask = $"{turn} {flash} ";
+                if (Array.IndexOf(on.ToArray(), parameter) != -1) ask += $"{on}.";
+                if (Array.IndexOf(off.ToArray(), parameter) != -1) ask += $"{off}.";
+                if (Array.IndexOf(auto.ToArray(), parameter) != -1) ask += $"{auto}.";
+                return ask;
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
                 this.OnError?.Invoke(this, this.error_message);
-                return null;
+                return string.Empty;
             }
         }
 
-        public int GetNode(List<Capture> captures)
+        private async Task<string> Rotate(string language)
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation get node \"Capture\" bot failed!");
-                return 3;
+                if (this._error_off) throw new InvalidOperationException("Operation rotate \"Capture\" bot failed!");
+
+                HashSet<string> front = VAR_FRONT
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                HashSet<string> rear = VAR_REAR
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                string ask = $"Choose options: \"{front}\" or \"{rear}\".";
+                return ask;
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
                 this.OnError?.Invoke(this, this.error_message);
-                return -1;
+                return string.Empty;
             }
         }
 
-        public async Task<object> Load()
+        private async Task<string> Rotate(string language, string parameter)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation rotate \"Capture\" bot failed!");
+
+                HashSet<string> front = VAR_FRONT
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                HashSet<string> rear = VAR_REAR
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                HashSet<string> rotate = VAR_ROTATE
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                HashSet<string> camera = VAR_CAMERA
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                string ask = $"{rotate} {camera} ";
+                if (Array.IndexOf(front.ToArray(), parameter) != -1) ask += $"{front}.";
+                if (Array.IndexOf(rear.ToArray(), parameter) != -1) ask += $"{rear}.";
+                return ask;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return string.Empty;
+            }
+        }
+
+        private async Task<string> Capture(string language)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation capture \"Capture\" bot failed!");
+
+                HashSet<string> capture = VAR_SHOOT
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                HashSet<string> dont_capture = VAR_DONT_SHOOT
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                string ask = $"Choose options: \"{capture}\" or \"{dont_capture}\".";
+                return ask;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return string.Empty;
+            }
+        }
+
+        private async Task<string> Capture(string language, string parameter)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation capture \"Capture\" bot failed!");
+
+                HashSet<string> capture = VAR_SHOOT
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                HashSet<string> dont_capture = VAR_DONT_SHOOT
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                HashSet<string> camera = VAR_CAMERA
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                string ask = string.Empty;
+                if (Array.IndexOf(capture.ToArray(), parameter) != -1) ask = $"{capture} {camera}.";
+                if (Array.IndexOf(dont_capture.ToArray(), parameter) != -1) ask = $"{dont_capture} {camera}.";
+                return ask;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return string.Empty;
+            }
+        }
+        #endregion
+
+        #region LOAD
+        public async Task<string> Load(string language, List<Message> messages)
         {
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation load \"Capture\" bot failed!");
 
-                DecisionTree decision_tree = new DecisionTree();
-                string[] picker = await Picker();
-                List<Capture> captures = new List<Capture>();
-                captures = await ReadCapture(picker);
-                int node = GetNode(captures);
-                for (int quantity = 1; quantity <= node; quantity++)
+                HashSet<string> flashs = VAR_CATCH_FLASH
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                HashSet<string> rotates = VAR_CATCH_ROTATE
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                bool flash = true;
+                bool rotate = true;
+
+                List<Message> memos = new List<Message>();
+                memos = messages.FindAll(index => index.Sender == null);
+
+                foreach (Message memo in memos)
                 {
-                    DecisionTree node_tree = new DecisionTree();
-                    this.is_insert = false;
-                    node_tree = Mount();
-                    if (node_tree != null) decision_tree = node_tree;
+                    if (Array.IndexOf(flashs.ToArray(), memo) != -1) flash = true;
+                    if (Array.IndexOf(rotates.ToArray(), memo) != -1) rotate = true;
                 }
 
-                return decision_tree;
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return null;
-            }
-        }
+                string response = string.Empty;
 
-        public DecisionTree Mount()
-        {
-            try
-            {
-                if (this._error_off) throw new InvalidOperationException("Operation picker command \"Bot\" view model failed!");
-                return null;
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return null;
-            }
-        }
+                if ((flash) && (!rotate)) response = await Rotate(language);
+                if ((flash) && (rotate)) response = await Capture(language);
 
-        public object Rule()
-        {
-            try
-            {
-                if (this._error_off) throw new InvalidOperationException("Operation picker command \"Bot\" view model failed!");
-                return null;
+                return response;
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
                 this.OnError?.Invoke(this, this.error_message);
-                return null;
-            }
-        }
-
-        public object Write()
-        {
-            try
-            {
-                if (this._error_off) throw new InvalidOperationException("Operation picker command \"Bot\" view model failed!");
-                return null;
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return null;
+                return string.Empty;
             }
         }
         #endregion
 
-        #region DECICION
-        public object MountRoot(List<Capture> captures)
+        #region MOUNT
+        public async Task<string> Mount(string language, string parameter)
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation mount root \"Capture\" bot failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation mount \"Capture\" bot failed!");
 
-                //-----
-                List<bool> result = captures.Select(index => index.result).ToList();
-                double result_true = result.FindAll(index => index.Equals(true)).Count();
-                double result_false = result.FindAll(index => index.Equals(false)).Count();
-                double result_all = result.Count();
+                HashSet<string> flashs = VAR_CATCH_FLASH
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                double formula = -((result_true / result_all) * (Math.Log2(result_true / result_all)));
-                formula -= ((result_false / result_all) * (Math.Log2(result_false / result_all)));
-                if (double.IsNaN(formula)) formula = 0;
+                HashSet<string> rotates = VAR_CATCH_ROTATE
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                double profit_environment = MountEnvironment(captures, formula);
+                HashSet<string> captures = VAR_CATCH_CAPTURE
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-
-                return null;
+                string ask = string.Empty;
+                if (Array.IndexOf(flashs.ToArray(), parameter) != -1) ask = await Flash(language, parameter);
+                if (Array.IndexOf(rotates.ToArray(), parameter) != -1) ask = await Rotate(language, parameter);
+                if (Array.IndexOf(captures.ToArray(), parameter) != -1) ask = await Capture(language, parameter);
+                return ask;
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
                 this.OnError?.Invoke(this, this.error_message);
-                return null;
-            }
-        }
-
-        public double MountEnvironment(List<Capture> captures, double formula)
-        {
-            try
-            {
-                if (this._error_off) throw new InvalidOperationException("Operation mount environment \"Capture\" bot failed!");
-
-                List<bool> environment_true = captures.FindAll(index => index.environment == LIGHT).Select(index => index.result).ToList();
-                double environment_true_light = environment_true.FindAll(index => index.Equals(true)).Count();
-                double environment_true_dark = environment_true.FindAll(index => index.Equals(false)).Count();
-                int quantity_true = 0;
-                quantity_true = environment_true.Count();
-
-                double formula_environment_true = -((environment_true_light / quantity_true) * (Math.Log2(environment_true_light / quantity_true)));
-                formula_environment_true -= ((environment_true_dark / quantity_true) * (Math.Log2(environment_true_dark / quantity_true)));
-                if (double.IsNaN(formula_environment_true)) formula_environment_true = 0;
-
-                List<bool> environment_false = captures.FindAll(index => index.environment == DARK).Select(index => index.result).ToList();
-                double environment_false_light = environment_true.FindAll(index => index.Equals(true)).Count();
-                double environment_false_dark = environment_true.FindAll(index => index.Equals(false)).Count();
-                int quantity_false = 0;
-                quantity_false = environment_false.Count();
-
-                double formular_environment_false = -((environment_false_light / quantity_false) * (Math.Log2(environment_false_light / quantity_false)));
-                formular_environment_false -= ((environment_false_dark / quantity_false) * (Math.Log2(environment_false_dark / quantity_false)));
-                if (double.IsNaN(formular_environment_false)) formular_environment_false = 0;
-
-                double mount_environment_true = (((quantity_true) / (quantity_true + quantity_false)) * formula_environment_true);
-                if (double.IsNaN(mount_environment_true)) mount_environment_true = 0;
-                double mount_environment_false = (((quantity_false) / (quantity_true + quantity_false)) * formular_environment_false);
-                if (double.IsNaN(mount_environment_false)) mount_environment_false = 0;
-                double profit_environment = formula - mount_environment_true - mount_environment_false;
-                if (double.IsNaN(profit_environment)) profit_environment = 0;
-
-                return profit_environment;
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return -1;
-            }
-        }
-
-        public double MountRotate(List<Capture> captures)
-        {
-            try
-            {
-                if (this._error_off) throw new InvalidOperationException("Operation mount rotate \"Capture\" bot failed!");
-
-                List<bool> rotate_true = captures.FindAll(index => index.rotate == FRONT).Select(index => index.result).ToList();
-                double rotate_true_front = rotate_true.FindAll(index => index.Equals(true)).Count();
-                double rotate_true_rear = rotate_true.FindAll(index => index.Equals(false)).Count();
-                int quantity_true = 0;
-                quantity_true = rotate_true.Count();
-
-                double formula_rotate_true = -((rotate_true_front / quantity_true) * (Math.Log2(rotate_true_front / quantity_true)));
-                formula_rotate_true -= ((rotate_true_rear / quantity_true) * (Math.Log2(rotate_true_rear / quantity_true)));
-                if (double.IsNaN(formula_rotate_true)) formula_rotate_true = 0;
-
-
-                return -1;
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return -1;
-            }
-        }
-
-        public object MountFlash()
-        {
-            try
-            {
-                if (this._error_off) throw new InvalidOperationException("Operation picker command \"Bot\" view model failed!");
-                return null;
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return null;
+                return string.Empty;
             }
         }
         #endregion

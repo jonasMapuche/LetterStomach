@@ -1,13 +1,17 @@
-﻿using CommunityToolkit.Maui.Core;
+using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using IntelliJ.Lang.Annotations;
 using LetterStomach.Models;
 using LetterStomach.Services;
 using LetterStomach.Services.Interfaces;
 using LetterStomach.Views;
+using Microsoft.Maui.Devices.Sensors;
 using MongoDB.Driver;
+using MongoDB.Driver.Search;
 using System.Windows.Input;
+using static SQLite.SQLite3;
 
 namespace LetterStomach.ViewModels
 {
@@ -50,7 +54,6 @@ namespace LetterStomach.ViewModels
         private Dictionary<string, string> VAR_UPLOAD = SettingService.Instance.Upload;
         private Dictionary<string, string> VAR_CAPTURE = SettingService.Instance.Capture;
         private Dictionary<string, string> VAR_SAVE = SettingService.Instance.Save;
-        private Dictionary<string, string> VAR_TURN = SettingService.Instance.Turn;
 
         private Dictionary<string, string> VAR_GPS = SettingService.Instance.GPS;
         private Dictionary<string, string> VAR_BLUETOOTH = SettingService.Instance.Bluetooth;
@@ -72,7 +75,7 @@ namespace LetterStomach.ViewModels
         #endregion
 
         #region VARIABLE
-        private string PORTUGUES = "português";
+        private string PORTUGUES = "portugu�s";
 
         public ICommand BackCommand { get; set; }
 
@@ -258,23 +261,34 @@ namespace LetterStomach.ViewModels
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation send bot \"Bot\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation picker send \"Bot\" view model failed!");
 
                 HashSet<string> catchs = VAR_CATCH
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
+                HashSet<string> flash_on = VAR_ON
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                HashSet<string> flash_off = VAR_OFF
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                HashSet<string> flash_auto = VAR_AUTO
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
                 if (Array.IndexOf(catchs.ToArray(), parameter) != -1)
                 {
-                    string phrase = string.Empty;
-                    phrase = await this._botService.Capture(language, parameter);
+                    string result = string.Empty;
+                    result = await this._botService.Capture(language, parameter);
 
                     List<Locution> locutions = new List<Locution>();
-                    locutions = await GoMessage(phrase, user, language);
+                    locutions = await GoMessage(result, user, language);
                     Locution locution = new Locution();
                     locution = locutions[0];
 
-                    string result = string.Empty;
                     result = await DecisionMessage(language, locution);
                 }
 
@@ -301,6 +315,13 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation send button \"Bot\" view model failed!");
 
+                HashSet<string> verbs = VAR_EXECUTE
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+                HashSet<string> nouns = VAR_ACTIVITY
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
                 string result = string.Empty;
 
                 List<Locution> locutions = new List<Locution>();
@@ -308,6 +329,27 @@ namespace LetterStomach.ViewModels
                 Locution locution = new Locution();
                 locution = locutions[0];
 
+
+                GoMessage goMessage = new GoMessage();
+                User bot = new User();
+                bot = new User
+                {
+                    Name = user.Name,
+                    Image = user.Image
+                };
+                goMessage.sender = bot;
+                goMessage.language = language;
+                goMessage.message = parameter;
+                
+                List<Locution> locutions = new List<Locution>();
+                this._httpService = new HttpService();
+                this._httpService.OnError += OnError;
+                locutions = await this._httpService.HttpGo(goMessage);
+
+                Locution locution = new Locution();
+                locution = locutions[0];
+
+                string result = string.Empty;
                 result = await DecisionMessage(language, locution);
 
                 return result;
@@ -324,7 +366,7 @@ namespace LetterStomach.ViewModels
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation command button \"Bot\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation picker command \"Bot\" view model failed!");
 
                 string response = string.Empty;
                 HashSet<string> verbs_load = new HashSet<string>();
@@ -362,9 +404,6 @@ namespace LetterStomach.ViewModels
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
                 HashSet<string> verbs_save = new HashSet<string>();
                 verbs_save = VAR_SAVE.Where(index => index.Value.Contains(language))
-                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> verbs_turn = new HashSet<string>();
-                verbs_turn = VAR_TURN.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
                 HashSet<string> nouns_gps = new HashSet<string>();
@@ -435,13 +474,6 @@ namespace LetterStomach.ViewModels
                 if (Array.IndexOf(verbs_load.ToArray(), verb) != -1)
                 {
                     if (Array.IndexOf(nouns_bluetooth.ToArray(), noun) != -1) { }
-                    if (Array.IndexOf(nouns_camera.ToArray(), noun) != -1)
-                    {
-                        response = await CaputreCamera(language);
-                    }
-                }
-                if (Array.IndexOf(verbs_turn.ToArray(), verb) != -1)
-                {
                     if (Array.IndexOf(nouns_flash.ToArray(), noun) != -1)
                     {
                         if (Array.IndexOf(adjective_off.ToArray(), adjective) != -1)
@@ -453,6 +485,10 @@ namespace LetterStomach.ViewModels
                             if (Array.IndexOf(adjective_on.ToArray(), noun) != -1)
                                 await FlashCamera(adjective);
                         }
+                    }
+                    if (Array.IndexOf(nouns_camera.ToArray(), noun) != -1)
+                    {
+                        response = await CaputreCamera(language);
                     }
                 }
                 if (Array.IndexOf(verbs_play.ToArray(), verb) != -1)
@@ -700,13 +736,13 @@ namespace LetterStomach.ViewModels
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation capture camera \"Bot\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation flash camera \"Bot\" view model failed!");
 
                 if (!SettingService.Instance.ModeBot) SettingService.Instance.ModeBot = true;
                 this._botService = new BotService();
                 this._botService.OnError += OnError;
 
-                string response = await this._botService.Init(language);
+                string response = await this._botService.Init();
                 return response;
             }
             catch (Exception ex)

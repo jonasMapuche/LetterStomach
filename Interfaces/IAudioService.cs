@@ -4,5 +4,6 @@
     {
         void PlayAudio(string filePath);
         void StopAudio();
+        event EventHandler<string> OnError;
     }
 }

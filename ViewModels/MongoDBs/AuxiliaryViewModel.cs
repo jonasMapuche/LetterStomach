@@ -32,7 +32,7 @@ namespace LetterStomach.ViewModels.MongoDBs
 
                 return App.MongoDBService.Assistente.Find(index => index.linguagem == language).ToList<Assistente>();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 this.error_message = ex.Message;
                 this.OnError?.Invoke(this, this.error_message);

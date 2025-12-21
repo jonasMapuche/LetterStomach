@@ -1,12 +1,13 @@
 ﻿using FftSharp;
 using LetterStomach.Helpers;
+using LetterStomach.Interfaces;
 using LetterStomach.Models;
 using LetterStomach.Services.Interfaces;
 using System.Numerics;
 
 namespace LetterStomach.Services
 {
-    public class PerceptionService
+    public class PerceptionService : IPerceptionService
     {
         #region ERROR
         private bool _error_on = true;
@@ -27,6 +28,9 @@ namespace LetterStomach.Services
 
         #region VARIABLE
         public List<Audio> _audios;
+        private IAudioService _audio_service;
+        private IRecordService _record_service;
+        private ITextSpeakService _text_speak_service;
         #endregion
 
         #region GPS
@@ -153,6 +157,129 @@ namespace LetterStomach.Services
                 Audio audio = _audios.First();
                 string file_path = audio.url;
                 return file_path;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return string.Empty;
+            }
+        }
+
+        public void PlayAudio(string file_path)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation play audio \"Perception\" service failed!");
+                this._audio_service.OnError += OnError;
+                this._audio_service.PlayAudio(file_path);
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+            }
+        }
+
+        public void StopAudio()
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation stop audio \"Perception\" service failed!");
+                this._audio_service.OnError += OnError;
+                this._audio_service.StopAudio();
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+            }
+        }
+
+        public void StartRecordMP3()
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation start record mp3 \"Perception\" service failed!");
+                this._record_service.OnError += OnError;
+                this._record_service.StartRecordMP3();
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+            }
+        }
+
+        public void StartRecordWav()
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation start record wav \"Perception\" service failed!");
+                this._record_service.OnError += OnError;
+                this._record_service.StartRecordWav();
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+            }
+        }
+
+        public string StopRecordMP3()
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation start record mp3 \"Perception\" service failed!");
+                this._record_service.OnError += OnError;
+                return this._record_service.StopRecordMP3();
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return string.Empty;
+            }
+        }
+
+        public string StopRecordWav()
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation start record wav \"Perception\" service failed!");
+                this._record_service.OnError += OnError;
+                return this._record_service.StopRecordWav();
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return string.Empty;
+            }
+        }
+
+        public void SpeakText(string text)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation speak text \"Perception\" service failed!");
+                this._text_speak_service.OnError += OnError;
+                this._text_speak_service.SpeakText(text);
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+            }
+        }
+
+        public string FileText(string text)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation file text \"Perception\" service failed!");
+                this._text_speak_service.OnError += OnError;
+                return this._text_speak_service.FileText(text);
             }
             catch (Exception ex)
             {

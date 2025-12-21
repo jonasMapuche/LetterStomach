@@ -1,0 +1,984 @@
+        private async Task<string[]> Picker()
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation picker \"Capture\" bot failed!");
+                FileResult pick_result = await FilePicker.Default.PickAsync();
+                string file_name = pick_result.FileName;
+                Stream file_stream = await pick_result.OpenReadAsync();
+                string value = string.Empty;
+                StreamReader reader = new StreamReader(file_stream);
+                string conteudo = await reader.ReadToEndAsync();
+                value = conteudo;
+                string[] lines = value.Split('\n');
+                return lines;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return null;
+            }
+        }
+
+        private async Task<List<Capture>> ReadCapture(string[] lines)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation read \"Capture\" bot failed!");
+
+                List<Capture> captures = new List<Capture>();
+                int quantity = 0;
+                foreach (string line in lines)
+                {
+                    quantity++;
+                    if (quantity == 1) continue;
+                    if (line == string.Empty) break;
+
+                    string terms = line.Replace("\r", "");
+                    string[] parts = terms.Split(';');
+                    captures.Add(new Capture
+                    {
+                        environment = parts[0],
+                        rotate = parts[1],
+                        flash = parts[2],
+                        result = (parts[3].ToUpper() == "SIM") || (parts[3].ToUpper() == "TRUE") ? true : false,
+                    });
+                }
+                return captures;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return null;
+            }
+        }
+
+        private int GetNode(List<Capture> captures)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation get node \"Capture\" bot failed!");
+
+                string[] node = { ENVIRONMENT, ROTATE, FLASH };
+
+                string[] environment = { LIGHT, DARK };
+
+                string[] rotate = { FRONT, REAR };
+
+                string[] flash = { ON, OFF, AUTO };
+
+                return node.Count() * environment.Count() * rotate.Count() * flash.Count();
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return -1;
+            }
+        }
+
+        private int GetList(List<Capture> captures, string node)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation quantity node \"Capture\" bot failed!");
+
+                switch (node)
+                {
+                    case ENVIRONMENT:
+                        return 2;
+                    case ROTATE:
+                        return 2;
+                    case FLASH:
+                        return 3;
+                }
+
+                return -1;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return -1;
+            }
+        }
+
+        private string GetFilter(DecisionTree decision_tree, string node)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation get filter \"Capture\" bot failed!");
+
+                if (node == ENVIRONMENT)
+                {
+                    if (decision_tree.children[(int)Environment.Light] == null) return LIGHT;
+                    else if (decision_tree.children[(int)Environment.Dark] == null) return DARK;
+                }
+                if (node == ROTATE)
+                {
+                    if (decision_tree.children[(int)Rotate.Front] == null) return FRONT;
+                    else if (decision_tree.children[(int)Rotate.Rear] == null) return REAR;
+                }
+                if (node == FLASH)
+                {
+                    if (decision_tree.children[(int)Flash.On] == null) return ON;
+                    else if (decision_tree.children[(int)Flash.Off] == null) return OFF;
+                    else if (decision_tree.children[(int)Flash.Auto] == null) return AUTO;
+                }
+
+                return string.Empty;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return string.Empty;
+            }
+        }
+        
+                public string MountRoot(List<Capture> captures)
+	        {
+	            try
+	            {
+	                if (this._error_off) throw new InvalidOperationException("Operation mount root \"Capture\" bot failed!");
+	
+	                //-----
+	                List<bool> result = captures.Select(index => index.result).ToList();
+	                double result_true = result.FindAll(index => index.Equals(true)).Count();
+	                double result_false = result.FindAll(index => index.Equals(false)).Count();
+	                double result_all = result.Count();
+	
+	                double formula = -((result_true / result_all) * (Math.Log2(result_true / result_all)));
+	                formula -= ((result_false / result_all) * (Math.Log2(result_false / result_all)));
+	                if (double.IsNaN(formula)) formula = 0;
+	
+	                double profit_environment = MountEnvironment(captures, formula);
+	                double profit_rotate = MountRotate(captures, formula);
+	                double profit_flash = MountFlash(captures, formula);
+	
+	                string node = string.Empty;
+	                if ((formula == 0) && (result_false == 0)) node = CAPTURE;
+	                if ((formula == 0) && (result_true == 0)) node = DIDNT_CAPTURE;
+	                if ((formula != 0) && (profit_environment > profit_rotate) && (profit_environment >= profit_flash)) node = ENVIRONMENT;
+	                if ((formula != 0) && (profit_environment >= profit_rotate) && (profit_environment > profit_flash)) node = ENVIRONMENT;
+	                if ((formula != 0) && (profit_rotate > profit_environment) && (profit_rotate >= profit_flash)) node = ROTATE;
+	                if ((formula != 0) && (profit_rotate >= profit_environment) && (profit_rotate > profit_flash)) node = ROTATE;
+	                if ((formula != 0) && (profit_flash > profit_environment) && (profit_flash >= profit_rotate)) node = FLASH;
+	                if ((formula != 0) && (profit_flash >= profit_environment) && (profit_flash > profit_rotate)) node = FLASH;
+	                if ((formula != 0) && (profit_flash == profit_environment) && (profit_flash == profit_rotate)) node = FLASH;
+	
+	                this._fifo.Add(node);
+	
+	                return node;
+	            }
+	            catch (Exception ex)
+	            {
+	                this.error_message = ex.Message;
+	                this.OnError?.Invoke(this, this.error_message);
+	                return string.Empty;
+	            }
+	        }
+	
+	        public string MountNodeEnvironment(List<Capture> captures)
+	        {
+	            try
+	            {
+	                if (this._error_off) throw new InvalidOperationException("Operation mount node environment \"Capture\" bot failed!");
+	
+	                //-----
+	                List<bool> result = captures.Select(index => index.result).ToList();
+	                double result_true = result.FindAll(index => index.Equals(true)).Count();
+	                double result_false = result.FindAll(index => index.Equals(false)).Count();
+	                double result_all = result.Count();
+	
+	                double formula = -((result_true / result_all) * (Math.Log2(result_true / result_all)));
+	                formula -= ((result_false / result_all) * (Math.Log2(result_false / result_all)));
+	                if (double.IsNaN(formula)) formula = 0;
+	
+	                double profit_rotate = MountRotate(captures, formula);
+	                double profit_flash = MountFlash(captures, formula);
+	
+	                string node = string.Empty;
+	                if ((formula == 0) && (result_false == 0)) node = CAPTURE;
+	                if ((formula == 0) && (result_true == 0)) node = DIDNT_CAPTURE;
+	                if ((formula != 0) && (profit_rotate > profit_flash)) node = ROTATE;
+	                if ((formula != 0) && (profit_flash > profit_rotate)) node = FLASH;
+	                if ((formula != 0) && (profit_flash == profit_rotate))
+	                {
+	                    if (Array.IndexOf(this._fifo.ToArray(), ROTATE) == -1) node = FLASH;
+	                    else node = ROTATE;
+	                }
+	
+	                //-----
+	                if (!((node == CAPTURE) || (node == DIDNT_CAPTURE))) this._fifo.Add(node);
+	
+	                return node;
+	            }
+	            catch (Exception ex)
+	            {
+	                this.error_message = ex.Message;
+	                this.OnError?.Invoke(this, this.error_message);
+	                return string.Empty;
+	            }
+	        }
+	
+	        public string MountNodeRotate(List<Capture> captures)
+	        {
+	            try
+	            {
+	                if (this._error_off) throw new InvalidOperationException("Operation mount node rotate \"Capture\" bot failed!");
+	
+	                //-----
+	                List<bool> result = captures.Select(index => index.result).ToList();
+	                double result_true = result.FindAll(index => index.Equals(true)).Count();
+	                double result_false = result.FindAll(index => index.Equals(false)).Count();
+	                double result_all = result.Count();
+	
+	                double formula = -((result_true / result_all) * (Math.Log2(result_true / result_all)));
+	                formula -= ((result_false / result_all) * (Math.Log2(result_false / result_all)));
+	                if (double.IsNaN(formula)) formula = 0;
+	
+	                double profit_environment = MountEnvironment(captures, formula);
+	                double profit_flash = MountFlash(captures, formula);
+	
+	                string node = string.Empty;
+	                if ((formula == 0) && (result_false == 0)) node = CAPTURE;
+	                if ((formula == 0) && (result_true == 0)) node = DIDNT_CAPTURE;
+	                if ((formula != 0) && (profit_environment > profit_flash)) node = ENVIRONMENT;
+	                if ((formula != 0) && (profit_flash > profit_environment)) node = FLASH;
+	                if ((formula != 0) && (profit_flash == profit_environment))
+	                {
+	                    if (Array.IndexOf(this._fifo.ToArray(), ENVIRONMENT) == -1) node = ENVIRONMENT;
+	                    else node = FLASH;
+	                }
+	
+	                //-----
+	                if (!((node == CAPTURE) || (node == DIDNT_CAPTURE))) this._fifo.Add(node);
+	
+	                return node;
+	            }
+	            catch (Exception ex)
+	            {
+	                this.error_message = ex.Message;
+	                this.OnError?.Invoke(this, this.error_message);
+	                return string.Empty;
+	            }
+	        }
+	
+	        public string MountNodeFlash(List<Capture> captures)
+	        {
+	            try
+	            {
+	                if (this._error_off) throw new InvalidOperationException("Operation mount node rotate \"Capture\" bot failed!");
+	
+	                //-----
+	                List<bool> result = captures.Select(index => index.result).ToList();
+	                double result_true = result.FindAll(index => index.Equals(true)).Count();
+	                double result_false = result.FindAll(index => index.Equals(false)).Count();
+	                double result_all = result.Count();
+	
+	                double formula = -((result_true / result_all) * (Math.Log2(result_true / result_all)));
+	                formula -= ((result_false / result_all) * (Math.Log2(result_false / result_all)));
+	                if (double.IsNaN(formula)) formula = 0;
+	
+	                double profit_environment = MountEnvironment(captures, formula);
+	                double profit_rotate = MountRotate(captures, formula);
+	
+	                string node = string.Empty;
+	                if ((formula == 0) && (result_false == 0)) node = CAPTURE;
+	                if ((formula == 0) && (result_true == 0)) node = DIDNT_CAPTURE;
+	                if ((formula != 0) && (profit_environment > profit_rotate)) node = ENVIRONMENT;
+	                if ((formula != 0) && (profit_rotate > profit_environment)) node = ROTATE;
+	                if ((formula != 0) && (profit_rotate == profit_environment))
+	                {
+	                    if (Array.IndexOf(this._fifo.ToArray(), ENVIRONMENT) == -1) node = ENVIRONMENT;
+	                    else node = ROTATE;
+	                }
+	
+	                //-----
+	                if (!((node == CAPTURE) || (node == DIDNT_CAPTURE))) this._fifo.Add(node);
+	
+	                return node;
+	            }
+	            catch (Exception ex)
+	            {
+	                this.error_message = ex.Message;
+	                this.OnError?.Invoke(this, this.error_message);
+	                return string.Empty;
+	            }
+	        }
+	
+	        public double MountEnvironment(List<Capture> captures, double formula)
+	        {
+	            try
+	            {
+	                if (this._error_off) throw new InvalidOperationException("Operation mount environment \"Capture\" bot failed!");
+	
+	                List<bool> environment_light = captures.FindAll(index => index.environment == LIGHT).Select(index => index.result).ToList();
+	                double environment_light_true = environment_light.FindAll(index => index.Equals(true)).Count();
+	                double environment_light_false = environment_light.FindAll(index => index.Equals(false)).Count();
+	                int quantity_light = 0;
+	                quantity_light = environment_light.Count();
+	
+	                double formula_environment_light = -((environment_light_true / quantity_light) * (Math.Log2(environment_light_true / quantity_light)));
+	                formula_environment_light -= ((environment_light_false / quantity_light) * (Math.Log2(environment_light_false / quantity_light)));
+	                if (double.IsNaN(formula_environment_light)) formula_environment_light = 0;
+	
+	                List<bool> environment_dark = captures.FindAll(index => index.environment == DARK).Select(index => index.result).ToList();
+	                double environment_dark_true = environment_dark.FindAll(index => index.Equals(true)).Count();
+	                double environment_dark_false = environment_dark.FindAll(index => index.Equals(false)).Count();
+	                int quantity_dark = 0;
+	                quantity_dark = environment_dark.Count();
+	
+	                double formular_environment_dark = -((environment_dark_true / quantity_dark) * (Math.Log2(environment_dark_true / quantity_dark)));
+	                formular_environment_dark -= ((environment_dark_false / quantity_dark) * (Math.Log2(environment_dark_false / quantity_dark)));
+	                if (double.IsNaN(formular_environment_dark)) formular_environment_dark = 0;
+	
+	                double mount_environment_light = (((quantity_light) / (quantity_light + quantity_dark)) * formula_environment_light);
+	                if (double.IsNaN(mount_environment_light)) mount_environment_light = 0;
+	                double mount_environment_dark = (((quantity_dark) / (quantity_light + quantity_dark)) * formular_environment_dark);
+	                if (double.IsNaN(mount_environment_dark)) mount_environment_dark = 0;
+	                double profit_environment = formula - mount_environment_light - mount_environment_dark;
+	                if (double.IsNaN(profit_environment)) profit_environment = 0;
+	
+	                return profit_environment;
+	            }
+	            catch (Exception ex)
+	            {
+	                this.error_message = ex.Message;
+	                this.OnError?.Invoke(this, this.error_message);
+	                return -1;
+	            }
+	        }
+	
+	        public double MountRotate(List<Capture> captures, double formula)
+	        {
+	            try
+	            {
+	                if (this._error_off) throw new InvalidOperationException("Operation mount rotate \"Capture\" bot failed!");
+	
+	                List<bool> rotate_front = captures.FindAll(index => index.rotate == FRONT).Select(index => index.result).ToList();
+	                double rotate_front_true = rotate_front.FindAll(index => index.Equals(true)).Count();
+	                double rotate_front_false = rotate_front.FindAll(index => index.Equals(false)).Count();
+	                int quantity_front = 0;
+	                quantity_front = rotate_front.Count();
+	
+	                double formula_rotate_front = -((rotate_front_true / quantity_front) * (Math.Log2(rotate_front_true / quantity_front)));
+	                formula_rotate_front -= ((rotate_front_false / quantity_front) * (Math.Log2(rotate_front_false / quantity_front)));
+	                if (double.IsNaN(formula_rotate_front)) formula_rotate_front = 0;
+	
+	                List<bool> rotate_rear = captures.FindAll(index => index.rotate == REAR).Select(index => index.result).ToList();
+	                double rotate_rear_true = rotate_rear.FindAll(index => index.Equals(true)).Count();
+	                double rotate_rear_false = rotate_rear.FindAll(index => index.Equals(false)).Count();
+	                int quantity_rear = 0;
+	                quantity_rear = rotate_rear.Count();
+	
+	                double formula_rotate_rear = -((rotate_rear_true / quantity_rear) * (Math.Log2(rotate_rear_true / quantity_rear)));
+	                formula_rotate_rear -= ((rotate_rear_false / quantity_rear) * (Math.Log2(rotate_rear_false / quantity_rear)));
+	                if (double.IsNaN(formula_rotate_rear)) formula_rotate_rear = 0;
+	
+	                double mount_rotate_front = (((quantity_front) / (quantity_front + quantity_rear)) * formula_rotate_front);
+	                if (double.IsNaN(mount_rotate_front)) mount_rotate_front = 0;
+	                double mount_rotate_rear = (((quantity_rear) / (quantity_front + quantity_rear)) * formula_rotate_rear);
+	                if (double.IsNaN(mount_rotate_rear)) mount_rotate_rear = 0;
+	                double profit_rotate = formula - mount_rotate_front - mount_rotate_rear;
+	                if (double.IsNaN(profit_rotate)) profit_rotate = 0;
+	
+	                return profit_rotate;
+	            }
+	            catch (Exception ex)
+	            {
+	                this.error_message = ex.Message;
+	                this.OnError?.Invoke(this, this.error_message);
+	                return -1;
+	            }
+	        }
+	
+	        public double MountFlash(List<Capture> captures, double formula)
+	        {
+	            try
+	            {
+	                if (this._error_off) throw new InvalidOperationException("Operation picker command \"Bot\" view model failed!");
+	
+	                List<bool> flash_on = captures.FindAll(index => index.flash == ON).Select(index => index.result).ToList();
+	                double flash_on_true = flash_on.FindAll(index => index.Equals(true)).Count();
+	                double flash_on_false = flash_on.FindAll(index => index.Equals(false)).Count();
+	                int quantity_on = 0;
+	                quantity_on = flash_on.Count();
+	
+	                double formula_flash_on= -((flash_on_true / quantity_on) * (Math.Log2(flash_on_true / quantity_on)));
+	                formula_flash_on -= ((flash_on_false / quantity_on) * (Math.Log2(flash_on_false / quantity_on)));
+	                if (double.IsNaN(formula_flash_on)) formula_flash_on = 0;
+	
+	                List<bool> flash_off = captures.FindAll(index => index.flash == OFF).Select(index => index.result).ToList();
+	                double flash_off_true = flash_off.FindAll(index => index.Equals(true)).Count();
+	                double flash_off_false = flash_off.FindAll(index => index.Equals(false)).Count();
+	                int quantity_off = 0;
+	                quantity_off = flash_off.Count();
+	
+	                double formula_flash_off = -((flash_off_true / quantity_off) * (Math.Log2(flash_off_true / quantity_off)));
+	                formula_flash_off -= ((flash_off_false / quantity_off) * (Math.Log2(flash_off_false / quantity_off)));
+	                if (double.IsNaN(formula_flash_off)) formula_flash_off = 0;
+	
+	                List<bool> flash_auto = captures.FindAll(index => index.flash == AUTO).Select(index => index.result).ToList();
+	                double flash_auto_true = flash_auto.FindAll(index => index.Equals(true)).Count();
+	                double flash_auto_false = flash_auto.FindAll(index => index.Equals(false)).Count();
+	                int quantity_auto = 0;
+	                quantity_auto = flash_auto.Count();
+	
+	                double formula_flash_auto = -((flash_auto_true / quantity_auto) * (Math.Log2(flash_auto_true / quantity_auto)));
+	                formula_flash_auto -= ((flash_auto_false / quantity_auto) * (Math.Log2(flash_auto_false / quantity_auto)));
+	                if (double.IsNaN(formula_flash_auto)) formula_flash_auto = 0;
+	
+	                double mount_flash_on = (((quantity_on) / (quantity_on + quantity_off + quantity_auto)) * formula_flash_on);
+	                if (double.IsNaN(mount_flash_on)) mount_flash_on = 0;
+	                double mount_flash_off = (((quantity_off) / (quantity_on + quantity_off + quantity_auto)) * formula_flash_off);
+	                if (double.IsNaN(mount_flash_off)) mount_flash_off = 0;
+	                double mount_flash_auto = (((quantity_auto) / (quantity_on + quantity_off + quantity_auto)) * formula_flash_auto);
+	                if (double.IsNaN(mount_flash_auto)) mount_flash_auto = 0;
+	                double profit_flash = formula - mount_flash_on - mount_flash_off - mount_flash_auto;
+	                if (double.IsNaN(profit_flash)) profit_flash = 0;
+	
+	                return profit_flash;
+	            }
+	            catch (Exception ex)
+	            {
+	                this.error_message = ex.Message;
+	                this.OnError?.Invoke(this, this.error_message);
+	                return -1;
+	            }
+	        }
+
+
+        private (int, int) GetEdge(DecisionTree decision_tree)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation edge level \"Capture\" bot failed!");
+
+                HashSet<string> fifo = new HashSet<string>();
+                fifo = this._fifo;
+                int node = fifo.Count();
+                int number = 1;
+
+                for (int quantity = 0; quantity < node; quantity++)
+                {
+                    if (Array.IndexOf(this._fifo.ToArray(), ENVIRONMENT) == quantity)
+                    {
+                        if (number == 1) number += 2;
+                    }
+                    if (Array.IndexOf(this._fifo.ToArray(), ROTATE) == quantity) 
+                    {
+                        if (number == 1) number += 2;
+                        if (number == 2) number += 2;
+                    }
+                    if (Array.IndexOf(this._fifo.ToArray(), FLASH) == quantity)
+                    {
+                        if (number == 1) number += 3;
+                    }
+                }
+
+                int min = 0;
+                int max = 0;
+                return (min, max);
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return (-1, -1);
+            }
+        }
+
+        private DecisionTree Write(DecisionTree decision_tree, int level, int order, string value, int children)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation picker command \"Bot\" view model failed!");
+
+                DecisionTree decision = new DecisionTree();
+                decision.level = level;
+                decision.order = order;
+                decision.node = value;
+                decision.host = decision_tree;
+
+                List<DecisionTree> childrens = new List<DecisionTree>();
+                for (int quantity = 0; quantity < children; quantity++)
+                {
+                    DecisionTree tree = new DecisionTree();
+                    tree = null;
+                    childrens.Add(tree);
+                }
+                if (childrens.Count == 0) decision.children = null;
+                else decision.children = childrens;
+
+                //-----
+                this._is_insert = true;
+                this._order = order;
+
+                return decision;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return null;
+            }
+        }
+
+        private DecisionTree WriteNode(List<Capture> captures, DecisionTree decision_tree, int level, int order)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation picker command \"Bot\" view model failed!");
+
+                DecisionTree decision = new DecisionTree();
+
+                //-----
+                int fifo = 0;
+                foreach (string item in this._fifo)
+                {
+                    if (fifo == 0)
+                    {
+                        if (Array.IndexOf(this._fifo.ToArray(), ENVIRONMENT) == fifo)
+                        {
+                            string filter = string.Empty;
+                            filter = GetFilter(decision_tree, ENVIRONMENT);
+                            List<Capture> arrest = new List<Capture>();
+                            arrest = captures.FindAll(index => index.environment == filter);
+                            string node = MountNodeEnvironment(arrest);
+                            int quantity = GetList(arrest, node);
+                            decision = Write(decision_tree, level, order, node, quantity);
+                            return decision;
+                        }
+                        if (Array.IndexOf(this._fifo.ToArray(), ROTATE) == fifo)
+                        {
+                            string filter = string.Empty;
+                            filter = GetFilter(decision_tree, ROTATE);
+                            List<Capture> arrest = new List<Capture>();
+                            arrest = captures.FindAll(index => index.environment == filter);
+                            string node = MountNodeRotate(arrest);
+                            int quantity = GetList(arrest, node);
+                            decision = Write(decision_tree, level, order, node, quantity);
+                            return decision;
+                        }
+                        if (Array.IndexOf(this._fifo.ToArray(), FLASH) == fifo)
+                        {
+                            string filter = string.Empty;
+                            filter = GetFilter(decision_tree, FLASH);
+                            List<Capture> arrest = new List<Capture>();
+                            arrest = captures.FindAll(index => index.flash == filter);
+                            string node = MountNodeFlash(arrest);
+                            int quantity = GetList(arrest, node);
+                            decision = Write(decision_tree, level, order, node, quantity);
+                            return decision;
+                        }
+                    }
+                    if (fifo == 1)
+                    {
+                        if (Array.IndexOf(this._fifo.ToArray(), ENVIRONMENT) == fifo)
+                        {
+                            if (Array.IndexOf(this._fifo.ToArray(), FLASH) == 0)
+                            {
+                                string filter = string.Empty;
+                                filter = GetFilter(decision_tree.host, FLASH);
+                                List<Capture> arrest1 = new List<Capture>();
+                                arrest1 = captures.FindAll(index => index.flash == filter);
+
+                                //-----
+                                filter = GetFilter(decision_tree, ENVIRONMENT);
+                                arrest1 = arrest1.FindAll(index => index.environment == filter);
+
+                                //-----
+                                string node = MountNodeFlash(arrest1);
+                                int quantity = GetList(arrest1, node);
+                                decision = Write(decision_tree, level, order, node, quantity);
+                                return decision;
+                            }
+                            if (Array.IndexOf(this._fifo.ToArray(), ROTATE) == 0)
+                            {
+                                string filter = string.Empty;
+
+                                //-----
+                                filter = GetFilter(decision_tree.host, ROTATE);
+                                List<Capture> arrest1 = new List<Capture>();
+                                arrest1 = captures.FindAll(index => index.rotate == filter);
+
+                                //-----
+                                filter = GetFilter(decision_tree, ENVIRONMENT);
+                                arrest1 = arrest1.FindAll(index => index.environment == filter);
+
+                                //-----
+                                string node = MountNodeFlash(arrest1);
+                                int quantity = GetList(arrest1, node);
+                                decision = Write(decision_tree, level, order, node, quantity);
+                                return decision;
+                            }
+                        }
+                        if (Array.IndexOf(this._fifo.ToArray(), ROTATE) == fifo) { }
+                        if (Array.IndexOf(this._fifo.ToArray(), FLASH) == fifo) { }
+                    }
+                    if (fifo == 2)
+                    {
+                        if (Array.IndexOf(this._fifo.ToArray(), ENVIRONMENT) == fifo) { }
+                        if (Array.IndexOf(this._fifo.ToArray(), ROTATE) == fifo) { }
+                        if (Array.IndexOf(this._fifo.ToArray(), FLASH) == fifo) { }
+                    }
+                    if (fifo == 3)
+                    {
+                        if (Array.IndexOf(this._fifo.ToArray(), ENVIRONMENT) == fifo) { }
+                        if (Array.IndexOf(this._fifo.ToArray(), ROTATE) == fifo) { }
+                        if (Array.IndexOf(this._fifo.ToArray(), FLASH) == fifo) { }
+                    }
+                    fifo++;
+                }
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return null;
+            }
+        }
+
+        public async Task<object> Load()
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation load \"Capture\" bot failed!");
+
+                DecisionTree decision_tree = null;
+                string[] picker = await Picker();
+                List<Capture> captures = new List<Capture>();
+                captures = await ReadCapture(picker);
+                int node = GetNode(captures);
+                for (int quantity = 1; quantity <= node; quantity++)
+                {
+                    DecisionTree node_tree = new DecisionTree();
+                    this._is_insert = false;
+                    node_tree = Mount(captures, decision_tree, decision_tree);
+                    if (node_tree != null) decision_tree = node_tree;
+                }
+
+                return decision_tree;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return null;
+            }
+        }
+        
+        
+                private DecisionTree Mount(List<Capture> captures, DecisionTree decision_tree, DecisionTree decision_host)
+	        {
+	            try
+	            {
+	                if (this._error_off) throw new InvalidOperationException("Operation mount \"Capture\" bot failed!");
+	
+	                //-----
+	                DecisionTree decision = new DecisionTree();
+	                bool control_environment = false;
+	                bool control_rotate = false;
+	                bool control_flash = false;
+	
+	                if ((decision_host == null) && (decision_tree == null))
+	                {
+	                    string node = MountRoot(captures);
+	                    int quantity  = GetList(captures, node);
+	                    decision = Write(decision_host, 0, 1, node, quantity);
+	                    return decision;
+	                }
+	                else if ((decision_host != null) && (decision_tree == null))
+	                {
+	                    //-----
+	                    int order = this._order + 1;
+	                    int level = this._level;
+	
+	                    decision = WriteNode(captures, decision_host, level, order);
+	                    if (decision != null) return decision;
+	                }
+	
+	                //-----
+	                bool light = false;
+	                bool dark = false;
+	                bool front = false;
+	                bool rear = false;
+	                bool on = false;
+	                bool off = false;
+	                bool auto = false;
+	
+	                if (decision_tree.node.Contains(ENVIRONMENT))
+	                {
+	                    if (decision_tree.children[(int)Environment.Light] != null) 
+	                        decision_tree.children[(int)Environment.Light] = Mount(captures, decision_tree.children[(int)Environment.Light], decision_tree);
+	                    else light = true;
+	                    if (decision_tree.children[(int)Environment.Dark] != null)
+	                        decision_tree.children[(int)Environment.Dark] = Mount(captures, decision_tree.children[(int)Environment.Dark], decision_tree);
+	                    else dark = true;
+	                }
+	                else control_environment = true;
+	                if (decision_tree.node.Contains(ROTATE))
+	                {
+	                    if (decision_tree.children[(int)Rotate.Front] != null)
+	                        decision_tree.children[(int)Rotate.Front] = Mount(captures, decision_tree.children[(int)Rotate.Front], decision_tree);
+	                    else front = true;
+	                    if (decision_tree.children[(int)Rotate.Rear] != null)
+	                        decision_tree.children[(int)Rotate.Rear] = Mount(captures, decision_tree.children[(int)Rotate.Rear], decision_tree);
+	                    else rear = false;
+	                }
+	                else control_rotate = true;
+	                if (decision_tree.node.Contains(FLASH))
+	                {
+	                    if (decision_tree.children[(int)Flash.On] != null) 
+	                        decision_tree.children[(int)Flash.On] = Mount(captures, decision_tree.children[(int)Flash.On], decision_tree);
+	                    else on = true;
+	                    if (decision_tree.children[(int)Flash.Off] != null)
+	                        decision_tree.children[(int)Flash.Off] = Mount(captures, decision_tree.children[(int)Flash.Off], decision_tree);
+	                    else off = true;
+	                    if (decision_tree.children[(int)Flash.Auto] != null)
+	                        decision_tree.children[(int)Flash.Auto] = Mount(captures, decision_tree.children[(int)Flash.Auto], decision_tree);
+	                    else auto = true;
+	                }
+	                else control_flash = true;
+	
+	                //-----
+	                decision = decision_tree;
+	
+	                //-----
+	                if (!this._is_insert)
+	                {
+	                    if (!control_environment)
+	                    {
+	                        if (((light) && (dark)) || ((!light) && (dark)))
+	                            return Rule(captures, decision_tree);
+	                    }
+	                    if (!control_rotate)
+	                    {
+	                        if (((front) && (rear)) || ((!front) && (rear)))
+	                            return Rule(captures, decision_tree);
+	                    }
+	                    if (!control_flash)
+	                    {
+	                        if (((on) && (off) && (auto)) || 
+	                            ((!on) && (off) && (off)) ||
+	                            ((!on) && (!off) && (off)))
+	                            return Rule(captures, decision_tree);
+	                    }
+	                }
+	                return decision;
+	            }
+	            catch (Exception ex)
+	            {
+	                this.error_message = ex.Message;
+	                this.OnError?.Invoke(this, this.error_message);
+	                return null;
+	            }
+	        }
+	
+	        private DecisionTree RuleEnvironment(List<Capture> captures, DecisionTree decision_tree)
+	        {
+	            try
+	            {
+	                if (this._error_off) throw new InvalidOperationException("Operation rule environment \"Capture\" bot failed!");
+	
+	                DecisionTree decision = new DecisionTree();
+	                decision = decision_tree;
+	
+	                //-----
+	                int level = decision_tree.level;
+	                if (level == 1)
+	                {
+	                    level++;
+	                    if (decision.children[(int)Environment.Light] == null)
+	                    {
+	                        this._level = level;
+	                        decision.children[(int)Environment.Light] = Mount(captures, decision_tree.children[(int)Environment.Light], decision_tree);
+	                    } else if (decision.children[(int)Environment.Dark] == null)
+	                    {
+	                        this._level = level;
+	                        decision.children[(int)Environment.Dark] = Mount(captures, decision_tree.children[(int)Environment.Dark], decision_tree);
+	                    }
+	                }
+	                else
+	                {
+	                    if ((decision.node.Contains(CAPTURE) || decision.node.Contains(DIDNT_CAPTURE)))
+	                        return decision_tree;
+	                    else
+	                    {
+	                        level++;
+	                        if (decision.children[(int)Environment.Light] == null)
+	                        {
+	                            this._level = level;
+	                            decision.children[(int)Environment.Light] = Mount(captures, decision_tree.children[(int)Environment.Light], decision_tree);
+	                        } else if (decision.children[(int)Environment.Dark] == null)
+	                        {
+	                            this._level = level;
+	                            decision.children[(int)Environment.Dark] = Mount(captures, decision_tree.children[(int)Environment.Dark], decision_tree);
+	                        }
+	                    }
+	                }
+	
+	                return decision;
+	            }
+	            catch (Exception ex)
+	            {
+	                this.error_message = ex.Message;
+	                this.OnError?.Invoke(this, this.error_message);
+	                return null;
+	            }
+	        }
+	
+	        private DecisionTree RuleRotate(List<Capture> captures, DecisionTree decision_tree)
+	        {
+	            try
+	            {
+	                if (this._error_off) throw new InvalidOperationException("Operation rule rotate \"Capture\" bot failed!");
+	
+	                DecisionTree decision = new DecisionTree();
+	                decision = decision_tree;
+	
+	                //-----
+	                int level = decision_tree.level;
+	                if (level == 1)
+	                {
+	                    level++;
+	                    if (decision.children[(int)Rotate.Front] == null)
+	                    {
+	                        this._level = level;
+	                        decision.children[(int)Rotate.Front] = Mount(captures, decision_tree.children[(int)Rotate.Front], decision_tree);
+	                    } else if (decision.children[(int)Rotate.Rear] == null)
+	                    {
+	                        this._level = level;
+	                        decision.children[(int)Rotate.Rear] = Mount(captures, decision_tree.children[(int)Rotate.Rear], decision_tree);
+	                    }
+	                }
+	                else
+	                {
+	                    if ((decision.node.Contains(CAPTURE) || decision.node.Contains(DIDNT_CAPTURE)))
+	                        return decision_tree;
+	                    else
+	                    {
+	                        level++;
+	                        if (decision.children[(int)Rotate.Front] == null)
+	                        {
+	                            this._level = level;
+	                            decision.children[(int)Rotate.Front] = Mount(captures, decision_tree.children[(int)Rotate.Front], decision_tree);
+	                        } else if (decision.children[(int)Rotate.Rear] == null)
+	                        {
+	                            this._level = level;
+	                            decision.children[(int)Rotate.Rear] = Mount(captures, decision_tree.children[(int)Rotate.Rear], decision_tree);
+	                        }
+	                    }
+	                }
+	
+	                return decision;
+	            }
+	            catch (Exception ex)
+	            {
+	                this.error_message = ex.Message;
+	                this.OnError?.Invoke(this, this.error_message);
+	                return null;
+	            }
+	        }
+	
+	        private DecisionTree RuleFlash(List<Capture> captures, DecisionTree decision_tree)
+	        {
+	            try
+	            {
+	                if (this._error_off) throw new InvalidOperationException("Operation rule flash \"Capture\" bot failed!");
+	
+	                DecisionTree decision = new DecisionTree();
+	                decision = decision_tree;
+	
+	                //-----
+	                int level = decision_tree.level;
+	                if (level == 0)
+	                {
+	                    level++;
+	                    if (decision.children[(int)Flash.On] == null)
+	                    {
+	                        this._level = level;
+	                        decision.children[(int)Flash.On] = Mount(captures, decision_tree.children[(int)Flash.On], decision_tree);
+	                    } else if (decision.children[(int)Flash.Off] == null)
+	                    {
+	                        this._level = level;
+	                        decision.children[(int)Flash.Off] = Mount(captures, decision_tree.children[(int)Flash.Off], decision_tree);
+	                    } else if (decision.children[(int)Flash.Auto] == null)
+	                    {
+	                        this._level = level;
+	                        decision.children[(int)Flash.Auto] = Mount(captures, decision_tree.children[(int)Flash.Auto], decision_tree);
+	                    }
+	                }
+	                else
+	                {
+	                    if ((decision.node.Contains(CAPTURE) || decision.node.Contains(DIDNT_CAPTURE)))
+	                        return decision_tree;
+	                    else
+	                    {
+	                        level++;
+	                        if (decision.children[(int)Flash.On] == null)
+	                        {
+	                            this._level = level;
+	                            decision.children[(int)Flash.On] = Mount(captures, decision_tree.children[(int)Flash.On], decision_tree);
+	                        }
+	                        else if (decision.children[(int)Flash.Off] == null)
+	                        {
+	                            this._level = level;
+	                            decision.children[(int)Flash.Off] = Mount(captures, decision_tree.children[(int)Flash.Off], decision_tree);
+	                        }
+	                        else if (decision.children[(int)Flash.Auto] == null)
+	                        {
+	                            this._level = level;
+	                            decision.children[(int)Flash.Auto] = Mount(captures, decision_tree.children[(int)Flash.Auto], decision_tree);
+	                        }
+	                    }
+	                }
+	
+	                return decision;
+	            }
+	            catch (Exception ex)
+	            {
+	                this.error_message = ex.Message;
+	                this.OnError?.Invoke(this, this.error_message);
+	                return null;
+	            }
+	        }
+	
+	        private DecisionTree Rule(List<Capture> captures, DecisionTree decision_tree)
+	        {
+	            try
+	            {
+	                if (this._error_off) throw new InvalidOperationException("Operation rule \"Capture\" bot failed!");
+	
+	                DecisionTree decision = new DecisionTree();
+	                decision = decision_tree;
+	
+	                if (decision_tree.node.Contains(ENVIRONMENT))
+	                {
+	                    decision = RuleEnvironment(captures, decision_tree);
+	                }
+	                if (decision_tree.node.Contains(ROTATE))
+	                {
+	                    decision = RuleRotate(captures, decision_tree);
+	                }
+	                if (decision_tree.node.Contains(FLASH))
+	                {
+	                    decision = RuleFlash(captures, decision_tree);
+	                }
+	
+	                return decision;
+	            }
+	            catch (Exception ex)
+	            {
+	                this.error_message = ex.Message;
+	                this.OnError?.Invoke(this, this.error_message);
+	                return null;
+	            }
+	        }
+

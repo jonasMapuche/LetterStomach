@@ -25,8 +25,8 @@ namespace LetterStomach.Services
         #endregion
 
         #region VARIABLE
-        //private string URL = "http://192.168.0.3:8885/";
-        private string URL = "http://api.stomach.com.br:8885/";
+        private string URL = "http://192.168.0.3:8885/";
+        //private string URL = "http://api.stomach.com.br:8885/";
 
         private HttpClient _client;
         #endregion
@@ -89,7 +89,7 @@ namespace LetterStomach.Services
             }
         }
 
-        public async Task<Locution> HttpGo(GoMessage message)
+        public async Task<List<Locution>> HttpGo(GoMessage message)
         {
             try
             {
@@ -99,10 +99,10 @@ namespace LetterStomach.Services
                 string uri = URL + path;
                 string json = JsonConvert.SerializeObject(message);
                 var data = new StringContent(json, Encoding.UTF8, "application/json");
-                using HttpResponseMessage response = await _client.PostAsync(URL, data);
+                using HttpResponseMessage response = await _client.PostAsync(uri, data);
                 string result = await response.Content.ReadAsStringAsync();
-                Locution request = new Locution();
-                request = JsonConvert.DeserializeObject<Locution>(result);
+                List<Locution> request = new List<Locution>();
+                request = JsonConvert.DeserializeObject<List<Locution>>(result);
                 return request;
             }
             catch (Exception ex)
