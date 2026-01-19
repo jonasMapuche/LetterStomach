@@ -33,6 +33,24 @@ namespace LetterStomach.Services
         private ITextSpeakService _text_speak_service;
         #endregion
 
+        #region CONSTRUCTOR
+        public PerceptionService(IRecordService recordService)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation contructor \"Perception\" service failed!");
+                else this.error_message = string.Empty;
+
+                this._record_service = recordService;
+                this._record_service.OnError += OnError;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+            }
+        }
+        #endregion
+
         #region GPS
         public async Task<Location> GetCurrentLocation()
         {
@@ -216,7 +234,6 @@ namespace LetterStomach.Services
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation start record wav \"Perception\" service failed!");
-                this._record_service.OnError += OnError;
                 this._record_service.StartRecordWav();
             }
             catch (Exception ex)

@@ -1,0 +1,64 @@
+
+        private async Task<string> Scan(string language)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation scan \"Share\" bot failed!");
+
+                HashSet<string> scan = VAR_SCAN
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                HashSet<string> dont_scan = VAR_DONT_SCAN
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                HashSet<string> choose = VAR_CHOOSE
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                HashSet<string> options = VAR_OPTIONS
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                string ask = $"{choose} {options}: \"{scan}\" or \"{dont_scan}\".";
+                return ask;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return string.Empty;
+            }
+        }
+
+        private async Task<string> Scan(string language, string parameter)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation scan \"Share\" bot failed!");
+
+                HashSet<string> scan = VAR_SCAN
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                HashSet<string> dont_scan = VAR_DONT_SEND
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                HashSet<string> bluetooth = VAR_BLUETOOTH
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                string ask = string.Empty;
+                if (Array.IndexOf(scan.ToArray(), parameter) != -1) ask = $"{scan} {bluetooth}.";
+                if (Array.IndexOf(dont_scan.ToArray(), parameter) != -1) ask = $"{dont_scan} {bluetooth}.";
+                return ask;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return string.Empty;
+            }
+        }

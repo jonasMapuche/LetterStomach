@@ -223,17 +223,17 @@ namespace LetterStomach.Services
             {
                 if (this._error_off) throw new InvalidOperationException("Operation clear \"Message\" service failed!");
 
-                if (language == ENGLISH.Uppercase)
+                if ((language == ENGLISH.Uppercase) || (language == ENGLISH.Lowercase))
                     this._messages_english.Clear();
-                if (language == DEUTSCH.Uppercase)
+                if ((language == DEUTSCH.Uppercase) || (language == DEUTSCH.Lowercase))
                     this._messages_deutsch.Clear();
-                if (language == ITALIANO.Uppercase)
+                if ((language == ITALIANO.Uppercase) || (language == ITALIANO.Lowercase))
                     this._messages_italiano.Clear();
-                if (language == FRANCAIS.Uppercase)
+                if ((language == FRANCAIS.Uppercase) || (language == FRANCAIS.Lowercase))
                     this._messages_francais.Clear();
-                if (language == ESPANOL.Uppercase)
+                if ((language == ESPANOL.Uppercase) || (language== ESPANOL.Lowercase))
                     this._messages_espanol.Clear();
-                if (language == PORTUGUES.Uppercase)
+                if ((language == PORTUGUES.Uppercase) || (language == PORTUGUES.Lowercase))
                     this._messages_portugues.Clear();
             }
             catch (Exception ex)
@@ -249,15 +249,15 @@ namespace LetterStomach.Services
             {
                 if (this._error_off) throw new InvalidOperationException("Operation messages \"Message\" service failed!");
 
-                if (language == ENGLISH.Uppercase)
+                if ((language == ENGLISH.Uppercase) || (language == ENGLISH.Lowercase))
                     return this._messages_english;
-                if (language == DEUTSCH.Uppercase)
+                if ((language == DEUTSCH.Uppercase) || (language == DEUTSCH.Lowercase))
                     return this._messages_deutsch;
-                if (language == ITALIANO.Uppercase)
+                if ((language == ITALIANO.Uppercase) || (language == ITALIANO.Lowercase))
                     return _messages_italiano;
-                if (language == FRANCAIS.Uppercase)
+                if ((language == FRANCAIS.Uppercase) || (language == FRANCAIS.Lowercase))
                     return this._messages_francais;
-                if (language == ESPANOL.Uppercase)
+                if ((language == ESPANOL.Uppercase) || (language== ESPANOL.Lowercase))
                     return this._messages_espanol;
                 return this._messages_portugues;
             }
@@ -322,23 +322,49 @@ namespace LetterStomach.Services
             {
                 if (this._error_off) throw new InvalidOperationException("Operation remove \"Message\" service failed!");
 
-                if (language == ENGLISH.Uppercase)
+                if ((language == ENGLISH.Uppercase) || (language == ENGLISH.Lowercase))
                     this._bots_english.Clear();
-                if (language == DEUTSCH.Uppercase)
+                if ((language == DEUTSCH.Uppercase) || (language == DEUTSCH.Lowercase))
                     this._bots_deutsch.Clear();
-                if (language == ITALIANO.Uppercase)
+                if ((language == ITALIANO.Uppercase) || (language == ITALIANO.Lowercase))
                     this._bots_italiano.Clear();
-                if (language == FRANCAIS.Uppercase)
+                if ((language == FRANCAIS.Uppercase) || (language == FRANCAIS.Lowercase))
                     this._bots_francais.Clear();
-                if (language == ESPANOL.Uppercase)
+                if ((language == ESPANOL.Uppercase) || (language == ESPANOL.Lowercase))
                     this._bots_espanol.Clear();
-                if (language == PORTUGUES.Uppercase)
+                if ((language == PORTUGUES.Uppercase) || (language == PORTUGUES.Lowercase))
                     this._bots_portugues.Clear();
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
                 this.OnError?.Invoke(this, this.error_message);
+            }
+        }
+
+        public List<Message> Bots(string language)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation bots \"Message\" service failed!");
+
+                if ((language == ENGLISH.Uppercase) || (language == ENGLISH.Lowercase))
+                    return this._bots_english;
+                if ((language == DEUTSCH.Uppercase) || (language== DEUTSCH.Lowercase))
+                    return this._bots_deutsch;
+                if ((language == ITALIANO.Uppercase) || (language == ITALIANO.Lowercase))
+                    return this._bots_italiano;
+                if ((language == FRANCAIS.Uppercase) || (language == FRANCAIS.Lowercase))
+                    return this._bots_francais;
+                if ((language == ESPANOL.Uppercase) || (language == ESPANOL.Lowercase))
+                    return this._bots_espanol;
+                return this._bots_portugues;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return null;
             }
         }
         #endregion

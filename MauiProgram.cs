@@ -44,6 +44,14 @@ namespace LetterStomach
             builder.Services.AddSingleton<MessageService>();
             builder.Services.AddSingleton<SingletonService>();
 
+            builder.Services.AddTransient<BotService>();
+            builder.Services.AddTransient<HttpService>();
+            builder.Services.AddTransient<ModelService>();
+            builder.Services.AddTransient<MongoDBService>();
+            builder.Services.AddTransient<PerceptionService>();
+            builder.Services.AddTransient<SQLiteService>();
+            builder.Services.AddTransient<TextToSpeakService>();
+            builder.Services.AddTransient<WordEmbeddingService>();
 #if DEBUG
             builder.Logging.AddDebug();
 #endif

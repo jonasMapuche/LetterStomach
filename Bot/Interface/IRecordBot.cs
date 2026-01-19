@@ -2,11 +2,10 @@
 
 namespace LetterStomach.Bot.Interface
 {
-    public interface ICaptureBot
+    public interface IRecordBot
     {
-        Task<string> Flash(string language);
-        Task<string> Rotate(string language);
-        Task<string> Capture(string language);
+        Task<string> Audio(string language);
+        Task<string> Stop(string language);
         Task<string> Choose(string language, List<Message> messages);
         Task<string> Load(string language, string parameter, List<Message> messages);
         event EventHandler<string> OnError;

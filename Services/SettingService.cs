@@ -140,6 +140,17 @@ namespace LetterStomach.Services
         private static readonly string turn_english = "turn";
         private static readonly string start_english = "start";
         private static readonly string dont_start_english = "do not start";
+        private static readonly string send_english = "send";
+        private static readonly string dont_send_english = "do not send";
+        private static readonly string scan_english = "scan";
+        private static readonly string is_english = "is";
+        private static readonly string choose_english = "choose";
+        private static readonly string connect_english = "connect";
+        private static readonly string share_english = "share";
+        private static readonly string write_english = "write";
+        private static readonly string end_english = "end";
+        private static readonly string terminate_english = "terminate";
+        private static readonly string turn_on_english = "turn on";
 
         private static readonly string gps_english = "gps";
         private static readonly string bluetooth_english = "bluetooth";
@@ -153,13 +164,17 @@ namespace LetterStomach.Services
         private static readonly string text_english = "text";
         private static readonly string flash_english = "flash";
         private static readonly string audio_english = "audio";
-
+        private static readonly string connection_english = "connection";
+        private static readonly string name_english = "name";
         private static readonly string on_english = "on";
         private static readonly string off_english = "off";
         private static readonly string auto_english = "auto";
-
         private static readonly string front_english = "front";
         private static readonly string rear_english = "rear";
+        private static readonly string options_english = "options";
+        private static readonly string bot_english = "bot";
+
+        private static readonly string what_english = "what";
 
         public Dictionary<string, string> Execute = new Dictionary<string, string>()
         {
@@ -177,6 +192,7 @@ namespace LetterStomach.Services
             { capture_english, english },
             { speak_english, english },
             { view_english, english },
+            { terminate_english, english },
         };
 
         public Dictionary<string, string> Load = new Dictionary<string, string>()
@@ -238,6 +254,11 @@ namespace LetterStomach.Services
             { save_english,english }
         };
 
+        public Dictionary<string, string> Write = new Dictionary<string, string>()
+        {
+            { write_english, english }
+        };
+
         public Dictionary<string, string> Activity = new Dictionary<string, string>()
         {
             { gps_english, english },
@@ -248,7 +269,18 @@ namespace LetterStomach.Services
             { mp3_english, english },
             { file_english, english },
             { vibration_english, english },
-            { phone_english, english }
+            { phone_english, english },
+            { audio_english, english },
+            { bot_english, english }
+        };
+
+        public Dictionary<string, string> Feature = new Dictionary<string, string>()
+        {
+            { on_english, english },
+            { off_english, english },
+            { auto_english, english },
+            { front_english, english },
+            { rear_english, english }  
         };
 
         public Dictionary<string, string> GPS = new Dictionary<string, string>()
@@ -329,7 +361,29 @@ namespace LetterStomach.Services
             { front_english, english },
             { rear_english, english },
             { capture_english, english },
+            { dont_capture_english, english },
+            { mp3_english, english },
+            { wav_english, english },
+            { stop_english, english },
+            { terminate_english, english }
+        };
+
+        public Dictionary<string, string> Catch_Camera = new Dictionary<string, string>()
+        {
+            { on_english, english },
+            { off_english, english },
+            { auto_english, english },
+            { front_english, english },
+            { rear_english, english },
+            { capture_english, english },
             { dont_capture_english, english }
+        };
+
+        public Dictionary<string, string> Catch_Record = new Dictionary<string, string>()
+        {
+            { mp3_english, english },
+            { wav_english, english },
+            { stop_english, english }
         };
 
         public Dictionary<string, string> Catch_Flash = new Dictionary<string, string>()
@@ -376,6 +430,11 @@ namespace LetterStomach.Services
             { turn_english, english }
         };
 
+        public Dictionary<string, string> Turn_On = new Dictionary<string, string>()
+        {
+            { turn_on_english, english }
+        };
+
         public Dictionary<string, string> Record_Audio = new Dictionary<string, string>()
         {
             { wav_english, english },
@@ -409,6 +468,93 @@ namespace LetterStomach.Services
         public Dictionary<string, string> Dont_Start = new Dictionary<string, string>()
         {
             { dont_start_english, english }
+        };
+
+        public Dictionary<string, string> Send = new Dictionary<string, string>()
+        {
+            { send_english, english }
+        };
+
+        public Dictionary<string, string> Dont_Send = new Dictionary<string, string>()
+        {
+            { dont_send_english, english }
+        };
+
+        public Dictionary<string, string> Load_Share = new Dictionary<string, string>()
+        {
+            { load_english, english },
+        };
+
+        public Dictionary<string, string> scan = new Dictionary<string, string>()
+        {
+            { scan_english, english },
+        };
+
+        public Dictionary<string, string> connect = new Dictionary<string, string>()
+        {
+            { connect_english, english },
+        };
+
+        public Dictionary<string, string> name = new Dictionary<string, string>()
+        {
+            { name_english, english },
+        };
+
+        public Dictionary<string, string> connection = new Dictionary<string, string>()
+        {
+            { connection_english, english },
+        };
+
+        public Dictionary<string, string> is_be = new Dictionary<string, string>()
+        {
+            { is_english, english },
+        };
+
+        public Dictionary<string, string> what = new Dictionary<string, string>()
+        {
+            { what_english, english },
+        };
+
+        public Dictionary<string, string> choose = new Dictionary<string, string>()
+        {
+            { choose_english, english },
+        };
+
+        public Dictionary<string, string> options = new Dictionary<string, string>()
+        {
+            { options_english, english },
+        };
+
+        public Dictionary<string, string> Share = new Dictionary<string, string>()
+        {
+            { share_english, english },
+        };
+
+        public Dictionary<string, string> Catch_Share = new Dictionary<string, string>()
+        {
+            { upload_english, english },
+            { bluetooth_english, english }
+        };
+
+        public Dictionary<string, string> Catch_Scan = new Dictionary<string, string>()
+        {
+            { scan_english, english },
+            { bluetooth_english, english }
+        };
+
+        public Dictionary<string, string> End = new Dictionary<string, string>()
+        {
+            { end_english, english }
+        };
+
+        public Dictionary<string, string> Bot = new Dictionary<string, string>()
+        {
+            { bot_english, english }
+        };
+
+        public Dictionary<string, string> Terminate = new Dictionary<string, string>()
+        {
+            { terminate_english, english }
         };
     }
 }

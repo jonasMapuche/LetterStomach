@@ -2,11 +2,13 @@
 using CommunityToolkit.Maui.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using LetterStomach.Interfaces;
 using LetterStomach.Models;
 using LetterStomach.Services;
 using LetterStomach.Services.Interfaces;
 using LetterStomach.Views;
 using MongoDB.Driver;
+using NaturalLanguage;
 using System.Windows.Input;
 
 namespace LetterStomach.ViewModels
@@ -35,6 +37,7 @@ namespace LetterStomach.ViewModels
         private string VAR_DECLARATIVE = SettingService.Instance.Declarative;
         private string VAR_VERB = SettingService.Instance.Verb;
         private string VAR_NOUN = SettingService.Instance.Noun;
+        private string VAR_ADJECTIVE = SettingService.Instance.Adjective;
         private string VAR_PREDICATE = SettingService.Instance.Predicate;
 
         private Dictionary<string, string> VAR_LOAD = SettingService.Instance.Load;
@@ -51,6 +54,10 @@ namespace LetterStomach.ViewModels
         private Dictionary<string, string> VAR_CAPTURE = SettingService.Instance.Capture;
         private Dictionary<string, string> VAR_SAVE = SettingService.Instance.Save;
         private Dictionary<string, string> VAR_TURN = SettingService.Instance.Turn;
+        private Dictionary<string, string> VAR_SHARE = SettingService.Instance.Share;
+        private Dictionary<string, string> VAR_FEATURE = SettingService.Instance.Feature;
+        private Dictionary<string, string> VAR_TERMINATE = SettingService.Instance.Terminate;
+        private Dictionary<string, string> VAR_TURN_ON = SettingService.Instance.Turn_On;
 
         private Dictionary<string, string> VAR_GPS = SettingService.Instance.GPS;
         private Dictionary<string, string> VAR_BLUETOOTH = SettingService.Instance.Bluetooth;
@@ -63,12 +70,19 @@ namespace LetterStomach.ViewModels
         private Dictionary<string, string> VAR_TEXT = SettingService.Instance.Text;
         private Dictionary<string, string> VAR_PHONE = SettingService.Instance.Phone;
         private Dictionary<string, string> VAR_FLASH = SettingService.Instance.Flash;
+        private Dictionary<string, string> VAR_AUDIO = SettingService.Instance.Audio;
+        private Dictionary<string, string> VAR_BOT = SettingService.Instance.Bot;
+
+        private Dictionary<string, string> VAR_FRONT = SettingService.Instance.Front;
+        private Dictionary<string, string> VAR_REAR = SettingService.Instance.Rear;
 
         private Dictionary<string, string> VAR_OFF = SettingService.Instance.Off;
         private Dictionary<string, string> VAR_AUTO = SettingService.Instance.Auto;
         private Dictionary<string, string> VAR_ON = SettingService.Instance.On;
 
         private Dictionary<string, string> VAR_CATCH = SettingService.Instance.Catch;
+        private Dictionary<string, string> VAR_CATCH_CAMERA = SettingService.Instance.Catch_Camera;
+        private Dictionary<string, string> VAR_CATCH_RECORD = SettingService.Instance.Catch_Record;
         #endregion
 
         #region VARIABLE
@@ -115,7 +129,7 @@ namespace LetterStomach.ViewModels
         #endregion
 
         #region CONTRUCTOR
-        public BotViewModel() 
+        public BotViewModel(IRecordService recordService) 
         {
             try 
             {
@@ -125,10 +139,14 @@ namespace LetterStomach.ViewModels
                 this.BackCommand = new AsyncRelayCommand(OnBackCommand);
                 this.SendCommand = new AsyncRelayCommand<string>(OnSendCommand);
 
-                this._perceptionService = new PerceptionService();
-
                 this.ShowCamera = false;
                 this.ShowPhoto = false;
+
+                this._perceptionService = new PerceptionService(recordService);
+                this._perceptionService.OnError += OnError;
+
+                this._botService = new BotService();
+                this._botService.OnError += OnError;
             }
             catch (Exception ex)
             {
@@ -150,10 +168,9 @@ namespace LetterStomach.ViewModels
 
                 if (SettingService.Instance.ModeBot)
                 {
-                    List<Message> messages = new List<Message>();
-                    messages = MessageService.Instance.Bots(null, parameter, language);
+                    MessageService.Instance.Bots(null, parameter, language);
                     string response = string.Empty;
-                    response = await OnSendBot(parameter, user, language, messages);
+                    response = await OnSendBot(parameter, user, language);
                 }
                 else
                 {
@@ -216,7 +233,11 @@ namespace LetterStomach.ViewModels
                 HashSet<string> nouns = VAR_ACTIVITY
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+                HashSet<string> adjectives = VAR_FEATURE
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
+                string result = string.Empty;
                 if ((locution != null) && (locution.Kind == VAR_DECLARATIVE))
                 {
                     string verb = string.Empty;
@@ -228,33 +249,62 @@ namespace LetterStomach.ViewModels
                                 verb = item.Term;
                         }
                     }
-                    if (verb != string.Empty)
+                    string noun = string.Empty;
+                    foreach (Vocable item in locution.Word)
                     {
-                        foreach (Vocable item in locution.Word)
+                        if ((item.Sentence == VAR_PREDICATE) && (item.Class == VAR_NOUN))
                         {
-                            if ((item.Sentence == VAR_PREDICATE) && (item.Class == VAR_NOUN))
-                            {
-                                if (Array.IndexOf(nouns.ToArray(), item.Term) != -1)
-                                {
-                                    string result = string.Empty;
-                                    result = await OnCommandButton(language, verb, item.Term, string.Empty, string.Empty);
-                                    return result;
-                                }
-                            }
+                            if (Array.IndexOf(nouns.ToArray(), item.Term) != -1)
+                                noun = item.Term;
                         }
                     }
+                    string adjective = string.Empty;
+                    foreach (Vocable item in locution.Word)
+                    {
+                        if ((item.Sentence == VAR_PREDICATE) && (item.Class == VAR_ADJECTIVE))
+                        {
+                            if (Array.IndexOf(adjectives.ToArray(), item.Term) != -1)
+                                adjective = item.Term;
+                        }
+                    }
+                    if ((verb != string.Empty) && (noun != string.Empty))
+                        result = await OnCommandButton(language, verb, noun, adjective);
                 }
-                return string.Empty;
+                return result;
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
                 this.OnError?.Invoke(this, this.error_message);
-                return null;
+                return string.Empty;
             }
         }
 
-        private async Task<string> OnSendBot(string parameter, User user, string language, List<Message> messages)
+        private async Task<string> LoadMessage(string parameter, User user, string language)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation load message \"Bot\" view model failed!");
+
+                List<Locution> locutions = new List<Locution>();
+                locutions = await GoMessage(parameter, user, language);
+                Locution locution = new Locution();
+                locution = locutions[0];
+
+                string declarative = string.Empty;
+                declarative = await DecisionMessage(language, locution);
+
+                return declarative;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return string.Empty;
+            }
+        }
+
+        private async Task<string> OnSendBot(string parameter, User user, string language)
         {
             try
             {
@@ -263,29 +313,59 @@ namespace LetterStomach.ViewModels
                 HashSet<string> catchs = VAR_CATCH
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+                HashSet<string> cameras = VAR_CATCH_CAMERA
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+                HashSet<string> records = VAR_CATCH_RECORD
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
+                HashSet<string> terminates = VAR_TERMINATE
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                string result = string.Empty;
                 if (Array.IndexOf(catchs.ToArray(), parameter) != -1)
                 {
-                    string phrase = string.Empty;
-                    phrase = await this._botService.Capture(language, parameter);
+                    string mount = string.Empty;
+                    List<Message> messages = new List<Message>();
+                    messages = MessageService.Instance.Bots(language);
 
-                    List<Locution> locutions = new List<Locution>();
-                    locutions = await GoMessage(phrase, user, language);
-                    Locution locution = new Locution();
-                    locution = locutions[0];
+                    if (Array.IndexOf(cameras.ToArray(), parameter) != -1)
+                        mount = await this._botService.CaptureCamera(language, parameter, messages);
 
-                    string result = string.Empty;
-                    result = await DecisionMessage(language, locution);
+                    if (Array.IndexOf(records.ToArray(), parameter) != -1)
+                        mount = await this._botService.RecordAudio(language, parameter, messages);
+
+                    string declarative = string.Empty;
+                    if (mount != string.Empty)
+                        declarative = await LoadMessage(mount, user, language);
+
+                    if (Array.IndexOf(terminates.ToArray(), parameter) != -1)
+                        result = await this._botService.RecordAudio(language, messages);
+
+                    messages = new List<Message>();
+                    if (declarative != string.Empty)
+                    {
+                        messages = MessageService.Instance.Bots(user, declarative, language);
+                        Messages = MessageService.Instance.Messages(user, declarative, language);
+                    }
+
+                    if (Array.IndexOf(cameras.ToArray(), parameter) != -1)
+                        result = await this._botService.CaptureCamera(language, messages);
+                    if (Array.IndexOf(records.ToArray(), parameter) != -1)
+                        result = await this._botService.RecordAudio(language, messages);
+
+                    if (result != string.Empty)
+                    {
+                        MessageService.Instance.Bots(user, result, language);
+                        Messages = MessageService.Instance.Messages(user, result, language);
+
+                        string load = string.Empty;
+                        load = await LoadMessage(result, user, language);
+                    }
                 }
-
-                if (Array.IndexOf(catchs.ToArray(), parameter) != -1)
-                {
-                    string result = string.Empty;
-                    result = await this._botService.Load(language, messages);
-                    return result;
-                }
-
-                return string.Empty;
+                return result;
             }
             catch (Exception ex)
             {
@@ -301,13 +381,12 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation send button \"Bot\" view model failed!");
 
-                string result = string.Empty;
-
                 List<Locution> locutions = new List<Locution>();
-                locutions = await GoMessage(result, user, language);
+                locutions = await GoMessage(parameter, user, language);
                 Locution locution = new Locution();
                 locution = locutions[0];
 
+                string result = string.Empty;
                 result = await DecisionMessage(language, locution);
 
                 return result;
@@ -320,7 +399,7 @@ namespace LetterStomach.ViewModels
             }
         }
 
-        private async Task<string> OnCommandButton(string language, string verb, string noun, string adjective, string quote)
+        private async Task<string> OnCommandButton(string language, string verb, string noun, string adjective)
         {
             try
             {
@@ -366,6 +445,15 @@ namespace LetterStomach.ViewModels
                 HashSet<string> verbs_turn = new HashSet<string>();
                 verbs_turn = VAR_TURN.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+                HashSet<string> verbs_share = new HashSet<string>();
+                verbs_share = VAR_SHARE.Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+                HashSet<string> verbs_terminate = new HashSet<string>();
+                verbs_terminate = VAR_TERMINATE.Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+                HashSet<string> verbs_turn_on = new HashSet<string>();
+                verbs_turn_on = VAR_TURN_ON.Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
                 HashSet<string> nouns_gps = new HashSet<string>();
                 nouns_gps = VAR_GPS.Where(index => index.Value.Contains(language))
@@ -400,7 +488,19 @@ namespace LetterStomach.ViewModels
                 HashSet<string> nouns_flash = new HashSet<string>();
                 nouns_flash = VAR_FLASH.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+                HashSet<string> nouns_audio = new HashSet<string>();
+                nouns_audio = VAR_AUDIO.Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+                HashSet<string> nouns_bot = new HashSet<string>();
+                nouns_bot = VAR_BOT.Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
+                HashSet<string> adjective_front = new HashSet<string>();
+                adjective_front = VAR_FRONT.Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+                HashSet<string> adjective_rear = new HashSet<string>();
+                adjective_rear = VAR_REAR.Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
                 HashSet<string> adjective_on = new HashSet<string>();
                 adjective_on = VAR_ON.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
@@ -411,6 +511,174 @@ namespace LetterStomach.ViewModels
                 adjective_auto = VAR_AUTO.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
+                //-----
+                if (Array.IndexOf(verbs_record.ToArray(), verb) != -1)
+                {
+                    if (Array.IndexOf(nouns_audio.ToArray(), noun) != -1)
+                    {
+                        response = await RecordAudio(language);
+                        return response;
+                    }
+                }
+                //-----
+                if (Array.IndexOf(verbs_record.ToArray(), verb) != -1)
+                {
+                    if (Array.IndexOf(nouns_mp3.ToArray(), noun) != -1)
+                    {
+                        PermissionStatus permission_status = await RequestandCheckPermission();
+                        if (permission_status == PermissionStatus.Granted)
+                        {
+                            //this._perceptionService.StartRecordMP3();
+                            response = verb + " " + noun + ".";
+                            return response;
+                        }
+                    }
+                }
+                if (Array.IndexOf(verbs_record.ToArray(), verb) != -1)
+                {
+                    if (Array.IndexOf(nouns_wav.ToArray(), noun) != -1)
+                    {
+                        PermissionStatus permission_status = await RequestandCheckPermission();
+                        if (permission_status == PermissionStatus.Granted)
+                        {
+                            //this._perceptionService.StartRecordWav();
+                            response = verb + " " + noun + ".";
+                            return response;
+                        }
+                    }
+                }
+                //-----
+                if (Array.IndexOf(verbs_stop.ToArray(), verb) != -1)
+                {
+                    if (Array.IndexOf(nouns_mp3.ToArray(), noun) != -1)
+                    {
+                        //string audio_file_path = this._perceptionService.StopRecordMP3();
+                        //_perceptionService.SendRecording(audio_file_path);
+                        response = verb + " " + noun + ".";
+                        return response;
+                    }
+                }
+                if (Array.IndexOf(verbs_stop.ToArray(), verb) != -1)
+                {
+                    if (Array.IndexOf(nouns_wav.ToArray(), noun) != -1)
+                    {
+                        //string audio_file_path = this._perceptionService.StopRecordWav();
+                        //_perceptionService.SendRecording(audio_file_path);
+                        response = verb + " " + noun + ".";
+                        return response;
+                    }
+                }
+                //-----
+                if (Array.IndexOf(verbs_play.ToArray(), verb) != -1)
+                {
+                    if (Array.IndexOf(nouns_wav.ToArray(), noun) != -1) 
+                    {
+                        //this._perceptionService.StopAudio();
+                        //string audio_file_path = _perceptionService.ReceiveRecording();
+                        //this._perceptionService.PlayAudio(audio_file_path);
+                        response = verb + " " + noun + ".";
+                        return response;
+                    }
+                }
+                if (Array.IndexOf(verbs_play.ToArray(), verb) != -1)
+                {
+                    if (Array.IndexOf(nouns_mp3.ToArray(), noun) != -1)
+                    {
+                        //this._perceptionService.StopAudio();
+                        //string audio_file_path = _perceptionService.ReceiveRecording();
+                        //this._perceptionService.PlayAudio(audio_file_path);
+                        response = verb + " " + noun + ".";
+                        return response;
+                    }
+                }
+                //-----
+                if (Array.IndexOf(verbs_terminate.ToArray(), verb) != -1)
+                {
+                    if (Array.IndexOf(nouns_bot.ToArray(), noun) != -1)
+                    {
+                        string result = verb + " " + noun + ".";
+                        response = await EndBot(result, language);
+                        return response;
+                    }
+                }
+                //-----
+                if (Array.IndexOf(verbs_load.ToArray(), verb) != -1)
+                {
+                    if (Array.IndexOf(nouns_camera.ToArray(), noun) != -1)
+                    {
+                        response = await CaputreCamera(language);
+                        return response;
+                    }
+                }
+                //-----
+                if (Array.IndexOf(verbs_rotate.ToArray(), verb) != -1)
+                {
+                    if (Array.IndexOf(nouns_camera.ToArray(), noun) != -1)
+                    {
+                        if (Array.IndexOf(adjective_front.ToArray(), adjective) != -1)
+                        {
+                            //await RotateCamera();
+                            string result = verb + " " + noun + " " + adjective + ".";
+                            return result;
+                        }
+                    }
+                }
+                if (Array.IndexOf(verbs_rotate.ToArray(), verb) != -1)
+                {
+                    if (Array.IndexOf(nouns_camera.ToArray(), noun) != -1)
+                    {
+                        if (Array.IndexOf(adjective_rear.ToArray(), adjective) != -1)
+                        {
+                            //await RotateCamera();
+                            string result = verb + " " + noun + " " + adjective + ".";
+                            return result;
+                        }
+                    }
+                }
+                //-----
+                if (Array.IndexOf(verbs_turn_on.ToArray(), verb) != -1)
+                {
+                    if (Array.IndexOf(nouns_flash.ToArray(), noun) != -1)
+                    {
+                        //await FlashCamera(noun, language);
+                        string result = verb + " " + noun + ".";
+                        return result;
+                    }
+                }
+                if (Array.IndexOf(verbs_turn.ToArray(), verb) != -1)
+                {
+                    if (Array.IndexOf(nouns_flash.ToArray(), noun) != -1)
+                    {
+                        if (Array.IndexOf(adjective_off.ToArray(), adjective) != -1)
+                        {
+                            //await FlashCamera(adjective, language);
+                            string result = verb + " " + noun + " " + adjective + ".";
+                            return result;
+                        }
+                    }
+                }
+                if (Array.IndexOf(verbs_turn.ToArray(), verb) != -1)
+                {
+                    if (Array.IndexOf(nouns_flash.ToArray(), noun) != -1)
+                    {
+                        if (Array.IndexOf(adjective_auto.ToArray(), noun) != -1)
+                        {
+                            //await FlashCamera(adjective, language);
+                            string result = verb + " " + noun + " " + adjective + ".";
+                            return result;
+                        }
+                    }
+                }
+                //-----
+                if (Array.IndexOf(verbs_share.ToArray(), verb) != -1)
+                {
+                    if (Array.IndexOf(nouns_file.ToArray(), noun) != -1)
+                    {
+                        response = await ShareFile(language);
+                        return response;
+                    }
+                }
+                //-----
                 if (Array.IndexOf(verbs_view.ToArray(), verb) != -1)
                 {
                     if (Array.IndexOf(nouns_gps.ToArray(), noun) != -1)
@@ -420,94 +688,37 @@ namespace LetterStomach.ViewModels
                             response = $"Latitude: {location.Latitude}, Longitude: {location.Longitude}.";
                         else
                             response = "Not work.";
+                        return response;
                     }
+                }
+                if (Array.IndexOf(verbs_view.ToArray(), verb) != -1)
+                {
                     if (Array.IndexOf(nouns_camera.ToArray(), noun) != -1)
                     {
                         await this._cameraView.StartCameraPreview(Token);
                         response = "Start Camera.";
+                        return response;
                     }
+                }
+                if (Array.IndexOf(verbs_view.ToArray(), verb) != -1)
+                {
                     if (Array.IndexOf(nouns_battery.ToArray(), noun) != -1)
                     {
                         double battery = _perceptionService.GetCharge();
                         response = $"{battery.ToString()} %";
+                        return response;
                     }
                 }
-                if (Array.IndexOf(verbs_load.ToArray(), verb) != -1)
-                {
-                    if (Array.IndexOf(nouns_bluetooth.ToArray(), noun) != -1) { }
-                    if (Array.IndexOf(nouns_camera.ToArray(), noun) != -1)
-                    {
-                        response = await CaputreCamera(language);
-                    }
-                }
-                if (Array.IndexOf(verbs_turn.ToArray(), verb) != -1)
-                {
-                    if (Array.IndexOf(nouns_flash.ToArray(), noun) != -1)
-                    {
-                        if (Array.IndexOf(adjective_off.ToArray(), adjective) != -1)
-                            await FlashCamera(adjective);
-                        else
-                        {
-                            if (Array.IndexOf(adjective_auto.ToArray(), noun) != -1)
-                                await FlashCamera(adjective);
-                            if (Array.IndexOf(adjective_on.ToArray(), noun) != -1)
-                                await FlashCamera(adjective);
-                        }
-                    }
-                }
-                if (Array.IndexOf(verbs_play.ToArray(), verb) != -1)
-                {
-                    if ((Array.IndexOf(nouns_mp3.ToArray(), noun) != -1) || 
-                        (Array.IndexOf(nouns_wav.ToArray(), noun) != -1))
-                    {
-                        this._perceptionService.StopAudio();
-                        string audio_file_path = _perceptionService.ReceiveRecording();
-                        this._perceptionService.PlayAudio(audio_file_path);
-                        if (Array.IndexOf(nouns_mp3.ToArray(), noun) != -1) response = "Play MP3.";
-                        if (Array.IndexOf(nouns_wav.ToArray(), noun) != -1) response = "Play WAV.";
-                    }
-                }
-                if (Array.IndexOf(verbs_record.ToArray(), verb) != -1)
-                {
-                    if (Array.IndexOf(nouns_mp3.ToArray(), noun) != -1)
-                    {
-                        PermissionStatus permission_status = await RequestandCheckPermission();
-                        if (permission_status == PermissionStatus.Granted)
-                        {
-                            this._perceptionService.StartRecordMP3();
-                            response = "Record MP3.";
-                        }
-                    }
-                    if (Array.IndexOf(nouns_wav.ToArray(), noun) != -1)
-                    {
-                        PermissionStatus permission_status = await RequestandCheckPermission();
-                        if (permission_status == PermissionStatus.Granted)
-                        {
-                            this._perceptionService.StartRecordWav();
-                            response = "Record WAV.";
-                        }
-                    }
-                }
+                //-----
                 if (Array.IndexOf(verbs_stop.ToArray(), verb) != -1)
                 {
-                    if (Array.IndexOf(nouns_mp3.ToArray(), noun) != -1)
-                    {
-                        string audio_file_path = this._perceptionService.StopRecordMP3();
-                        _perceptionService.SendRecording(audio_file_path);
-                        response = "Stop MP3.";
-                    }
-                    if (Array.IndexOf(nouns_wav.ToArray(), noun) != -1)
-                    {
-                        string audio_file_path = this._perceptionService.StopRecordWav();
-                        _perceptionService.SendRecording(audio_file_path);
-                        response = "Stop WAV.";
-                    }
                     if (Array.IndexOf(nouns_camera.ToArray(), noun) != -1)
                     {
                         this._cameraView.StopCameraPreview();
                         response = "Stop Camera.";
                     }
                 }
+                //-----
                 if (Array.IndexOf(verbs_capture.ToArray(), verb) != -1)
                 {
                     if (Array.IndexOf(nouns_camera.ToArray(), noun) != -1)
@@ -516,14 +727,7 @@ namespace LetterStomach.ViewModels
                         response = "Capture Camera.";
                     }
                 }
-                if (Array.IndexOf(verbs_rotate.ToArray(), verb) != -1)
-                {
-                    if (Array.IndexOf(nouns_camera.ToArray(), noun) != -1)
-                    {
-                        await RotateCamera();
-                        response = "Rotate Camera.";
-                    }
-                }
+                //-----
                 if (Array.IndexOf(verbs_vibtate.ToArray(), verb) != -1)
                 {
                     if (Array.IndexOf(nouns_phone.ToArray(), noun) != -1)
@@ -532,6 +736,7 @@ namespace LetterStomach.ViewModels
                         response = "Vibrate Phone.";
                     }
                 }
+                //-----
                 if (Array.IndexOf(verbs_speak.ToArray(), verb) != -1)
                 {
                     if (Array.IndexOf(nouns_text.ToArray(), noun) != -1)
@@ -540,6 +745,9 @@ namespace LetterStomach.ViewModels
                         this._perceptionService.SpeakText(text);
                         response = "Speak text.";
                     }
+                }
+                if (Array.IndexOf(verbs_speak.ToArray(), verb) != -1)
+                {
                     if (Array.IndexOf(nouns_file.ToArray(), noun) != -1)
                     {
                         string text = "Hello world!";
@@ -547,6 +755,7 @@ namespace LetterStomach.ViewModels
                         response = $"Create file '{auto_file_path}'.";
                     }
                 }
+                //-----
                 if (Array.IndexOf(verbs_download.ToArray(), verb) != -1)
                 {
                     if ((Array.IndexOf(nouns_mp3.ToArray(), noun) != -1) ||
@@ -555,12 +764,16 @@ namespace LetterStomach.ViewModels
                         await _perceptionService.DownloadAudio();
                         response = "Download Audio.";
                     }
+                }
+                if (Array.IndexOf(verbs_download.ToArray(), verb) != -1)
+                {
                     if (Array.IndexOf(nouns_camera.ToArray(), noun) != -1)
                     {
                         await _perceptionService.DownloadImage();
                         response = "Download Image.";
                     }
                 }
+                //-----
                 if (Array.IndexOf(verbs_save.ToArray(), verb) != -1)
                 {
                     if (Array.IndexOf(nouns_camera.ToArray(), noun) != -1)
@@ -569,6 +782,7 @@ namespace LetterStomach.ViewModels
                         response = "Save Camera.";
                     }
                 }
+                //-----
                 if (Array.IndexOf(verbs_upload.ToArray(), verb) != -1)
                 {
                     if ((Array.IndexOf(nouns_mp3.ToArray(), noun) != -1) ||
@@ -578,6 +792,11 @@ namespace LetterStomach.ViewModels
                         _perceptionService.SendRecording(audio_file_path);
                         response = "Upload Audio.";
                     }
+                }
+                //-----
+                if (Array.IndexOf(verbs_load.ToArray(), verb) != -1)
+                {
+                    if (Array.IndexOf(nouns_bluetooth.ToArray(), noun) != -1) { }
                 }
                 return response;
             }
@@ -644,26 +863,32 @@ namespace LetterStomach.ViewModels
         #endregion
 
         #region BUTTON
-        private async Task FlashCamera(string kind)
+        private async Task FlashCamera(string kind, string language)
         {
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation flash camera \"Bot\" view model failed!");
 
+                HashSet<string> flash = VAR_FLASH
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                HashSet<string> off = VAR_OFF
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                HashSet<string> auto = VAR_AUTO
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
                 if (this._cameraProvider.AvailableCameras is not null)
                 {
-                    switch (kind)
-                    {
-                        case "On":
-                            this.FlashMode = CameraFlashMode.On;
-                            break;
-                        case "Off":
-                            this.FlashMode = CameraFlashMode.Off;
-                            break;
-                        case "Auto":
-                            this.FlashMode = CameraFlashMode.Auto;
-                            break;
-                    }
+                    if (flash.ToArray()[0] == kind)
+                        this.FlashMode = CameraFlashMode.On;
+                    if (off.ToArray()[0] == kind)
+                        this.FlashMode = CameraFlashMode.Off;
+                    if (auto.ToArray()[0] == kind)
+                        this.FlashMode = CameraFlashMode.Auto;
                 }
             }
             catch (Exception ex)
@@ -703,10 +928,61 @@ namespace LetterStomach.ViewModels
                 if (this._error_off) throw new InvalidOperationException("Operation capture camera \"Bot\" view model failed!");
 
                 if (!SettingService.Instance.ModeBot) SettingService.Instance.ModeBot = true;
-                this._botService = new BotService();
-                this._botService.OnError += OnError;
+                string response = await this._botService.CaptureCamera(language);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return string.Empty;
+            }
+        }
 
-                string response = await this._botService.Init(language);
+        private async Task<string> RecordAudio(string language)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation record audio \"Bot\" view model failed!");
+
+                if (!SettingService.Instance.ModeBot) SettingService.Instance.ModeBot = true;
+                string response = await this._botService.RecordAudio(language);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return string.Empty;
+            }
+        }
+
+        private async Task<string> EndBot(string response, string language)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation end bot \"Bot\" view model failed!");
+
+                if (SettingService.Instance.ModeBot) SettingService.Instance.ModeBot = false;
+                MessageService.Instance.Remove(language);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return string.Empty;
+            }
+        }
+
+        private async Task<string> ShareFile(string language)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation share file \"Bot\" view model failed!");
+
+                if (!SettingService.Instance.ModeBot) SettingService.Instance.ModeBot = true;
+                string response = await this._botService.ShareFile(language);
                 return response;
             }
             catch (Exception ex)
