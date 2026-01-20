@@ -7,11 +7,9 @@ using LetterStomach.Models;
 using LetterStomach.Services;
 using LetterStomach.Services.Interfaces;
 using LetterStomach.Views;
-using Microsoft.Maui.ApplicationModel.DataTransfer;
 using MongoDB.Driver;
-using System.Reflection.Metadata;
 using System.Windows.Input;
-using UIKit;
+using static SQLite.SQLite3;
 
 namespace LetterStomach.ViewModels
 {
@@ -60,6 +58,7 @@ namespace LetterStomach.ViewModels
         private Dictionary<string, string> VAR_FEATURE = SettingService.Instance.Feature;
         private Dictionary<string, string> VAR_TERMINATE = SettingService.Instance.Terminate;
         private Dictionary<string, string> VAR_TURN_ON = SettingService.Instance.Turn_On;
+        private Dictionary<string, string> VAR_STAR = SettingService.Instance.Start;
 
         private Dictionary<string, string> VAR_GPS = SettingService.Instance.GPS;
         private Dictionary<string, string> VAR_BLUETOOTH = SettingService.Instance.Bluetooth;
@@ -314,6 +313,7 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation loop command \"Bot\" view model failed!");
 
+                List<Message> messages = new List<Message>();
                 foreach (string item in share)
                 {
                     string response = string.Empty;
@@ -321,7 +321,10 @@ namespace LetterStomach.ViewModels
                         response = await LoadMessage(item, user, language);
                     if (response != string.Empty)
                     {
-                        messages = MessageService.Instance.Bots(user, response, language);
+                        if (SettingService.Instance.ModeBot)
+                            messages = MessageService.Instance.Bots(user, response, language);
+                        else
+                            messages = new List<Message>();
                         Messages = MessageService.Instance.Messages(user, response, language);
                     }
                 }
@@ -351,8 +354,18 @@ namespace LetterStomach.ViewModels
                 HashSet<string> shares = VAR_CATCH_SHARE
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+                HashSet<string> terminates = VAR_TERMINATE
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
                 List<Message> notes = new List<Message>();
+
+                if (Array.IndexOf(terminates.ToArray(), parameter) != -1)
+                {
+                    List<string> share = new List<string>();
+                    share = await this._botService.Terminate(language, messages);
+                    notes = await LoopCommmand(share, user, language);
+                }
 
                 if (Array.IndexOf(cameras.ToArray(), parameter) != -1)
                 {
@@ -411,30 +424,26 @@ namespace LetterStomach.ViewModels
                 string result = string.Empty;
                 if (Array.IndexOf(catchs.ToArray(), parameter) != -1)
                 {
-                    string mount = string.Empty;
-                    string declarative = string.Empty;
                     List<Message> messages = new List<Message>();
-                    List<Message> notes = new List<Message>();
-
                     messages = MessageService.Instance.Bots(language);
 
-                    if (Array.IndexOf(terminates.ToArray(), parameter) != -1)
-                        result = await this._botService.Terminate(language, messages);
-
+                    List<Message> notes = new List<Message>();
                     notes = await LoadCommmand(parameter, user, language, messages);
 
-                    if (Array.IndexOf(cameras.ToArray(), parameter) != -1)
-                        result = await this._botService.CaptureCamera(language, notes);
-                    if (Array.IndexOf(records.ToArray(), parameter) != -1)
-                        result = await this._botService.RecordAudio(language, notes);
+                    if (notes.Count > 0)
+                    {
+                        if (Array.IndexOf(cameras.ToArray(), parameter) != -1)
+                            result = await this._botService.CaptureCamera(language, notes);
+                        if (Array.IndexOf(records.ToArray(), parameter) != -1)
+                            result = await this._botService.RecordAudio(language, notes);
+                        if (Array.IndexOf(shares.ToArray(), parameter) != -1)
+                            result = await this._botService.ShareFile(language, notes);
+                    }
 
-                    if (result != string.Empty)
+                    if ((result != string.Empty) && (notes.Count > 0))
                     {
                         MessageService.Instance.Bots(user, result, language);
                         Messages = MessageService.Instance.Messages(user, result, language);
-
-                        string load = string.Empty;
-                        load = await LoadMessage(result, user, language);
                     }
                 }
                 return result;
@@ -524,6 +533,9 @@ namespace LetterStomach.ViewModels
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
                 HashSet<string> verbs_turn_on = new HashSet<string>();
                 verbs_turn_on = VAR_TURN_ON.Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+                HashSet<string> verbs_start = new HashSet<string>();
+                verbs_start = VAR_STAR.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
                 HashSet<string> nouns_gps = new HashSet<string>();
@@ -684,7 +696,7 @@ namespace LetterStomach.ViewModels
                     }
                 }
                 //-----
-                if (Array.IndexOf(verbs_view.ToArray(), verb) != -1)
+                if (Array.IndexOf(verbs_start.ToArray(), verb) != -1)
                 {
                     if (Array.IndexOf(nouns_camera.ToArray(), noun) != -1)
                     {

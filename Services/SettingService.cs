@@ -196,8 +196,11 @@ namespace LetterStomach.Services
             { speak_english, english },
             { view_english, english },
             { terminate_english, english },
+            { start_english, english },
+            { save_english,english },
             { turn_english, english },
             { turn_on_english, english },
+            { share_english, english }
         };
 
         public Dictionary<string, string> Load = new Dictionary<string, string>()
@@ -399,7 +402,8 @@ namespace LetterStomach.Services
             { download_english, english },
             { raspberry_english, english },
             { bluetooth_3_english, english },
-            { bluetooth_4_english, english }
+            { bluetooth_4_english, english },
+            { save_english, english }
         };
 
         public Dictionary<string, string> Catch_Camera = new Dictionary<string, string>()
@@ -410,7 +414,7 @@ namespace LetterStomach.Services
             { front_english, english },
             { rear_english, english },
             { capture_english, english },
-            { dont_capture_english, english }
+            { save_english, english }
         };
 
         public Dictionary<string, string> Catch_Record = new Dictionary<string, string>()
@@ -435,8 +439,7 @@ namespace LetterStomach.Services
 
         public Dictionary<string, string> Catch_Capture = new Dictionary<string, string>()
         {
-            { capture_english, english },
-            { dont_capture_english, english }
+            { capture_english, english }
         };
 
         public Dictionary<string, string> Shoot = new Dictionary<string, string>()

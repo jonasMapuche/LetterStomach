@@ -4,7 +4,6 @@ namespace LetterStomach.Bot.Interface
 {
     public interface ICaptureBot
     {
-        Task<string> Flash(string language);
         Task<string> Rotate(string language);
         Task<string> Capture(string language);
         Task<string> Choose(string language, List<Message> messages);

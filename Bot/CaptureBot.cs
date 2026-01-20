@@ -39,6 +39,11 @@ namespace LetterStomach.Bot
         private Dictionary<string, string> VAR_OFF = SettingService.Instance.Off;
         private Dictionary<string, string> VAR_AUTO = SettingService.Instance.Auto;
 
+        private Dictionary<string, string> VAR_START = SettingService.Instance.Start;
+        private Dictionary<string, string> VAR_STOP = SettingService.Instance.Stop;
+
+        private Dictionary<string, string> VAR_SAVE = SettingService.Instance.Save;
+
         private Dictionary<string, string> VAR_SHOOT = SettingService.Instance.Shoot;
 
         private Dictionary<string, string> VAR_CATCH_FLASH = SettingService.Instance.Catch_Flash;
@@ -135,21 +140,21 @@ namespace LetterStomach.Bot
             }
         }
 
-        public async Task<string> Terminate(string language)
+        public async Task<string> Save(string language)
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation terminate \"Record\" bot failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation save \"Capture\" bot failed!");
+
+                HashSet<string> save = VAR_SAVE
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
                 HashSet<string> terminate = VAR_TERMINATE
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> bot = VAR_BOT
-                    .Where(index => index.Value.Contains(language))
-                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-
-                string ask = $"{terminate.ToArray()[0]} {bot.ToArray()[0]}.";
+                string ask = $"Choose options: \"{save.ToArray()[0]}\" or \"{terminate.ToArray()[0]}\".";
                 return ask;
             }
             catch (Exception ex)
@@ -266,6 +271,84 @@ namespace LetterStomach.Bot
                 return string.Empty;
             }
         }
+
+        private async Task<string> Save(string language, string parameter)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation save \"Capture\" bot failed!");
+
+                HashSet<string> save = VAR_SAVE
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                HashSet<string> camera = VAR_CAMERA
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                string ask = string.Empty;
+                if (Array.IndexOf(save.ToArray(), parameter) != -1) ask = $"{save.ToArray()[0]} {camera.ToArray()[0]}.";
+                return ask;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return string.Empty;
+            }
+        }
+
+        private async Task<string> Start(string language, string parameter)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation capture \"Capture\" bot failed!");
+
+                HashSet<string> start = VAR_START
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                HashSet<string> camera = VAR_CAMERA
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                string ask = string.Empty;
+                if (Array.IndexOf(start.ToArray(), parameter) != -1) ask = $"{start.ToArray()[0]} {camera.ToArray()[0]}.";
+                return ask;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return string.Empty;
+            }
+        }
+
+        private async Task<string> Stop(string language, string parameter)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation capture \"Capture\" bot failed!");
+
+                HashSet<string> stop = VAR_STOP
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                HashSet<string> camera = VAR_CAMERA
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                string ask = string.Empty;
+                if (Array.IndexOf(stop.ToArray(), parameter) != -1) ask = $"{stop.ToArray()[0]} {camera.ToArray()[0]}.";
+                return ask;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return string.Empty;
+            }
+        }
         #endregion
 
         #region LOAD
@@ -305,7 +388,7 @@ namespace LetterStomach.Bot
 
                 if ((rotate) && (!flash)) response = await Flash(language);
                 if (flash && rotate && !capture) response = await Capture(language);
-                if (flash && rotate && capture) response = await Terminate(language);
+                if (flash && rotate && capture) response = await Save(language);
 
                 return response;
             }
@@ -335,11 +418,24 @@ namespace LetterStomach.Bot
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
+                HashSet<string> starts = VAR_START
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                HashSet<string> stops = VAR_STOP
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                HashSet<string> saves = VAR_SAVE
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
                 List<string> result = new List<string>();
                 string ask = string.Empty;
                 if (Array.IndexOf(rotates.ToArray(), parameter) != -1)
                 {
+                    ask = await Start(language, starts.ToArray()[0]);
+                    result.Add(ask);
                     ask = await Rotate(language, parameter);
                     result.Add(ask);
                 }
@@ -353,6 +449,15 @@ namespace LetterStomach.Bot
                     ask = await Capture(language, parameter);
                     result.Add(ask);
                 }
+                if (Array.IndexOf(saves.ToArray(), parameter) != -1)
+                {
+                    ask = await Save(language, parameter);
+                    result.Add(ask);
+                    ask = await Stop(language, stops.ToArray()[0]);
+                    result.Add(ask);
+                    ask = await Terminate(language);
+                    result.Add(ask);
+                }
                 return result;
             }
             catch (Exception ex)
@@ -360,6 +465,33 @@ namespace LetterStomach.Bot
                 this.error_message = ex.Message;
                 this.OnError?.Invoke(this, this.error_message);
                 return new List<string>();
+            }
+        }
+        #endregion
+
+        #region TERMINATE
+        private async Task<string> Terminate(string language)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation terminate \"Record\" bot failed!");
+
+                HashSet<string> terminate = VAR_TERMINATE
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                HashSet<string> bot = VAR_BOT
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                string ask = $"{terminate.ToArray()[0]} {bot.ToArray()[0]}.";
+                return ask;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return string.Empty;
             }
         }
         #endregion

@@ -95,31 +95,6 @@ namespace LetterStomach.Bot
                 return string.Empty;
             }
         }
-
-        public async Task<string> Terminate(string language)
-        {
-            try
-            {
-                if (this._error_off) throw new InvalidOperationException("Operation terminate \"Record\" bot failed!");
-
-                HashSet<string> terminate = VAR_TERMINATE
-                    .Where(index => index.Value.Contains(language))
-                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-
-                HashSet<string> bot = VAR_BOT
-                    .Where(index => index.Value.Contains(language))
-                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-
-                string ask = $"{terminate.ToArray()[0]} {bot.ToArray()[0]}.";
-                return ask;
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
-            }
-        }
         #endregion
 
         #region MOUNT
@@ -201,13 +176,8 @@ namespace LetterStomach.Bot
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> stops = VAR_STOP
-                    .Where(index => index.Value.Contains(language))
-                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-
                 bool wav = false;
                 bool mp3 = false;
-                bool stop = false;
 
                 List<Message> memos = new List<Message>();
                 memos = messages.FindAll(index => index.Sender == null);
@@ -216,12 +186,10 @@ namespace LetterStomach.Bot
                 {
                     if (Array.IndexOf(wavs.ToArray(), memo.Text) != -1) wav = true;
                     if (Array.IndexOf(mp3s.ToArray(), memo.Text) != -1) mp3 = true;
-                    if (Array.IndexOf(stops.ToArray(), memo.Text) != -1) stop = true;
                 }
 
                 string response = string.Empty;
-                if ((wav || mp3) && !stop) response = await Stop(language);
-                if ((wav || mp3) && stop) response = await Terminate(language);
+                if (wav || mp3) response = await Stop(language);
                 return response;
             }
             catch (Exception ex)
@@ -278,6 +246,8 @@ namespace LetterStomach.Bot
                 {
                     ask = await Stop(language, kind);
                     result.Add(ask);
+                    ask = await Terminate(language);
+                    result.Add(ask);
                 }
                 return result;
             }
@@ -286,6 +256,33 @@ namespace LetterStomach.Bot
                 this.error_message = ex.Message;
                 this.OnError?.Invoke(this, this.error_message);
                 return new List<string>();
+            }
+        }
+        #endregion
+
+        #region TERMINATE
+        public async Task<string> Terminate(string language)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation terminate \"Record\" bot failed!");
+
+                HashSet<string> terminate = VAR_TERMINATE
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                HashSet<string> bot = VAR_BOT
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                string ask = $"{terminate.ToArray()[0]} {bot.ToArray()[0]}.";
+                return ask;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return string.Empty;
             }
         }
         #endregion

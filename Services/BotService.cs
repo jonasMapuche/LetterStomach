@@ -144,8 +144,8 @@ namespace LetterStomach.Services
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation load \"Bot\" service failed!");
-                string response = string.Empty;
-                //string response = await this._shareBot.Choose(language, messages);
+               
+                string response = await this._shareBot.Choose(language, messages);
                 return response;
             }
             catch (Exception ex)
@@ -236,7 +236,7 @@ namespace LetterStomach.Services
             }
         }
 
-        public async Task<string> Terminate(string language, List<Message> messages)
+        public async Task<List<string>> Terminate(string language, List<Message> messages)
         {
             try
             {
@@ -256,15 +256,20 @@ namespace LetterStomach.Services
                     if (Array.IndexOf(terminates.ToArray(), memo.Text) != -1) terminate = true;
                 }
 
-                string response = string.Empty;
-                if (terminate) response = await Terminate(language);
+                List<string> response = new List<string>();
+                if (terminate)
+                {
+                    string result = string.Empty;
+                    result = await Terminate(language);
+                    response.Add(result);
+                }
                 return response;
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
                 this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                return new List<string>();
             }
         }
         #endregion
