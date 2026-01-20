@@ -7,13 +7,13 @@ namespace LetterStomach.Services.Interfaces
         event EventHandler<string> OnError;
         Task<string> CaptureCamera(string language);
         Task<string> CaptureCamera(string language, List<Message> messages);
-        Task<string> CaptureCamera(string language, string parameter, List<Message> messages);
+        Task<List<string>> CaptureCamera(string language, string parameter, List<Message> messages);
         Task<string> RecordAudio(string language);
         Task<string> RecordAudio(string language, List<Message> messages);
-        Task<string> RecordAudio(string language, string parameter, List<Message> messages);
+        Task<List<string>> RecordAudio(string language, string parameter, List<Message> messages);
         Task<string> ShareFile(string language);
         Task<string> ShareFile(string language, List<Message> messages);
-        Task<string> ShareFile(string language, string parameter);
+        Task<List<string>> ShareFile(string language, string parameter, List<Message> messages);
         Task<string> Terminate(string language, List<Message> messages);
     }
 }

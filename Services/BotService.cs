@@ -158,12 +158,12 @@ namespace LetterStomach.Services
         #endregion
 
         #region MOUNT
-        public async Task<string> CaptureCamera(string language, string parameter, List<Message> messages)
+        public async Task<List<string>> CaptureCamera(string language, string parameter, List<Message> messages)
         {
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation capture camera \"Bot\" service failed!");
-                string response = string.Empty;
+                List<string> response = new List<string>();
                 response = await this._captureBot.Load(language, parameter, messages);
                 return response;
             }
@@ -171,16 +171,16 @@ namespace LetterStomach.Services
             {
                 this.error_message = ex.Message;
                 this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                return new List<string>();
             }
         }
 
-        public async Task<string> RecordAudio(string language, string parameter, List<Message> messages)
+        public async Task<List<string>> RecordAudio(string language, string parameter, List<Message> messages)
         {   
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation record audio \"Bot\" service failed!");
-                string response = string.Empty;
+                List<string> response = new List<string>();
                 response = await this._recordBot.Load(language, parameter, messages);
                 return response;
             }
@@ -188,24 +188,24 @@ namespace LetterStomach.Services
             {
                 this.error_message = ex.Message;
                 this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                return new List<string>();
             }
         }
 
-        public async Task<string> ShareFile(string language, string parameter)
+        public async Task<List<string>> ShareFile(string language, string parameter, List<Message> messages)
         {
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation share file \"Bot\" service failed!");
-                string response = string.Empty;
-                //response = await this._shareBot.Load(language, parameter);
+                List<string> response = new List<string>(); 
+                response = await this._shareBot.Load(language, parameter, messages);
                 return response;
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
                 this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                return new List<string>();
             }
         }
         #endregion

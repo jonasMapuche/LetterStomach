@@ -317,7 +317,7 @@ namespace LetterStomach.Bot
             }
         }
 
-        public async Task<string> Load(string language, string parameter, List<Message> messages)
+        public async Task<List<string>> Load(string language, string parameter, List<Message> messages)
         {
             try
             {
@@ -335,17 +335,31 @@ namespace LetterStomach.Bot
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
+
+                List<string> result = new List<string>();
                 string ask = string.Empty;
-                if (Array.IndexOf(rotates.ToArray(), parameter) != -1) ask = await Rotate(language, parameter);
-                if (Array.IndexOf(flashs.ToArray(), parameter) != -1) ask = await Flash(language, parameter);
-                if (Array.IndexOf(captures.ToArray(), parameter) != -1) ask = await Capture(language, parameter);
-                return ask;
+                if (Array.IndexOf(rotates.ToArray(), parameter) != -1)
+                {
+                    ask = await Rotate(language, parameter);
+                    result.Add(ask);
+                }
+                if (Array.IndexOf(flashs.ToArray(), parameter) != -1)
+                {
+                    ask = await Flash(language, parameter);
+                    result.Add(ask);
+                }
+                if (Array.IndexOf(captures.ToArray(), parameter) != -1)
+                {
+                    ask = await Capture(language, parameter);
+                    result.Add(ask);
+                }
+                return result;
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
                 this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                return new List<string>();
             }
         }
         #endregion

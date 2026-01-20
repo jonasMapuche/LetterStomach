@@ -232,7 +232,7 @@ namespace LetterStomach.Bot
             }
         }
 
-        public async Task<string> Load(string language, string parameter, List<Message> messages)
+        public async Task<List<string>> Load(string language, string parameter, List<Message> messages)
         {
             try
             {
@@ -267,16 +267,25 @@ namespace LetterStomach.Bot
                     }
                 }
 
+                List<string> result = new List<string>();
                 string ask = string.Empty;
-                if (Array.IndexOf(audios.ToArray(), parameter) != -1) ask = await Audio(language, parameter);
-                if (Array.IndexOf(stops.ToArray(), parameter) != -1) ask = await Stop(language, kind);
-                return ask;
+                if (Array.IndexOf(audios.ToArray(), parameter) != -1)
+                {
+                    ask = await Audio(language, parameter);
+                    result.Add(ask);
+                }
+                if (Array.IndexOf(stops.ToArray(), parameter) != -1)
+                {
+                    ask = await Stop(language, kind);
+                    result.Add(ask);
+                }
+                return result;
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
                 this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                return new List<string>();
             }
         }
         #endregion

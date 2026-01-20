@@ -173,6 +173,9 @@ namespace LetterStomach.Services
         private static readonly string rear_english = "rear";
         private static readonly string options_english = "options";
         private static readonly string bot_english = "bot";
+        private static readonly string raspberry_english = "raspberry";
+        private static readonly string bluetooth_3_english = "bluetooth 3";
+        private static readonly string bluetooth_4_english = "bluetooth 4";
 
         private static readonly string what_english = "what";
 
@@ -296,6 +299,23 @@ namespace LetterStomach.Services
             { bluetooth_english, english }
         };
 
+        public Dictionary<string, string> Bluetooth3 = new Dictionary<string, string>()
+        {
+            { bluetooth_3_english, english }
+        };
+
+        public Dictionary<string, string> Bluetooth4 = new Dictionary<string, string>()
+        {
+            { bluetooth_4_english, english }
+        };
+
+        public Dictionary<string, string> Bluetooths = new Dictionary<string, string>()
+        {
+            { bluetooth_4_english, english },
+            { bluetooth_3_english, english },
+            { bluetooth_english, english }
+        };
+
         public Dictionary<string, string> Battery = new Dictionary<string, string>()
         {
             { battery_english, english }
@@ -356,6 +376,11 @@ namespace LetterStomach.Services
             { auto_english, english }
         };
 
+        public Dictionary<string, string> Raspberry = new Dictionary<string, string>()
+        {
+            { raspberry_english, english }
+        };
+
         public Dictionary<string, string> Catch = new Dictionary<string, string>()
         {
             { on_english, english },
@@ -368,7 +393,13 @@ namespace LetterStomach.Services
             { mp3_english, english },
             { wav_english, english },
             { stop_english, english },
-            { terminate_english, english }
+            { terminate_english, english },
+            { upload_english, english },
+            { bluetooth_english, english },
+            { download_english, english },
+            { raspberry_english, english },
+            { bluetooth_3_english, english },
+            { bluetooth_4_english, english }
         };
 
         public Dictionary<string, string> Catch_Camera = new Dictionary<string, string>()
@@ -536,7 +567,11 @@ namespace LetterStomach.Services
         public Dictionary<string, string> Catch_Share = new Dictionary<string, string>()
         {
             { upload_english, english },
-            { bluetooth_english, english }
+            { bluetooth_english, english },
+            { bluetooth_3_english, english },
+            { bluetooth_4_english, english },
+            { download_english, english },
+            { raspberry_english, english }
         };
 
         public Dictionary<string, string> Catch_Scan = new Dictionary<string, string>()

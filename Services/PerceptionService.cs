@@ -77,8 +77,8 @@ namespace LetterStomach.Services
         }
         #endregion
 
-        #region AUDIO
-        public async Task DownloadAudio()
+        #region RELOCATE
+        public async Task DownloadFile()
         {
             try
             {
@@ -101,11 +101,11 @@ namespace LetterStomach.Services
             }
         }
 
-        public async Task<string> UploadAudio()
+        public async Task<string> UploadFile()
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation upload audio \"Perception\" service failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation upload file \"Perception\" service failed!");
 
                 FileResult? result = await FilePicker.Default.PickAsync();
                 if (result != null)
@@ -114,7 +114,7 @@ namespace LetterStomach.Services
                     string name_file = result.FileName;
                     string[] file_names = name_file.Split('.');
                     if (!(file_names.Length == 2)) return null;
-                    if ((file_names[1] == "wav") || (file_names[1] == "mp3"))
+                    if ((file_names[1] == "wav") || (file_names[1] == "mp3") || (file_names[1] == "jpeg"))
                     {
                         string output_path = FilePath.SetFileName(name_file);
                         using (FileStream destinationStream = File.Create(output_path))
@@ -133,7 +133,9 @@ namespace LetterStomach.Services
                 return null;
             }
         }
+        #endregion
 
+        #region AUDIO
         public void AudioFFT(double[] audioData)
         {
             try
@@ -327,28 +329,6 @@ namespace LetterStomach.Services
                 {
                     await File.WriteAllBytesAsync(file_path, bytes);
                 }
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-            }
-        }
-        public async Task DownloadImage()
-        {
-            try
-            {
-                if (this._error_off) throw new InvalidOperationException("Operation download image \"Perception\" service failed!");
-
-                Audio audios = _audios.First();
-                string file_path = audios.url;
-                FileStream fs = new FileStream(file_path, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true);
-                MemoryStream ms = new MemoryStream();
-                await fs.CopyToAsync(ms);
-                ms.Position = 0;
-                using StreamContent streamContent = new StreamContent(ms);
-                IHttpService httpService = new HttpService();
-                await httpService.HttpPost(streamContent, file_path);
             }
             catch (Exception ex)
             {

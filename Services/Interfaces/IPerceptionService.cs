@@ -1,13 +1,10 @@
-﻿using LetterStomach.Interfaces;
-using System.Security.Cryptography;
-
-namespace LetterStomach.Services.Interfaces
+﻿namespace LetterStomach.Services.Interfaces
 {
     public interface IPerceptionService
     {
         Task<Location> GetCurrentLocation();
-        Task DownloadAudio();
-        Task<string> UploadAudio();
+        Task DownloadFile();
+        Task<string> UploadFile();
         void AudioFFT(double[] audioData);
         void SendRecording(string file_path);
         string ReceiveRecording();
@@ -17,7 +14,6 @@ namespace LetterStomach.Services.Interfaces
         BatteryPowerSource GetSource();
         void SetVibration(int time);
         Task SaveImage(byte[] bytes);
-        Task DownloadImage();
         event EventHandler<string> OnError;
         void PlayAudio(string file_path);
         void StopAudio();

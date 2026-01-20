@@ -7,7 +7,7 @@ namespace LetterStomach.Bot.Interface
         Task<string> Audio(string language);
         Task<string> Stop(string language);
         Task<string> Choose(string language, List<Message> messages);
-        Task<string> Load(string language, string parameter, List<Message> messages);
+        Task<List<string>> Load(string language, string parameter, List<Message> messages);
         event EventHandler<string> OnError;
     }
 }

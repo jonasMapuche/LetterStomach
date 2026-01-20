@@ -7,8 +7,11 @@ using LetterStomach.Models;
 using LetterStomach.Services;
 using LetterStomach.Services.Interfaces;
 using LetterStomach.Views;
+using Microsoft.Maui.ApplicationModel.DataTransfer;
 using MongoDB.Driver;
+using System.Reflection.Metadata;
 using System.Windows.Input;
+using UIKit;
 
 namespace LetterStomach.ViewModels
 {
@@ -82,6 +85,8 @@ namespace LetterStomach.ViewModels
         private Dictionary<string, string> VAR_CATCH = SettingService.Instance.Catch;
         private Dictionary<string, string> VAR_CATCH_CAMERA = SettingService.Instance.Catch_Camera;
         private Dictionary<string, string> VAR_CATCH_RECORD = SettingService.Instance.Catch_Record;
+        private Dictionary<string, string> VAR_CATCH_SHARE = SettingService.Instance.Catch_Share;
+        
         #endregion
 
         #region VARIABLE
@@ -303,6 +308,83 @@ namespace LetterStomach.ViewModels
             }
         }
 
+        private async Task<List<Message>> LoopCommmand(List<string> share, User user, string language)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation loop command \"Bot\" view model failed!");
+
+                foreach (string item in share)
+                {
+                    string response = string.Empty;
+                    if (item != string.Empty)
+                        response = await LoadMessage(item, user, language);
+                    if (response != string.Empty)
+                    {
+                        messages = MessageService.Instance.Bots(user, response, language);
+                        Messages = MessageService.Instance.Messages(user, response, language);
+                    }
+                }
+
+                return messages;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return new List<Message>();
+            }
+        }
+
+        private async Task<List<Message>> LoadCommmand(string parameter, User user, string language, List<Message> messages)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation load command \"Bot\" view model failed!");
+
+                HashSet<string> cameras = VAR_CATCH_CAMERA
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+                HashSet<string> records = VAR_CATCH_RECORD
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+                HashSet<string> shares = VAR_CATCH_SHARE
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                List<Message> notes = new List<Message>();
+
+                if (Array.IndexOf(cameras.ToArray(), parameter) != -1)
+                {
+                    List<string> share = new List<string>();
+                    share = await this._botService.CaptureCamera(language, parameter, messages);
+                    notes = await LoopCommmand(share, user, language);
+                }
+
+                if (Array.IndexOf(records.ToArray(), parameter) != -1)
+                {
+                    List<string> share = new List<string>();
+                    share = await this._botService.RecordAudio(language, parameter, messages);
+                    notes = await LoopCommmand(share, user, language);
+                }
+
+                if (Array.IndexOf(shares.ToArray(), parameter) != -1)
+                {
+                    List<string> share = new List<string>();
+                    share = await this._botService.ShareFile(language, parameter, messages);
+                    notes = await LoopCommmand(share, user, language);
+                }
+
+                return notes;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return new List<Message>();
+            }
+        }
+
         private async Task<string> OnSendBot(string parameter, User user, string language)
         {
             try
@@ -318,6 +400,9 @@ namespace LetterStomach.ViewModels
                 HashSet<string> records = VAR_CATCH_RECORD
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+                HashSet<string> shares = VAR_CATCH_SHARE
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
                 HashSet<string> terminates = VAR_TERMINATE
                     .Where(index => index.Value.Contains(language))
@@ -327,33 +412,21 @@ namespace LetterStomach.ViewModels
                 if (Array.IndexOf(catchs.ToArray(), parameter) != -1)
                 {
                     string mount = string.Empty;
-                    List<Message> messages = new List<Message>();
-                    messages = MessageService.Instance.Bots(language);
-
-                    if (Array.IndexOf(cameras.ToArray(), parameter) != -1)
-                        mount = await this._botService.CaptureCamera(language, parameter, messages);
-
-                    if (Array.IndexOf(records.ToArray(), parameter) != -1)
-                        mount = await this._botService.RecordAudio(language, parameter, messages);
-
                     string declarative = string.Empty;
-                    if (mount != string.Empty)
-                        declarative = await LoadMessage(mount, user, language);
+                    List<Message> messages = new List<Message>();
+                    List<Message> notes = new List<Message>();
+
+                    messages = MessageService.Instance.Bots(language);
 
                     if (Array.IndexOf(terminates.ToArray(), parameter) != -1)
                         result = await this._botService.Terminate(language, messages);
 
-                    messages = new List<Message>();
-                    if (declarative != string.Empty)
-                    {
-                        messages = MessageService.Instance.Bots(user, declarative, language);
-                        Messages = MessageService.Instance.Messages(user, declarative, language);
-                    }
+                    notes = await LoadCommmand(parameter, user, language, messages);
 
                     if (Array.IndexOf(cameras.ToArray(), parameter) != -1)
-                        result = await this._botService.CaptureCamera(language, messages);
+                        result = await this._botService.CaptureCamera(language, notes);
                     if (Array.IndexOf(records.ToArray(), parameter) != -1)
-                        result = await this._botService.RecordAudio(language, messages);
+                        result = await this._botService.RecordAudio(language, notes);
 
                     if (result != string.Empty)
                     {
@@ -404,7 +477,6 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation command button \"Bot\" view model failed!");
 
-                string response = string.Empty;
                 HashSet<string> verbs_load = new HashSet<string>();
                 verbs_load = VAR_LOAD.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
@@ -510,6 +582,8 @@ namespace LetterStomach.ViewModels
                 adjective_auto = VAR_AUTO.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
+                string response = string.Empty;
+
                 //-----
                 if (Array.IndexOf(verbs_record.ToArray(), verb) != -1)
                 {
@@ -610,6 +684,25 @@ namespace LetterStomach.ViewModels
                     }
                 }
                 //-----
+                if (Array.IndexOf(verbs_view.ToArray(), verb) != -1)
+                {
+                    if (Array.IndexOf(nouns_camera.ToArray(), noun) != -1)
+                    {
+                        //await this._cameraView.StartCameraPreview(Token);
+                        response = verb + " " + noun + ".";
+                        return response;
+                    }
+                }
+                if (Array.IndexOf(verbs_stop.ToArray(), verb) != -1)
+                {
+                    if (Array.IndexOf(nouns_camera.ToArray(), noun) != -1)
+                    {
+                        //this._cameraView.StopCameraPreview();
+                        response = verb + " " + noun + ".";
+                        return response;
+                    }
+                }
+                //-----
                 if (Array.IndexOf(verbs_rotate.ToArray(), verb) != -1)
                 {
                     if (Array.IndexOf(nouns_camera.ToArray(), noun) != -1)
@@ -617,8 +710,8 @@ namespace LetterStomach.ViewModels
                         if (Array.IndexOf(adjective_front.ToArray(), adjective) != -1)
                         {
                             //await RotateCamera();
-                            string result = verb + " " + noun + " " + adjective + ".";
-                            return result;
+                            response = verb + " " + noun + " " + adjective + ".";
+                            return response;
                         }
                     }
                 }
@@ -629,8 +722,8 @@ namespace LetterStomach.ViewModels
                         if (Array.IndexOf(adjective_rear.ToArray(), adjective) != -1)
                         {
                             //await RotateCamera();
-                            string result = verb + " " + noun + " " + adjective + ".";
-                            return result;
+                            response = verb + " " + noun + " " + adjective + ".";
+                            return response;
                         }
                     }
                 }
@@ -640,8 +733,8 @@ namespace LetterStomach.ViewModels
                     if (Array.IndexOf(nouns_flash.ToArray(), noun) != -1)
                     {
                         //await FlashCamera(noun, language);
-                        string result = verb + " " + noun + ".";
-                        return result;
+                        response = verb + " " + noun + ".";
+                        return response;
                     }
                 }
                 if (Array.IndexOf(verbs_turn.ToArray(), verb) != -1)
@@ -651,8 +744,8 @@ namespace LetterStomach.ViewModels
                         if (Array.IndexOf(adjective_off.ToArray(), adjective) != -1)
                         {
                             //await FlashCamera(adjective, language);
-                            string result = verb + " " + noun + " " + adjective + ".";
-                            return result;
+                            response = verb + " " + noun + " " + adjective + ".";
+                            return response;
                         }
                     }
                 }
@@ -663,8 +756,8 @@ namespace LetterStomach.ViewModels
                         if (Array.IndexOf(adjective_auto.ToArray(), adjective) != -1)
                         {
                             //await FlashCamera(adjective, language);
-                            string result = verb + " " + noun + " " + adjective + ".";
-                            return result;
+                            response = verb + " " + noun + " " + adjective + ".";
+                            return response;
                         }
                     }
                 }
@@ -674,8 +767,18 @@ namespace LetterStomach.ViewModels
                     if (Array.IndexOf(nouns_camera.ToArray(), noun) != -1)
                     {
                         //await this._cameraView.CaptureImage(Token);
-                        string result = verb + " " + noun + ".";
-                        return result;
+                        response = verb + " " + noun + ".";
+                        return response;
+                    }
+                }
+                //-----
+                if (Array.IndexOf(verbs_save.ToArray(), verb) != -1)
+                {
+                    if (Array.IndexOf(nouns_camera.ToArray(), noun) != -1)
+                    {
+                        //await _perceptionService.SaveImage(Bytes);
+                        response = verb + " " + noun + ".";
+                        return response;
                     }
                 }
                 //-----
@@ -688,43 +791,41 @@ namespace LetterStomach.ViewModels
                     }
                 }
                 //-----
-                if (Array.IndexOf(verbs_view.ToArray(), verb) != -1)
+                if (Array.IndexOf(verbs_upload.ToArray(), verb) != -1)
                 {
-                    if (Array.IndexOf(nouns_gps.ToArray(), noun) != -1)
+                    if (Array.IndexOf(nouns_file.ToArray(), noun) != -1)
                     {
-                        Location location = await _perceptionService.GetCurrentLocation();
-                        if (location != null)
-                            response = $"Latitude: {location.Latitude}, Longitude: {location.Longitude}.";
-                        else
-                            response = "Not work.";
+                        //string audio_file_path = await _perceptionService.UploadFile();
+                        //_perceptionService.SendRecording(audio_file_path);
+                        response = verb + " " + noun + ".";
                         return response;
                     }
                 }
-                if (Array.IndexOf(verbs_view.ToArray(), verb) != -1)
+                if (Array.IndexOf(verbs_download.ToArray(), verb) != -1)
                 {
-                    if (Array.IndexOf(nouns_camera.ToArray(), noun) != -1)
+                    if (Array.IndexOf(nouns_file.ToArray(), noun) != -1)
                     {
-                        await this._cameraView.StartCameraPreview(Token);
-                        response = "Start Camera.";
-                        return response;
-                    }
-                }
-                if (Array.IndexOf(verbs_view.ToArray(), verb) != -1)
-                {
-                    if (Array.IndexOf(nouns_battery.ToArray(), noun) != -1)
-                    {
-                        double battery = _perceptionService.GetCharge();
-                        response = $"{battery.ToString()} %";
+                        //await _perceptionService.DownloadFile();
+                        response = verb + " " + noun + ".";
                         return response;
                     }
                 }
                 //-----
-                if (Array.IndexOf(verbs_stop.ToArray(), verb) != -1)
+                if (Array.IndexOf(verbs_view.ToArray(), verb) != -1)
                 {
-                    if (Array.IndexOf(nouns_camera.ToArray(), noun) != -1)
+                    if (Array.IndexOf(nouns_gps.ToArray(), noun) != -1)
                     {
-                        this._cameraView.StopCameraPreview();
-                        response = "Stop Camera.";
+                        response = await GPS(language);
+                        return response;
+                    }
+                }
+                //-----
+                if (Array.IndexOf(verbs_view.ToArray(), verb) != -1)
+                {
+                    if (Array.IndexOf(nouns_battery.ToArray(), noun) != -1)
+                    {
+                        response = await Battery(language);
+                        return response;
                     }
                 }
                 //-----
@@ -732,8 +833,9 @@ namespace LetterStomach.ViewModels
                 {
                     if (Array.IndexOf(nouns_phone.ToArray(), noun) != -1)
                     {
-                        _perceptionService.SetVibration(7);
-                        response = "Vibrate Phone.";
+                        await Vibration(language);
+                        response = verb + " " + noun + ".";
+                        return response;
                     }
                 }
                 //-----
@@ -753,44 +855,6 @@ namespace LetterStomach.ViewModels
                         string text = "Hello world!";
                         string auto_file_path = this._perceptionService.FileText(text);
                         response = $"Create file '{auto_file_path}'.";
-                    }
-                }
-                //-----
-                if (Array.IndexOf(verbs_download.ToArray(), verb) != -1)
-                {
-                    if ((Array.IndexOf(nouns_mp3.ToArray(), noun) != -1) ||
-                        (Array.IndexOf(nouns_wav.ToArray(), noun) != -1))
-                    {
-                        await _perceptionService.DownloadAudio();
-                        response = "Download Audio.";
-                    }
-                }
-                if (Array.IndexOf(verbs_download.ToArray(), verb) != -1)
-                {
-                    if (Array.IndexOf(nouns_camera.ToArray(), noun) != -1)
-                    {
-                        await _perceptionService.DownloadImage();
-                        response = "Download Image.";
-                    }
-                }
-                //-----
-                if (Array.IndexOf(verbs_save.ToArray(), verb) != -1)
-                {
-                    if (Array.IndexOf(nouns_camera.ToArray(), noun) != -1)
-                    {
-                        await _perceptionService.SaveImage(Bytes);
-                        response = "Save Camera.";
-                    }
-                }
-                //-----
-                if (Array.IndexOf(verbs_upload.ToArray(), verb) != -1)
-                {
-                    if ((Array.IndexOf(nouns_mp3.ToArray(), noun) != -1) ||
-                        (Array.IndexOf(nouns_wav.ToArray(), noun) != -1))
-                    {
-                        string audio_file_path = await _perceptionService.UploadAudio();
-                        _perceptionService.SendRecording(audio_file_path);
-                        response = "Upload Audio.";
                     }
                 }
                 //-----
@@ -957,6 +1021,24 @@ namespace LetterStomach.ViewModels
             }
         }
 
+        private async Task<string> ShareFile(string language)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation share file \"Bot\" view model failed!");
+
+                if (!SettingService.Instance.ModeBot) SettingService.Instance.ModeBot = true;
+                string response = await this._botService.ShareFile(language);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return string.Empty;
+            }
+        }
+
         private async Task<string> EndBot(string response, string language)
         {
             try
@@ -975,14 +1057,18 @@ namespace LetterStomach.ViewModels
             }
         }
 
-        private async Task<string> ShareFile(string language)
+        private async Task<string> GPS(string language)
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation share file \"Bot\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation gps \"Bot\" view model failed!");
 
-                if (!SettingService.Instance.ModeBot) SettingService.Instance.ModeBot = true;
-                string response = await this._botService.ShareFile(language);
+                string response = string.Empty;
+                Location location = await _perceptionService.GetCurrentLocation();
+                if (location != null)
+                    response = $"latitude: {location.Latitude} e longitude: {location.Longitude}.";
+                else
+                    response = $"not work.";
                 return response;
             }
             catch (Exception ex)
@@ -990,6 +1076,40 @@ namespace LetterStomach.ViewModels
                 this.error_message = ex.Message;
                 this.OnError?.Invoke(this, this.error_message);
                 return string.Empty;
+            }
+        }
+
+        private async Task<string> Battery(string language)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation battery \"Bot\" view model failed!");
+
+                string response = string.Empty;
+                double battery = _perceptionService.GetCharge();
+                response = $"{battery.ToString()} %";
+                return response;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return string.Empty;
+            }
+        }
+
+        private async Task Vibration(string language)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation battery \"Bot\" view model failed!");
+
+                _perceptionService.SetVibration(7);
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
             }
         }
         #endregion
