@@ -193,6 +193,8 @@ namespace LetterStomach.Services
             { speak_english, english },
             { view_english, english },
             { terminate_english, english },
+            { turn_english, english },
+            { turn_on_english, english },
         };
 
         public Dictionary<string, string> Load = new Dictionary<string, string>()
@@ -271,7 +273,8 @@ namespace LetterStomach.Services
             { vibration_english, english },
             { phone_english, english },
             { audio_english, english },
-            { bot_english, english }
+            { bot_english, english },
+            { flash_english, english }
         };
 
         public Dictionary<string, string> Feature = new Dictionary<string, string>()

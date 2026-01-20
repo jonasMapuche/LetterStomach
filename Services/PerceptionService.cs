@@ -34,7 +34,7 @@ namespace LetterStomach.Services
         #endregion
 
         #region CONSTRUCTOR
-        public PerceptionService(IRecordService recordService)
+        public PerceptionService(IRecordService recordService, IAudioService audioService, ITextSpeakService textSpeakService)
         {
             try
             {
@@ -43,6 +43,12 @@ namespace LetterStomach.Services
 
                 this._record_service = recordService;
                 this._record_service.OnError += OnError;
+
+                this._audio_service = audioService;
+                this._audio_service.OnError += OnError;
+
+                this._text_speak_service = textSpeakService;
+                this._text_speak_service.OnError += OnError;
             }
             catch (Exception ex)
             {

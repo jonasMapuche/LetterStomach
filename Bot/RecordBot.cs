@@ -205,14 +205,9 @@ namespace LetterStomach.Bot
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> terminates = VAR_TERMINATE
-                    .Where(index => index.Value.Contains(language))
-                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-
                 bool wav = false;
                 bool mp3 = false;
                 bool stop = false;
-                bool terminate = false;
 
                 List<Message> memos = new List<Message>();
                 memos = messages.FindAll(index => index.Sender == null);
@@ -222,12 +217,11 @@ namespace LetterStomach.Bot
                     if (Array.IndexOf(wavs.ToArray(), memo.Text) != -1) wav = true;
                     if (Array.IndexOf(mp3s.ToArray(), memo.Text) != -1) mp3 = true;
                     if (Array.IndexOf(stops.ToArray(), memo.Text) != -1) stop = true;
-                    if (Array.IndexOf(terminates.ToArray(), memo.Text) != -1) terminate = true;
                 }
 
                 string response = string.Empty;
                 if ((wav || mp3) && !stop) response = await Stop(language);
-                if (((wav || mp3) && stop) || (terminate)) response = await Terminate(language);
+                if ((wav || mp3) && stop) response = await Terminate(language);
                 return response;
             }
             catch (Exception ex)

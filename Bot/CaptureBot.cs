@@ -287,31 +287,25 @@ namespace LetterStomach.Bot
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> terminates = VAR_TERMINATE
-                    .Where(index => index.Value.Contains(language))
-                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-
-                bool flash = true;
-                bool rotate = true;
-                bool capture = true;
-                bool terminate = true;
+                bool flash = false;
+                bool rotate = false;
+                bool capture = false;
 
                 List<Message> memos = new List<Message>();
                 memos = messages.FindAll(index => index.Sender == null);
 
                 foreach (Message memo in memos)
                 {
-                    if (Array.IndexOf(flashs.ToArray(), memo) != -1) flash = true;
-                    if (Array.IndexOf(rotates.ToArray(), memo) != -1) rotate = true;
-                    if (Array.IndexOf(captures.ToArray(), memo) != -1) capture = true;
-                    if (Array.IndexOf(terminates.ToArray(), memo.Text) != -1) terminate = true;
+                    if (Array.IndexOf(flashs.ToArray(), memo.Text) != -1) flash = true;
+                    if (Array.IndexOf(rotates.ToArray(), memo.Text) != -1) rotate = true;
+                    if (Array.IndexOf(captures.ToArray(), memo.Text) != -1) capture = true;
                 }
 
                 string response = string.Empty;
 
                 if ((rotate) && (!flash)) response = await Flash(language);
                 if (flash && rotate && !capture) response = await Capture(language);
-                if ((flash && rotate && capture) || terminate) response = await Terminate(language);
+                if (flash && rotate && capture) response = await Terminate(language);
 
                 return response;
             }

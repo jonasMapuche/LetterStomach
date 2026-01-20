@@ -8,7 +8,6 @@ using LetterStomach.Services;
 using LetterStomach.Services.Interfaces;
 using LetterStomach.Views;
 using MongoDB.Driver;
-using NaturalLanguage;
 using System.Windows.Input;
 
 namespace LetterStomach.ViewModels
@@ -129,7 +128,7 @@ namespace LetterStomach.ViewModels
         #endregion
 
         #region CONTRUCTOR
-        public BotViewModel(IRecordService recordService) 
+        public BotViewModel(IRecordService recordService, IAudioService audioService, ITextSpeakService textSpeakService) 
         {
             try 
             {
@@ -142,7 +141,7 @@ namespace LetterStomach.ViewModels
                 this.ShowCamera = false;
                 this.ShowPhoto = false;
 
-                this._perceptionService = new PerceptionService(recordService);
+                this._perceptionService = new PerceptionService(recordService, audioService, textSpeakService);
                 this._perceptionService.OnError += OnError;
 
                 this._botService = new BotService();
@@ -342,7 +341,7 @@ namespace LetterStomach.ViewModels
                         declarative = await LoadMessage(mount, user, language);
 
                     if (Array.IndexOf(terminates.ToArray(), parameter) != -1)
-                        result = await this._botService.RecordAudio(language, messages);
+                        result = await this._botService.Terminate(language, messages);
 
                     messages = new List<Message>();
                     if (declarative != string.Empty)
@@ -661,12 +660,22 @@ namespace LetterStomach.ViewModels
                 {
                     if (Array.IndexOf(nouns_flash.ToArray(), noun) != -1)
                     {
-                        if (Array.IndexOf(adjective_auto.ToArray(), noun) != -1)
+                        if (Array.IndexOf(adjective_auto.ToArray(), adjective) != -1)
                         {
                             //await FlashCamera(adjective, language);
                             string result = verb + " " + noun + " " + adjective + ".";
                             return result;
                         }
+                    }
+                }
+                //-----
+                if (Array.IndexOf(verbs_capture.ToArray(), verb) != -1)
+                {
+                    if (Array.IndexOf(nouns_camera.ToArray(), noun) != -1)
+                    {
+                        //await this._cameraView.CaptureImage(Token);
+                        string result = verb + " " + noun + ".";
+                        return result;
                     }
                 }
                 //-----
@@ -716,15 +725,6 @@ namespace LetterStomach.ViewModels
                     {
                         this._cameraView.StopCameraPreview();
                         response = "Stop Camera.";
-                    }
-                }
-                //-----
-                if (Array.IndexOf(verbs_capture.ToArray(), verb) != -1)
-                {
-                    if (Array.IndexOf(nouns_camera.ToArray(), noun) != -1)
-                    {
-                        await this._cameraView.CaptureImage(Token);
-                        response = "Capture Camera.";
                     }
                 }
                 //-----

@@ -26,6 +26,9 @@ namespace LetterStomach.Services
         #endregion
 
         #region VARIABLE
+        private Dictionary<string, string> VAR_TERMINATE = SettingService.Instance.Terminate;
+        private Dictionary<string, string> VAR_BOT = SettingService.Instance.Bot;
+
         ICaptureBot _captureBot = new CaptureBot();
         IRecordBot _recordBot = new RecordBot();
         IShareBot _shareBot = new ShareBot();
@@ -196,6 +199,65 @@ namespace LetterStomach.Services
                 if (this._error_off) throw new InvalidOperationException("Operation share file \"Bot\" service failed!");
                 string response = string.Empty;
                 //response = await this._shareBot.Load(language, parameter);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return string.Empty;
+            }
+        }
+        #endregion
+
+        #region TERMINATE
+        private async Task<string> Terminate(string language)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation terminate \"Record\" bot failed!");
+
+                HashSet<string> terminate = VAR_TERMINATE
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                HashSet<string> bot = VAR_BOT
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                string ask = $"{terminate.ToArray()[0]} {bot.ToArray()[0]}.";
+                return ask;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return string.Empty;
+            }
+        }
+
+        public async Task<string> Terminate(string language, List<Message> messages)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation terminate \"Bot\" service failed!");
+
+                HashSet<string> terminates = VAR_TERMINATE
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                bool terminate = false;
+
+                List<Message> memos = new List<Message>();
+                memos = messages.FindAll(index => index.Sender == null);
+
+                foreach (Message memo in memos)
+                {
+                    if (Array.IndexOf(terminates.ToArray(), memo.Text) != -1) terminate = true;
+                }
+
+                string response = string.Empty;
+                if (terminate) response = await Terminate(language);
                 return response;
             }
             catch (Exception ex)

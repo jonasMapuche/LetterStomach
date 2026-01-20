@@ -14,5 +14,6 @@ namespace LetterStomach.Services.Interfaces
         Task<string> ShareFile(string language);
         Task<string> ShareFile(string language, List<Message> messages);
         Task<string> ShareFile(string language, string parameter);
+        Task<string> Terminate(string language, List<Message> messages);
     }
 }
