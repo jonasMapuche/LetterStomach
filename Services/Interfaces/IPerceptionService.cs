@@ -23,5 +23,7 @@
         string StopRecordWav();
         void SpeakText(string text);
         string FileText(string text);
+        Task<List<string>> ScanBluetooth3();
+        Task<List<string>> ScanBluetooth4();
     }
 }

@@ -9,7 +9,6 @@ using LetterStomach.Services.Interfaces;
 using LetterStomach.Views;
 using MongoDB.Driver;
 using System.Windows.Input;
-using static SQLite.SQLite3;
 
 namespace LetterStomach.ViewModels
 {
@@ -59,9 +58,12 @@ namespace LetterStomach.ViewModels
         private Dictionary<string, string> VAR_TERMINATE = SettingService.Instance.Terminate;
         private Dictionary<string, string> VAR_TURN_ON = SettingService.Instance.Turn_On;
         private Dictionary<string, string> VAR_STAR = SettingService.Instance.Start;
+        private Dictionary<string, string> VAR_SCAN = SettingService.Instance.scan;
 
         private Dictionary<string, string> VAR_GPS = SettingService.Instance.GPS;
         private Dictionary<string, string> VAR_BLUETOOTH = SettingService.Instance.Bluetooth;
+        private Dictionary<string, string> VAR_BLUETOOTH3 = SettingService.Instance.Bluetooth3;
+        private Dictionary<string, string> VAR_BLUETOOTH4 = SettingService.Instance.Bluetooth4;
         private Dictionary<string, string> VAR_CAMERA = SettingService.Instance.Camera;
         private Dictionary<string, string> VAR_WAV = SettingService.Instance.WAV;
         private Dictionary<string, string> VAR_MP3 = SettingService.Instance.MP3;
@@ -398,15 +400,12 @@ namespace LetterStomach.ViewModels
             }
         }
 
-        private async Task<string> OnSendBot(string parameter, User user, string language)
+        private async Task<string> ChooseCommmand(string parameter, string language, List<Message> messages)
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation send bot \"Bot\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation choose command \"Bot\" view model failed!");
 
-                HashSet<string> catchs = VAR_CATCH
-                    .Where(index => index.Value.Contains(language))
-                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
                 HashSet<string> cameras = VAR_CATCH_CAMERA
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
@@ -416,8 +415,37 @@ namespace LetterStomach.ViewModels
                 HashSet<string> shares = VAR_CATCH_SHARE
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-
                 HashSet<string> terminates = VAR_TERMINATE
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                string result = string.Empty;
+                if (messages.Count > 0)
+                {
+                    if (Array.IndexOf(cameras.ToArray(), parameter) != -1)
+                        result = await this._botService.CaptureCamera(language, messages);
+                    if (Array.IndexOf(records.ToArray(), parameter) != -1)
+                        result = await this._botService.RecordAudio(language, messages);
+                    if (Array.IndexOf(shares.ToArray(), parameter) != -1)
+                        result = await this._botService.ShareFile(language, messages);
+                }
+                return result;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return string.Empty;
+            }
+        }
+
+        private async Task<string> OnSendBot(string parameter, User user, string language)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation send bot \"Bot\" view model failed!");
+
+                HashSet<string> catchs = VAR_CATCH
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -430,15 +458,7 @@ namespace LetterStomach.ViewModels
                     List<Message> notes = new List<Message>();
                     notes = await LoadCommmand(parameter, user, language, messages);
 
-                    if (notes.Count > 0)
-                    {
-                        if (Array.IndexOf(cameras.ToArray(), parameter) != -1)
-                            result = await this._botService.CaptureCamera(language, notes);
-                        if (Array.IndexOf(records.ToArray(), parameter) != -1)
-                            result = await this._botService.RecordAudio(language, notes);
-                        if (Array.IndexOf(shares.ToArray(), parameter) != -1)
-                            result = await this._botService.ShareFile(language, notes);
-                    }
+                    result = await ChooseCommmand(parameter, language, notes);
 
                     if ((result != string.Empty) && (notes.Count > 0))
                     {
@@ -537,6 +557,9 @@ namespace LetterStomach.ViewModels
                 HashSet<string> verbs_start = new HashSet<string>();
                 verbs_start = VAR_STAR.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+                HashSet<string> verbs_scan = new HashSet<string>();
+                verbs_scan = VAR_SCAN.Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
                 HashSet<string> nouns_gps = new HashSet<string>();
                 nouns_gps = VAR_GPS.Where(index => index.Value.Contains(language))
@@ -576,6 +599,12 @@ namespace LetterStomach.ViewModels
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
                 HashSet<string> nouns_bot = new HashSet<string>();
                 nouns_bot = VAR_BOT.Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+                HashSet<string> nouns_bluetooth3 = new HashSet<string>();
+                nouns_bluetooth3 = VAR_BLUETOOTH3.Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+                HashSet<string> nouns_bluetooth4 = new HashSet<string>();
+                nouns_bluetooth4 = VAR_BLUETOOTH4.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
                 HashSet<string> adjective_front = new HashSet<string>();
@@ -851,6 +880,23 @@ namespace LetterStomach.ViewModels
                     }
                 }
                 //-----
+                if (Array.IndexOf(verbs_scan.ToArray(), verb) != -1)
+                {
+                    if (Array.IndexOf(nouns_bluetooth3.ToArray(), noun) != -1)
+                    {
+                        response = await ScanBluetooth3(language);
+                        return response;
+                    }
+                }
+                if (Array.IndexOf(verbs_scan.ToArray(), verb) != -1)
+                {
+                    if (Array.IndexOf(nouns_bluetooth4.ToArray(), noun) != -1)
+                    {
+                        response = await ScanBluetooth4(language);
+                        return response;
+                    }
+                }
+                //-----
                 if (Array.IndexOf(verbs_speak.ToArray(), verb) != -1)
                 {
                     if (Array.IndexOf(nouns_text.ToArray(), noun) != -1)
@@ -870,10 +916,6 @@ namespace LetterStomach.ViewModels
                     }
                 }
                 //-----
-                if (Array.IndexOf(verbs_load.ToArray(), verb) != -1)
-                {
-                    if (Array.IndexOf(nouns_bluetooth.ToArray(), noun) != -1) { }
-                }
                 return response;
             }
             catch (Exception ex)
@@ -1122,6 +1164,56 @@ namespace LetterStomach.ViewModels
             {
                 this.error_message = ex.Message;
                 this.OnError?.Invoke(this, this.error_message);
+            }
+        }
+
+        private async Task<string> ScanBluetooth3(string language)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation scan bluetooth 3 \"Bot\" view model failed!");
+
+                List<string> bluetooth = await this._perceptionService.ScanBluetooth3();
+                string response = string.Empty;
+                foreach (string item in bluetooth)
+                {
+                    if (response == string.Empty)
+                        response = item;
+                    else
+                        response += ", " + item;
+                }
+                return response;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return string.Empty;
+            }
+        }
+
+        private async Task<string> ScanBluetooth4(string language)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation scan bluetooth 4 \"Bot\" view model failed!");
+
+                List<string> bluetooth = await this._perceptionService.ScanBluetooth4();
+                string response = string.Empty;
+                foreach (string item in bluetooth)
+                {
+                    if (response == string.Empty)
+                        response = item;
+                    else
+                        response += ", " + item;
+                }
+                return response;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return string.Empty;
             }
         }
         #endregion

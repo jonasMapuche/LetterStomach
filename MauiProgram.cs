@@ -25,6 +25,7 @@ namespace LetterStomach
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+                    fonts.AddFont("Metropolis-Medium.ttf", "MetropolisMedium");
                 });
 
 #if ANDROID

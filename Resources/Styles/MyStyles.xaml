@@ -71,7 +71,7 @@
     <Style x:Key="NameHomeItemLabelStyle" TargetType="Label">
         <Setter Property="TextColor" Value="{StaticResource BackgroundColor}" />
         <Setter Property="FontSize" Value="20" />
-        <Setter Property="FontFamily" Value="OpenSans Semibold" />
+        <Setter Property="FontFamily" Value="OpenSansSemibold" />
         <Setter Property="FontAttributes" Value="Bold" />
         <Setter Property="Margin" Value="12, 0" />
     </Style>
@@ -79,7 +79,7 @@
     <Style x:Key="MessageHomeItemLabelStyle" TargetType="Label">
         <Setter Property="TextColor" Value="{StaticResource BackgroundColor}" />
         <Setter Property="FontSize" Value="18" />
-        <Setter Property="FontFamily" Value="OpenSans Regular" />
+        <Setter Property="FontFamily" Value="OpenSansRegular" />
         <Setter Property="LineBreakMode" Value="TailTruncation" />
         <Setter Property="MaxLines" Value="3" />
         <Setter Property="Margin" Value="12, 2, 12, 0" />
@@ -108,7 +108,7 @@
     <Style x:Key="UserBotLabelStyle" TargetType="Label">
         <Setter Property="FontSize" Value="26" />
         <Setter Property="TextColor" Value="{StaticResource WhiteColor}" />
-        <Setter Property="FontFamily" Value="Metropolis Medium" />
+        <Setter Property="FontFamily" Value="MetropolisMedium" />
         <Setter Property="FontAttributes" Value="Bold" />
         <Setter Property="WidthRequest" Value="150" />
         <Setter Property="HorizontalOptions" Value="Start" />
@@ -137,7 +137,7 @@
     <Style x:Key="MessageReceiverBotItemLabelStyle" TargetType="Label">
         <Setter Property="TextColor" Value="{StaticResource BackgroundColor}" />
         <Setter Property="FontSize" Value="18" />
-        <Setter Property="FontFamily" Value="OpenSans Regular" />
+        <Setter Property="FontFamily" Value="OpenSansRegular" />
         <Setter Property="LineBreakMode" Value="TailTruncation" />
         <Setter Property="MaxLines" Value="3" />
         <Setter Property="Margin" Value="12, 12, 12, 0" />
@@ -174,7 +174,7 @@
     <Style x:Key="SenderBotItemLabelStyle" TargetType="Label">
         <Setter Property="TextColor" Value="{StaticResource BackgroundColor}" />
         <Setter Property="FontSize" Value="18" />
-        <Setter Property="FontFamily" Value="OpenSans Regular" />
+        <Setter Property="FontFamily" Value="OpenSansRegular" />
         <Setter Property="LineBreakMode" Value="TailTruncation" />
         <Setter Property="MaxLines" Value="3" />
         <Setter Property="Margin" Value="12, 12, 12, 0" />
@@ -217,7 +217,7 @@
     <Style x:Key="UserSettingLabelStyle" TargetType="Label">
         <Setter Property="FontSize" Value="26" />
         <Setter Property="TextColor" Value="{StaticResource WhiteColor}" />
-        <Setter Property="FontFamily" Value="Metropolis Medium" />
+        <Setter Property="FontFamily" Value="MetropolisMedium" />
         <Setter Property="FontAttributes" Value="Bold" />
         <Setter Property="WidthRequest" Value="150" />
         <Setter Property="HorizontalOptions" Value="Start" />

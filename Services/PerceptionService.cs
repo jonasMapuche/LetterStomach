@@ -3,6 +3,7 @@ using LetterStomach.Helpers;
 using LetterStomach.Interfaces;
 using LetterStomach.Models;
 using LetterStomach.Services.Interfaces;
+using Plugin.BLE.Abstractions.Contracts;
 using System.Numerics;
 
 namespace LetterStomach.Services
@@ -31,6 +32,7 @@ namespace LetterStomach.Services
         private IAudioService _audio_service;
         private IRecordService _record_service;
         private ITextSpeakService _text_speak_service;
+        private IAdapter _adapterBluetooth;
         #endregion
 
         #region CONSTRUCTOR
@@ -425,9 +427,39 @@ namespace LetterStomach.Services
         #endregion
 
         #region BLUETOOTH LE
+        public async Task<List<string>> ScanBluetooth4()
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation scan bluetooth 4 \"Perception\" service failed!");
+
+                return new List<string>();
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return new List<string>();
+            }
+        }
         #endregion
 
         #region BLUETOOTH CLASSIC
+        public async Task<List<string>> ScanBluetooth3()
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation scan bluetooth 3 \"Perception\" service failed!");
+
+                return new List<string>();
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return new List<string>();
+            }
+        }
         #endregion
     }
 }
