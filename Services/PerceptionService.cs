@@ -442,6 +442,35 @@ namespace LetterStomach.Services
                 return new List<string>();
             }
         }
+
+        public async Task<string> ConnectBluetooth4(string device)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation connect bluetooth 4 \"Perception\" service failed!");
+
+                return string.Empty;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return string.Empty;
+            }
+        }
+
+        public async Task DisconnectBluetooth4()
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation disconnect bluetooth 4 \"Perception\" service failed!");
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+            }
+        }
         #endregion
 
         #region BLUETOOTH CLASSIC
@@ -458,6 +487,35 @@ namespace LetterStomach.Services
                 this.error_message = ex.Message;
                 this.OnError?.Invoke(this, this.error_message);
                 return new List<string>();
+            }
+        }
+
+        public async Task<string> ConnectBluetooth3(string device)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation connect bluetooth 3 \"Perception\" service failed!");
+
+                return string.Empty;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return string.Empty;
+            }
+        }
+
+        public async Task DisconnectBluetooth3()
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation disconnect bluetooth 3 \"Perception\" service failed!");
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
             }
         }
         #endregion

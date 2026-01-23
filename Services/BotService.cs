@@ -2,7 +2,6 @@
 using LetterStomach.Bot.Interface;
 using LetterStomach.Models;
 using LetterStomach.Services.Interfaces;
-using System.Collections.Generic;
 
 namespace LetterStomach.Services
 {
@@ -270,6 +269,73 @@ namespace LetterStomach.Services
                 this.error_message = ex.Message;
                 this.OnError?.Invoke(this, this.error_message);
                 return new List<string>();
+            }
+        }
+        #endregion
+
+        #region SCAN
+        public async Task ShareScan(List<string> scan)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation share scan \"Bot\" service failed!");
+                this._shareBot.ShareScan = scan;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+            }
+        }
+
+        public async Task<List<string>> ShareScan()
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation share scan \"Bot\" service failed!");
+                return this._shareBot.ShareScan;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return new List<string>();
+            }
+        }
+
+        public async Task<bool> DeviceShare(string language, List<Message> messages, string device)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation device share \"Bot\" service failed!");
+
+                string result = string.Empty;
+                result = await this._shareBot.FindDevice(language, messages, device);
+                return result != string.Empty ? true : false;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return false;
+            }
+        }
+
+        public async Task<string> DeviceShare()
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation device share \"Bot\" service failed!");
+
+                string result = string.Empty;
+                result = this._shareBot.ShareDevice;
+                return result;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return string.Empty;
             }
         }
         #endregion

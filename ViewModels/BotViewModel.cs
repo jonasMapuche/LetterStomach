@@ -38,6 +38,7 @@ namespace LetterStomach.ViewModels
         private string VAR_NOUN = SettingService.Instance.Noun;
         private string VAR_ADJECTIVE = SettingService.Instance.Adjective;
         private string VAR_PREDICATE = SettingService.Instance.Predicate;
+        private string VAR_NUMERAL = SettingService.Instance.Numeral;
 
         private Dictionary<string, string> VAR_LOAD = SettingService.Instance.Load;
         private Dictionary<string, string> VAR_EXECUTE = SettingService.Instance.Execute;
@@ -58,7 +59,13 @@ namespace LetterStomach.ViewModels
         private Dictionary<string, string> VAR_TERMINATE = SettingService.Instance.Terminate;
         private Dictionary<string, string> VAR_TURN_ON = SettingService.Instance.Turn_On;
         private Dictionary<string, string> VAR_STAR = SettingService.Instance.Start;
-        private Dictionary<string, string> VAR_SCAN = SettingService.Instance.scan;
+        private Dictionary<string, string> VAR_SCAN = SettingService.Instance.Scan;
+        private Dictionary<string, string> VAR_WORK = SettingService.Instance.Work;
+        private Dictionary<string, string> VAR_DONT_WORK = SettingService.Instance.Dont_Work;
+        private Dictionary<string, string> VAR_SEND = SettingService.Instance.Send;
+        private Dictionary<string, string> VAR_CONNECT = SettingService.Instance.Connect;
+        private Dictionary<string, string> VAR_DISCONNECT = SettingService.Instance.Disconnect;
+        private Dictionary<string, string> VAR_CONNECTED = SettingService.Instance.Connected;
 
         private Dictionary<string, string> VAR_GPS = SettingService.Instance.GPS;
         private Dictionary<string, string> VAR_BLUETOOTH = SettingService.Instance.Bluetooth;
@@ -75,6 +82,14 @@ namespace LetterStomach.ViewModels
         private Dictionary<string, string> VAR_FLASH = SettingService.Instance.Flash;
         private Dictionary<string, string> VAR_AUDIO = SettingService.Instance.Audio;
         private Dictionary<string, string> VAR_BOT = SettingService.Instance.Bot;
+        private Dictionary<string, string> VAR_LONGITUDE = SettingService.Instance.Longitude;
+        private Dictionary<string, string> VAR_LATITUDE = SettingService.Instance.Latitude;
+        private Dictionary<string, string> VAR_LEVEL = SettingService.Instance.Level;
+
+        private Dictionary<string, string> VAR_WITH = SettingService.Instance.With;
+        private Dictionary<string, string> VAR_IN = SettingService.Instance.In;
+
+        private Dictionary<string, string> VAR_AND = SettingService.Instance.And;
 
         private Dictionary<string, string> VAR_FRONT = SettingService.Instance.Front;
         private Dictionary<string, string> VAR_REAR = SettingService.Instance.Rear;
@@ -87,12 +102,17 @@ namespace LetterStomach.ViewModels
         private Dictionary<string, string> VAR_CATCH_CAMERA = SettingService.Instance.Catch_Camera;
         private Dictionary<string, string> VAR_CATCH_RECORD = SettingService.Instance.Catch_Record;
         private Dictionary<string, string> VAR_CATCH_SHARE = SettingService.Instance.Catch_Share;
-        
+
+        private HashSet<int> VAR_ALGARISMO = SettingService.Instance.Algarismo;
+
+        private HashSet<int> VAR_THREE = SettingService.Instance.Three;
+        private HashSet<int> VAR_FOUR = SettingService.Instance.Four;
+
+        private string PORTUGUES = "português";
+        private string UNKNOW = "unknown";
         #endregion
 
         #region VARIABLE
-        private string PORTUGUES = "português";
-
         public ICommand BackCommand { get; set; }
 
         public ICommand SendCommand { get; set; }
@@ -241,6 +261,7 @@ namespace LetterStomach.ViewModels
                 HashSet<string> adjectives = VAR_FEATURE
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+                HashSet<int> numerals = VAR_ALGARISMO;
 
                 string result = string.Empty;
                 if ((locution != null) && (locution.Kind == VAR_DECLARATIVE))
@@ -272,34 +293,19 @@ namespace LetterStomach.ViewModels
                                 adjective = item.Term;
                         }
                     }
+                    int numeral = -1;
+                    foreach (Vocable item in locution.Word)
+                    {
+                        if ((item.Sentence == VAR_PREDICATE) && (item.Class == VAR_NUMERAL))
+                        {
+                            if (Array.IndexOf(numerals.ToArray(), int.Parse(item.Term)) != -1)
+                                numeral = int.Parse(item.Term);
+                        }
+                    }
                     if ((verb != string.Empty) && (noun != string.Empty))
-                        result = await OnCommandButton(language, verb, noun, adjective);
+                        result = await OnCommandButton(language, verb, noun, adjective, numeral);
                 }
                 return result;
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
-            }
-        }
-
-        private async Task<string> LoadMessage(string parameter, User user, string language)
-        {
-            try
-            {
-                if (this._error_off) throw new InvalidOperationException("Operation load message \"Bot\" view model failed!");
-
-                List<Locution> locutions = new List<Locution>();
-                locutions = await GoMessage(parameter, user, language);
-                Locution locution = new Locution();
-                locution = locutions[0];
-
-                string declarative = string.Empty;
-                declarative = await DecisionMessage(language, locution);
-
-                return declarative;
             }
             catch (Exception ex)
             {
@@ -318,19 +324,21 @@ namespace LetterStomach.ViewModels
                 List<Message> messages = new List<Message>();
                 foreach (string item in share)
                 {
+                    //----
+                    if (SettingService.Instance.ModeBot)
+                        messages = MessageService.Instance.Bots(user, item, language);
+                    Messages = MessageService.Instance.Messages(user, item, language);
+                    //----
                     string response = string.Empty;
                     if (item != string.Empty)
-                        response = await LoadMessage(item, user, language);
+                        response = await OnSendButton(item, user, language);
                     if (response != string.Empty)
                     {
                         if (SettingService.Instance.ModeBot)
                             messages = MessageService.Instance.Bots(user, response, language);
-                        else
-                            messages = new List<Message>();
                         Messages = MessageService.Instance.Messages(user, response, language);
                     }
                 }
-
                 return messages;
             }
             catch (Exception ex)
@@ -383,7 +391,10 @@ namespace LetterStomach.ViewModels
                     notes = await LoopCommmand(share, user, language);
                 }
 
-                if (Array.IndexOf(shares.ToArray(), parameter) != -1)
+                bool device = false;
+                device = await this._botService.DeviceShare(language, messages, parameter);
+
+                if ((Array.IndexOf(shares.ToArray(), parameter) != -1) || device)
                 {
                     List<string> share = new List<string>();
                     share = await this._botService.ShareFile(language, parameter, messages);
@@ -426,7 +437,11 @@ namespace LetterStomach.ViewModels
                         result = await this._botService.CaptureCamera(language, messages);
                     if (Array.IndexOf(records.ToArray(), parameter) != -1)
                         result = await this._botService.RecordAudio(language, messages);
-                    if (Array.IndexOf(shares.ToArray(), parameter) != -1)
+
+                    bool device = false;
+                    device = await this._botService.DeviceShare(language, messages, parameter);
+
+                    if ((Array.IndexOf(shares.ToArray(), parameter) != -1) || device)
                         result = await this._botService.ShareFile(language, messages);
                 }
                 return result;
@@ -449,12 +464,13 @@ namespace LetterStomach.ViewModels
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                string result = string.Empty;
-                if (Array.IndexOf(catchs.ToArray(), parameter) != -1)
-                {
-                    List<Message> messages = new List<Message>();
-                    messages = MessageService.Instance.Bots(language);
+                List<Message> messages = new List<Message>();
+                messages = MessageService.Instance.Bots(language);
+                bool device = await this._botService.DeviceShare(language, messages, parameter);
 
+                string result = string.Empty;
+                if ((Array.IndexOf(catchs.ToArray(), parameter) != -1) || device) 
+                {
                     List<Message> notes = new List<Message>();
                     notes = await LoadCommmand(parameter, user, language, messages);
 
@@ -485,8 +501,8 @@ namespace LetterStomach.ViewModels
                 List<Locution> locutions = new List<Locution>();
                 locutions = await GoMessage(parameter, user, language);
                 Locution locution = new Locution();
-                locution = locutions[0];
-
+                foreach (Locution item in locutions)
+                    locution = item;
                 string result = string.Empty;
                 result = await DecisionMessage(language, locution);
 
@@ -500,7 +516,7 @@ namespace LetterStomach.ViewModels
             }
         }
 
-        private async Task<string> OnCommandButton(string language, string verb, string noun, string adjective)
+        private async Task<string> OnCommandButton(string language, string verb, string noun, string adjective, int numeral)
         {
             try
             {
@@ -559,6 +575,15 @@ namespace LetterStomach.ViewModels
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
                 HashSet<string> verbs_scan = new HashSet<string>();
                 verbs_scan = VAR_SCAN.Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+                HashSet<string> verbs_send = new HashSet<string>();
+                verbs_send = VAR_SEND.Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+                HashSet<string> verbs_connect = new HashSet<string>();
+                verbs_connect = VAR_CONNECT.Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+                HashSet<string> verbs_disconnect = new HashSet<string>();
+                verbs_disconnect = VAR_DISCONNECT.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
                 HashSet<string> nouns_gps = new HashSet<string>();
@@ -623,6 +648,9 @@ namespace LetterStomach.ViewModels
                 adjective_auto = VAR_AUTO.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
+                HashSet<int> numeral_three = VAR_THREE;
+                HashSet<int> numeral_four = VAR_FOUR;
+
                 string response = string.Empty;
 
                 //-----
@@ -643,7 +671,7 @@ namespace LetterStomach.ViewModels
                         if (permission_status == PermissionStatus.Granted)
                         {
                             //this._perceptionService.StartRecordMP3();
-                            response = verb + " " + noun + ".";
+                            response = noun + " " + verb + ".";
                             return response;
                         }
                     }
@@ -656,7 +684,7 @@ namespace LetterStomach.ViewModels
                         if (permission_status == PermissionStatus.Granted)
                         {
                             //this._perceptionService.StartRecordWav();
-                            response = verb + " " + noun + ".";
+                            response = noun + " " + verb + ".";
                             return response;
                         }
                     }
@@ -668,7 +696,7 @@ namespace LetterStomach.ViewModels
                     {
                         //string audio_file_path = this._perceptionService.StopRecordMP3();
                         //_perceptionService.SendRecording(audio_file_path);
-                        response = verb + " " + noun + ".";
+                        response = noun + " " + verb + ".";
                         return response;
                     }
                 }
@@ -678,7 +706,7 @@ namespace LetterStomach.ViewModels
                     {
                         //string audio_file_path = this._perceptionService.StopRecordWav();
                         //_perceptionService.SendRecording(audio_file_path);
-                        response = verb + " " + noun + ".";
+                        response = noun + " " + verb + ".";
                         return response;
                     }
                 }
@@ -690,7 +718,7 @@ namespace LetterStomach.ViewModels
                         //this._perceptionService.StopAudio();
                         //string audio_file_path = _perceptionService.ReceiveRecording();
                         //this._perceptionService.PlayAudio(audio_file_path);
-                        response = verb + " " + noun + ".";
+                        response = noun + " " + verb + ".";
                         return response;
                     }
                 }
@@ -701,7 +729,7 @@ namespace LetterStomach.ViewModels
                         //this._perceptionService.StopAudio();
                         //string audio_file_path = _perceptionService.ReceiveRecording();
                         //this._perceptionService.PlayAudio(audio_file_path);
-                        response = verb + " " + noun + ".";
+                        response = noun + " " + verb + ".";
                         return response;
                     }
                 }
@@ -710,8 +738,8 @@ namespace LetterStomach.ViewModels
                 {
                     if (Array.IndexOf(nouns_bot.ToArray(), noun) != -1)
                     {
-                        string result = verb + " " + noun + ".";
-                        response = await EndBot(result, language);
+                        await EndBot(language);
+                        response = noun + " " + verb + ".";
                         return response;
                     }
                 }
@@ -730,7 +758,7 @@ namespace LetterStomach.ViewModels
                     if (Array.IndexOf(nouns_camera.ToArray(), noun) != -1)
                     {
                         //await this._cameraView.StartCameraPreview(Token);
-                        response = verb + " " + noun + ".";
+                        response = noun + " " + verb + ".";
                         return response;
                     }
                 }
@@ -739,7 +767,7 @@ namespace LetterStomach.ViewModels
                     if (Array.IndexOf(nouns_camera.ToArray(), noun) != -1)
                     {
                         //this._cameraView.StopCameraPreview();
-                        response = verb + " " + noun + ".";
+                        response = noun + " " + verb + ".";
                         return response;
                     }
                 }
@@ -751,7 +779,7 @@ namespace LetterStomach.ViewModels
                         if (Array.IndexOf(adjective_front.ToArray(), adjective) != -1)
                         {
                             //await RotateCamera();
-                            response = verb + " " + noun + " " + adjective + ".";
+                            response = noun + " " + adjective + " " + verb + ".";
                             return response;
                         }
                     }
@@ -763,7 +791,7 @@ namespace LetterStomach.ViewModels
                         if (Array.IndexOf(adjective_rear.ToArray(), adjective) != -1)
                         {
                             //await RotateCamera();
-                            response = verb + " " + noun + " " + adjective + ".";
+                            response = noun + " " + adjective + " " + verb + ".";
                             return response;
                         }
                     }
@@ -774,7 +802,7 @@ namespace LetterStomach.ViewModels
                     if (Array.IndexOf(nouns_flash.ToArray(), noun) != -1)
                     {
                         //await FlashCamera(noun, language);
-                        response = verb + " " + noun + ".";
+                        response = noun + " " + verb + ".";
                         return response;
                     }
                 }
@@ -785,7 +813,7 @@ namespace LetterStomach.ViewModels
                         if (Array.IndexOf(adjective_off.ToArray(), adjective) != -1)
                         {
                             //await FlashCamera(adjective, language);
-                            response = verb + " " + noun + " " + adjective + ".";
+                            response = noun + " " + adjective + " " + verb + ".";
                             return response;
                         }
                     }
@@ -797,7 +825,7 @@ namespace LetterStomach.ViewModels
                         if (Array.IndexOf(adjective_auto.ToArray(), adjective) != -1)
                         {
                             //await FlashCamera(adjective, language);
-                            response = verb + " " + noun + " " + adjective + ".";
+                            response = noun + " " + adjective + " " + verb + ".";
                             return response;
                         }
                     }
@@ -808,7 +836,7 @@ namespace LetterStomach.ViewModels
                     if (Array.IndexOf(nouns_camera.ToArray(), noun) != -1)
                     {
                         //await this._cameraView.CaptureImage(Token);
-                        response = verb + " " + noun + ".";
+                        response = noun + " " + verb + ".";
                         return response;
                     }
                 }
@@ -818,7 +846,7 @@ namespace LetterStomach.ViewModels
                     if (Array.IndexOf(nouns_camera.ToArray(), noun) != -1)
                     {
                         //await _perceptionService.SaveImage(Bytes);
-                        response = verb + " " + noun + ".";
+                        response = noun + " " + verb + ".";
                         return response;
                     }
                 }
@@ -838,7 +866,7 @@ namespace LetterStomach.ViewModels
                     {
                         //string audio_file_path = await _perceptionService.UploadFile();
                         //_perceptionService.SendRecording(audio_file_path);
-                        response = verb + " " + noun + ".";
+                        response = noun + " " + verb + ".";
                         return response;
                     }
                 }
@@ -847,7 +875,7 @@ namespace LetterStomach.ViewModels
                     if (Array.IndexOf(nouns_file.ToArray(), noun) != -1)
                     {
                         //await _perceptionService.DownloadFile();
-                        response = verb + " " + noun + ".";
+                        response = noun + " " + verb + ".";
                         return response;
                     }
                 }
@@ -874,26 +902,75 @@ namespace LetterStomach.ViewModels
                 {
                     if (Array.IndexOf(nouns_phone.ToArray(), noun) != -1)
                     {
-                        await Vibration(language);
-                        response = verb + " " + noun + ".";
+                        response = await Vibration(7, language);
                         return response;
                     }
                 }
                 //-----
                 if (Array.IndexOf(verbs_scan.ToArray(), verb) != -1)
                 {
-                    if (Array.IndexOf(nouns_bluetooth3.ToArray(), noun) != -1)
+                    if (Array.IndexOf(nouns_bluetooth.ToArray(), noun) != -1)
                     {
-                        response = await ScanBluetooth3(language);
-                        return response;
+                        if (Array.IndexOf(numeral_three.ToArray(), numeral) != -1)
+                        {
+                            response = await ScanBluetooth3(language);
+                            return response;
+                        }
                     }
                 }
                 if (Array.IndexOf(verbs_scan.ToArray(), verb) != -1)
                 {
-                    if (Array.IndexOf(nouns_bluetooth4.ToArray(), noun) != -1)
+                    if (Array.IndexOf(nouns_bluetooth.ToArray(), noun) != -1)
                     {
-                        response = await ScanBluetooth4(language);
-                        return response;
+                        if (Array.IndexOf(numeral_four.ToArray(), numeral) != -1)
+                        {
+                            response = await ScanBluetooth4(language);
+                            return response;
+                        }
+                    }
+                }
+                if (Array.IndexOf(verbs_connect.ToArray(), verb) != -1)
+                {
+                    if (Array.IndexOf(nouns_bluetooth.ToArray(), noun) != -1)
+                    {
+                        if (Array.IndexOf(numeral_three.ToArray(), numeral) != -1)
+                        {
+                            response = await ConnectBluetooth3(language);
+                            return response;
+                        }
+                    }
+                }
+                if (Array.IndexOf(verbs_connect.ToArray(), verb) != -1)
+                {
+                    if (Array.IndexOf(nouns_bluetooth.ToArray(), noun) != -1)
+                    {
+                        if (Array.IndexOf(numeral_four.ToArray(), numeral) != -1)
+                        {
+                            response = await ConnectBluetooth4(language);
+                            return response;
+                        }
+                    }
+                }
+                if (Array.IndexOf(verbs_disconnect.ToArray(), verb) != -1)
+                {
+                    if (Array.IndexOf(nouns_bluetooth.ToArray(), noun) != -1)
+                    {
+                        if (Array.IndexOf(numeral_three.ToArray(), numeral) != -1)
+                        {
+                            response = await DisconnectBluetooth3(language);
+                            return response;
+                        }
+                    }
+                }
+                if (Array.IndexOf(verbs_send.ToArray(), verb) != -1)
+                {
+                    if (Array.IndexOf(nouns_bluetooth.ToArray(), noun) != -1)
+                    {
+                        if (Array.IndexOf(numeral_four.ToArray(), numeral) != -1)
+                        {
+                            response = await DisconnectBluetooth4(language);
+                            return response;
+                        }
                     }
                 }
                 //-----
@@ -980,7 +1057,7 @@ namespace LetterStomach.ViewModels
         }
         #endregion
 
-        #region BUTTON
+        #region CAMERA
         private async Task FlashCamera(string kind, string language)
         {
             try
@@ -1093,7 +1170,7 @@ namespace LetterStomach.ViewModels
             }
         }
 
-        private async Task<string> EndBot(string response, string language)
+        private async Task EndBot(string language)
         {
             try
             {
@@ -1101,13 +1178,11 @@ namespace LetterStomach.ViewModels
 
                 if (SettingService.Instance.ModeBot) SettingService.Instance.ModeBot = false;
                 MessageService.Instance.Remove(language);
-                return response;
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
                 this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
             }
         }
 
@@ -1117,12 +1192,36 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation gps \"Bot\" view model failed!");
 
+                HashSet<string> work = VAR_WORK
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                HashSet<string> dont_work = VAR_DONT_WORK
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                HashSet<string> with = VAR_WITH
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                HashSet<string> and = VAR_AND
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                HashSet<string> longitude = VAR_LONGITUDE
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                HashSet<string> latitude = VAR_LATITUDE
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
                 string response = string.Empty;
                 Location location = await _perceptionService.GetCurrentLocation();
                 if (location != null)
-                    response = $"latitude: {location.Latitude} e longitude: {location.Longitude}.";
+                    response = $"{work.ToArray()[0]} {with.ToArray()[0]} {latitude.ToArray()[0]} {location.Latitude} {and.ToArray()[0]} {longitude.ToArray()[0]} {location.Longitude}.";
                 else
-                    response = $"not work.";
+                    response = $"{dont_work.ToArray()[0]}.";
                 return response;
             }
             catch (Exception ex)
@@ -1139,9 +1238,13 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation battery \"Bot\" view model failed!");
 
+                HashSet<string> load = VAR_LOAD
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
                 string response = string.Empty;
                 double battery = _perceptionService.GetCharge();
-                response = $"{battery.ToString()} %";
+                response = $"{battery.ToString()}% {load.ToArray()[0]}.";
                 return response;
             }
             catch (Exception ex)
@@ -1152,18 +1255,29 @@ namespace LetterStomach.ViewModels
             }
         }
 
-        private async Task Vibration(string language)
+        private async Task<string> Vibration(int number, string language)
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation battery \"Bot\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation vibration \"Bot\" view model failed!");
 
-                _perceptionService.SetVibration(7);
+                HashSet<string> vibration = VAR_VIBRATION
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+                HashSet<string> level = VAR_LEVEL
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                _perceptionService.SetVibration(number);
+                string response = string.Empty;
+                response = $"{vibration.ToArray()[0]} {level.ToArray()[0]} {number}.";
+                return response;
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
                 this.OnError?.Invoke(this, this.error_message);
+                return string.Empty;
             }
         }
 
@@ -1175,13 +1289,22 @@ namespace LetterStomach.ViewModels
 
                 List<string> bluetooth = await this._perceptionService.ScanBluetooth3();
                 string response = string.Empty;
-                foreach (string item in bluetooth)
+                if (bluetooth.Count == 0)
                 {
-                    if (response == string.Empty)
-                        response = item;
-                    else
-                        response += ", " + item;
-                }
+                    response = UNKNOW;
+                    List<string> unknow = new List<string>();
+                    unknow.Add(response);
+                    await this._botService.ShareScan(unknow);
+                    return response;
+                } else
+                    await this._botService.ShareScan(bluetooth);
+                foreach (string item in bluetooth)
+                    {
+                        if (response == string.Empty)
+                            response = item;
+                        else
+                            response += ", " + item;
+                    }
                 return response;
             }
             catch (Exception ex)
@@ -1200,6 +1323,16 @@ namespace LetterStomach.ViewModels
 
                 List<string> bluetooth = await this._perceptionService.ScanBluetooth4();
                 string response = string.Empty;
+                if (bluetooth.Count == 0)
+                {
+                    response = UNKNOW;
+                    List<string> unknow = new List<string>();
+                    unknow.Add(response);
+                    await this._botService.ShareScan(unknow);
+                    return response;
+                }
+                else
+                    await this._botService.ShareScan(bluetooth);
                 foreach (string item in bluetooth)
                 {
                     if (response == string.Empty)
@@ -1207,6 +1340,131 @@ namespace LetterStomach.ViewModels
                     else
                         response += ", " + item;
                 }
+                return response;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return string.Empty;
+            }
+        }
+
+        private async Task<string> ConnectBluetooth3(string language)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation connect bluetooth 4 \"Bot\" view model failed!");
+
+                HashSet<string> bluetooth = VAR_BLUETOOTH
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+                HashSet<string> connected = VAR_CONNECTED
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+                HashSet<string> in_proposition = VAR_IN
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                HashSet<int> numeral_three = VAR_THREE;
+
+                string device = string.Empty;
+                device = await this._botService.DeviceShare();
+                string result = string.Empty;
+                result = await this._perceptionService.ConnectBluetooth3(device);
+                string response = string.Empty;
+                response = $"{device} {connected.ToArray()[0]} {in_proposition.ToArray()[0]} {bluetooth.ToArray()[0]} {numeral_three.ToArray()[0]} .";
+                return response;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return string.Empty;
+            }
+        }
+
+        private async Task<string> ConnectBluetooth4(string language)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation connect bluetooth 4 \"Bot\" view model failed!");
+
+                HashSet<string> bluetooth = VAR_BLUETOOTH
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+                HashSet<string> connected = VAR_CONNECTED
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+                HashSet<string> in_proposition = VAR_IN
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                HashSet<int> numeral_four = VAR_FOUR;
+
+                string device = string.Empty;
+                device = await this._botService.DeviceShare();
+                string result = string.Empty;
+                result = await this._perceptionService.ConnectBluetooth4(device);
+                string response = string.Empty;
+                response = $"{device} {connected.ToArray()[0]} {in_proposition.ToArray()[0]} {bluetooth.ToArray()[0]} {numeral_four.ToArray()[0]} .";
+                return response;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return string.Empty;
+            }
+        }
+
+        private async Task<string> DisconnectBluetooth3(string language)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation disconnect bluetooth 3 \"Bot\" view model failed!");
+
+                HashSet<string> bluetooth = VAR_BLUETOOTH
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+                HashSet<string> disconnect = VAR_DISCONNECT
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                HashSet<int> numeral_three = VAR_THREE;
+
+                await this._perceptionService.DisconnectBluetooth3();
+                string response = string.Empty;
+                response = $"{bluetooth.ToArray()[0]} {numeral_three.ToArray()[0]} {disconnect.ToArray()[0]}.";
+                return response;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return string.Empty;
+            }
+        }
+
+        private async Task<string> DisconnectBluetooth4(string language)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation disconnect bluetooth 4 \"Bot\" view model failed!");
+
+                HashSet<string> bluetooth = VAR_BLUETOOTH
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                HashSet<string> disconnect = VAR_DISCONNECT
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
+                HashSet<int> numeral_four = VAR_FOUR;
+
+                await this._perceptionService.DisconnectBluetooth4();
+                string response = string.Empty;
+                response = $"{bluetooth.ToArray()[0]} {numeral_four.ToArray()[0]} {disconnect.ToArray()[0]}.";
                 return response;
             }
             catch (Exception ex)

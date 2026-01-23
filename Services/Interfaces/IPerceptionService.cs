@@ -24,6 +24,10 @@
         void SpeakText(string text);
         string FileText(string text);
         Task<List<string>> ScanBluetooth3();
+        Task<string> ConnectBluetooth3(string device);
+        Task DisconnectBluetooth3();
         Task<List<string>> ScanBluetooth4();
+        Task<string> ConnectBluetooth4(string device);
+        Task DisconnectBluetooth4();
     }
 }

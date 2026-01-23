@@ -1,4 +1,5 @@
-﻿using LetterStomach.Models;
+﻿using LetterStomach.Enums;
+using LetterStomach.Models;
 
 namespace LetterStomach.Services
 {
@@ -151,6 +152,10 @@ namespace LetterStomach.Services
         private static readonly string end_english = "end";
         private static readonly string terminate_english = "terminate";
         private static readonly string turn_on_english = "turn on";
+        private static readonly string work_english = "work";
+        private static readonly string dont_work_english = "do not work";
+        private static readonly string disconnect_english = "disconnect";
+        private static readonly string connected_english = "connected";
 
         private static readonly string gps_english = "gps";
         private static readonly string bluetooth_english = "bluetooth";
@@ -176,8 +181,18 @@ namespace LetterStomach.Services
         private static readonly string raspberry_english = "raspberry";
         private static readonly string bluetooth_3_english = "bluetooth 3";
         private static readonly string bluetooth_4_english = "bluetooth 4";
+        private static readonly string latitude_english = "latitude";
+        private static readonly string longitude_english = "longitude";
+        private static readonly string level_english = "level";
 
         private static readonly string what_english = "what";
+
+        private static readonly string and_english = "and";
+        private static readonly string or_english = "or";
+
+        private static readonly string with_english = "with";
+        private static readonly string by_english = "by";
+        private static readonly string in_english = "in";
 
         public Dictionary<string, string> Execute = new Dictionary<string, string>()
         {
@@ -200,7 +215,9 @@ namespace LetterStomach.Services
             { save_english,english },
             { turn_english, english },
             { turn_on_english, english },
-            { share_english, english }
+            { share_english, english },
+            { scan_english, english },
+            { connect_english, english }
         };
 
         public Dictionary<string, string> Load = new Dictionary<string, string>()
@@ -403,7 +420,8 @@ namespace LetterStomach.Services
             { raspberry_english, english },
             { bluetooth_3_english, english },
             { bluetooth_4_english, english },
-            { save_english, english }
+            { save_english, english },
+            { scan_english, english }
         };
 
         public Dictionary<string, string> Catch_Camera = new Dictionary<string, string>()
@@ -522,42 +540,42 @@ namespace LetterStomach.Services
             { load_english, english },
         };
 
-        public Dictionary<string, string> scan = new Dictionary<string, string>()
+        public Dictionary<string, string> Scan = new Dictionary<string, string>()
         {
             { scan_english, english },
         };
 
-        public Dictionary<string, string> connect = new Dictionary<string, string>()
+        public Dictionary<string, string> Connect = new Dictionary<string, string>()
         {
             { connect_english, english },
         };
 
-        public Dictionary<string, string> name = new Dictionary<string, string>()
+        public Dictionary<string, string> Name = new Dictionary<string, string>()
         {
             { name_english, english },
         };
 
-        public Dictionary<string, string> connection = new Dictionary<string, string>()
+        public Dictionary<string, string> Connection = new Dictionary<string, string>()
         {
             { connection_english, english },
         };
 
-        public Dictionary<string, string> is_be = new Dictionary<string, string>()
+        public Dictionary<string, string> Is_Be = new Dictionary<string, string>()
         {
             { is_english, english },
         };
 
-        public Dictionary<string, string> what = new Dictionary<string, string>()
+        public Dictionary<string, string> What = new Dictionary<string, string>()
         {
             { what_english, english },
         };
 
-        public Dictionary<string, string> choose = new Dictionary<string, string>()
+        public Dictionary<string, string> Choose = new Dictionary<string, string>()
         {
             { choose_english, english },
         };
 
-        public Dictionary<string, string> options = new Dictionary<string, string>()
+        public Dictionary<string, string> Options = new Dictionary<string, string>()
         {
             { options_english, english },
         };
@@ -574,7 +592,9 @@ namespace LetterStomach.Services
             { bluetooth_3_english, english },
             { bluetooth_4_english, english },
             { download_english, english },
-            { raspberry_english, english }
+            { raspberry_english, english },
+            { scan_english, english },
+            { connect_english, english }
         };
 
         public Dictionary<string, string> Catch_Scan = new Dictionary<string, string>()
@@ -596,6 +616,82 @@ namespace LetterStomach.Services
         public Dictionary<string, string> Terminate = new Dictionary<string, string>()
         {
             { terminate_english, english }
+        };
+
+        public HashSet<int> Algarismo = new HashSet<int>
+        {
+            (int)Cipher.Three,
+            (int)Cipher.Four
+        };
+
+        public HashSet<int> Three = new HashSet<int>
+        {
+            (int)Cipher.Three
+        };
+
+        public HashSet<int> Four = new HashSet<int>
+        {
+            (int)Cipher.Four
+        };
+
+        public Dictionary<string, string> Dont_Work = new Dictionary<string, string>()
+        {
+            { dont_work_english, english }
+        };
+
+        public Dictionary<string, string> Work = new Dictionary<string, string>()
+        {
+            { work_english, english }
+        };
+
+        public Dictionary<string, string> With = new Dictionary<string, string>()
+        {
+            { with_english, english }
+        };
+
+        public Dictionary<string, string> By = new Dictionary<string, string>()
+        {
+            { by_english, english }
+        };
+
+        public Dictionary<string, string> In = new Dictionary<string, string>()
+        {
+            { in_english, english }
+        };
+
+        public Dictionary<string, string> And = new Dictionary<string, string>()
+        {
+            { and_english, english }
+        };
+
+        public Dictionary<string, string> Or = new Dictionary<string, string>()
+        {
+            { or_english, english }
+        };
+
+        public Dictionary<string, string> Latitude = new Dictionary<string, string>()
+        {
+            { latitude_english, english }
+        };
+
+        public Dictionary<string, string> Longitude = new Dictionary<string, string>()
+        {
+            { longitude_english, english }
+        };
+
+        public Dictionary<string, string> Level = new Dictionary<string, string>()
+        {
+            { level_english, english }
+        };
+
+        public Dictionary<string, string> Disconnect = new Dictionary<string, string>()
+        {
+            { disconnect_english, english }
+        };
+
+        public Dictionary<string, string> Connected = new Dictionary<string, string>()
+        {
+            { connected_english, english }
         };
     }
 }
