@@ -113,9 +113,10 @@ namespace LetterStomach.Services
         public readonly string Numeral_Noun = "numeral substantivo";
 
         public readonly string Personal = "pessoal";
-        public readonly string Preposition = "preposicao";
+        public readonly string Preposition = "preposição";
         public readonly string Possessive = "possessivo";
         public readonly string Demostrtive = "demonstrativo";
+        public readonly string Especial = "especial";
 
         public readonly string Single = "singular";
         public readonly string Plural = "plural";
@@ -171,11 +172,6 @@ namespace LetterStomach.Services
         private static readonly string audio_english = "audio";
         private static readonly string connection_english = "connection";
         private static readonly string name_english = "name";
-        private static readonly string on_english = "on";
-        private static readonly string off_english = "off";
-        private static readonly string auto_english = "auto";
-        private static readonly string front_english = "front";
-        private static readonly string rear_english = "rear";
         private static readonly string options_english = "options";
         private static readonly string bot_english = "bot";
         private static readonly string raspberry_english = "raspberry";
@@ -185,6 +181,12 @@ namespace LetterStomach.Services
         private static readonly string longitude_english = "longitude";
         private static readonly string level_english = "level";
 
+        private static readonly string on_english = "on";
+        private static readonly string off_english = "off";
+        private static readonly string auto_english = "auto";
+        private static readonly string front_english = "front";
+        private static readonly string rear_english = "rear";
+
         private static readonly string what_english = "what";
 
         private static readonly string and_english = "and";
@@ -193,6 +195,9 @@ namespace LetterStomach.Services
         private static readonly string with_english = "with";
         private static readonly string by_english = "by";
         private static readonly string in_english = "in";
+        private static readonly string to_english = "to";
+
+        private static readonly string through_english = "through";
 
         public Dictionary<string, string> Execute = new Dictionary<string, string>()
         {
@@ -217,7 +222,8 @@ namespace LetterStomach.Services
             { turn_on_english, english },
             { share_english, english },
             { scan_english, english },
-            { connect_english, english }
+            { connect_english, english },
+            { send_english, english }
         };
 
         public Dictionary<string, string> Load = new Dictionary<string, string>()
@@ -297,7 +303,8 @@ namespace LetterStomach.Services
             { phone_english, english },
             { audio_english, english },
             { bot_english, english },
-            { flash_english, english }
+            { flash_english, english },
+            { text_english, english }
         };
 
         public Dictionary<string, string> Feature = new Dictionary<string, string>()
@@ -307,6 +314,11 @@ namespace LetterStomach.Services
             { auto_english, english },
             { front_english, english },
             { rear_english, english }  
+        };
+
+        public Dictionary<string, string> Juncao = new Dictionary<string, string>()
+        {
+            { to_english, english }
         };
 
         public Dictionary<string, string> GPS = new Dictionary<string, string>()
@@ -421,7 +433,8 @@ namespace LetterStomach.Services
             { bluetooth_3_english, english },
             { bluetooth_4_english, english },
             { save_english, english },
-            { scan_english, english }
+            { scan_english, english },
+            { send_english, english }
         };
 
         public Dictionary<string, string> Catch_Camera = new Dictionary<string, string>()
@@ -594,7 +607,9 @@ namespace LetterStomach.Services
             { download_english, english },
             { raspberry_english, english },
             { scan_english, english },
-            { connect_english, english }
+            { connect_english, english },
+            { send_english, english },
+            { disconnect_english, english }
         };
 
         public Dictionary<string, string> Catch_Scan = new Dictionary<string, string>()
@@ -692,6 +707,16 @@ namespace LetterStomach.Services
         public Dictionary<string, string> Connected = new Dictionary<string, string>()
         {
             { connected_english, english }
+        };
+
+        public Dictionary<string, string> Through = new Dictionary<string, string>()
+        {
+            { through_english, english }
+        };
+
+        public Dictionary<string, string> To = new Dictionary<string, string>()
+        {
+            { to_english, english }
         };
     }
 }

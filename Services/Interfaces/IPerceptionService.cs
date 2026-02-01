@@ -25,9 +25,11 @@
         string FileText(string text);
         Task<List<string>> ScanBluetooth3();
         Task<string> ConnectBluetooth3(string device);
+        Task<string> SendBluetooth3();
         Task DisconnectBluetooth3();
         Task<List<string>> ScanBluetooth4();
         Task<string> ConnectBluetooth4(string device);
+        Task<string> SendBluetooth4();
         Task DisconnectBluetooth4();
     }
 }

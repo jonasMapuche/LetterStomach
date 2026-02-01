@@ -459,6 +459,25 @@ namespace LetterStomach.Services
             }
         }
 
+        public async Task<string> SendBluetooth4()
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation send bluetooth 4 \"Perception\" service failed!");
+
+                Audio audios = _audios.First();
+                string file_path = audios.url;
+
+                return string.Empty;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return string.Empty;
+            }
+        }
+
         public async Task DisconnectBluetooth4()
         {
             try
@@ -495,6 +514,25 @@ namespace LetterStomach.Services
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation connect bluetooth 3 \"Perception\" service failed!");
+
+                return string.Empty;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return string.Empty;
+            }
+        }
+
+        public async Task<string> SendBluetooth3()
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation send bluetooth 3 \"Perception\" service failed!");
+
+                Audio audios = _audios.First();
+                string file_path = audios.url;
 
                 return string.Empty;
             }
