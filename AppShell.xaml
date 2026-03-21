@@ -9,17 +9,74 @@
     BackgroundColor="{StaticResource PrimaryColor}"
     Shell.FlyoutBehavior="Flyout"
     Title="LetterStomach">
+
+    <Shell.MenuItemTemplate>
+        <DataTemplate>
+            <Grid 
+                HeightRequest="60" 
+                Padding="10" 
+                ColumnDefinitions="0.2*,0.9*"
+                Background="{StaticResource WhiteColor}">
+                <Grid 
+                    Grid.Column="0">
+                    <Image
+                        Source="{Binding FlyoutIcon}"
+                        HeightRequest="62"
+                        Margin="5" />
+                </Grid>
+                <Grid 
+                    Grid.Column="1">
+                    <Label 
+                        Text="{Binding Title}" 
+                        TextColor="{StaticResource BackgroundColor}" 
+                        FontSize="18"
+                        FontAttributes="None"
+                        HorizontalTextAlignment="Start"
+                        Margin="20, 0, 0, 0"
+                        VerticalOptions="Center"/>
+                </Grid>
+            </Grid>
+        </DataTemplate>
+    </Shell.MenuItemTemplate>
     
+    <Shell.ItemTemplate>
+        <DataTemplate>
+            <Grid 
+                Padding="10" 
+                HeightRequest="60" 
+                ColumnDefinitions="0.2*,0.9*" >
+                <Grid 
+                    Grid.Column="0">
+                    <Image 
+                        Source="{Binding FlyoutIcon}"
+                        HeightRequest="62"
+                        Margin="5" />
+                </Grid>
+                <Grid 
+                    Grid.Column="1">
+                    <Label 
+                        Grid.Column="1"
+                        Text="{Binding Title}"
+                        FontAttributes="None"
+                        FontSize="18"
+                        HorizontalTextAlignment="Start"
+                        Margin="20, 0, 0, 0"
+                        VerticalTextAlignment="Center"/>
+                </Grid>
+            </Grid>
+        </DataTemplate>
+    </Shell.ItemTemplate>
+
     <Shell.FlyoutHeader>
         <StackLayout BackgroundColor="{StaticResource FabColor}">
             <Grid ColumnDefinitions="0.9*,0.1*">
                 <Label Text="Welcome to Letter Bot!"
                     FontSize="15"
                     HorizontalOptions="Start"
-                    Margin="80, 200, 0, 0"
-                    FontAttributes="Bold"
-                    TextColor="{StaticResource SecondaryColor}" />
-                <Image Source="automation_62dp_letter.png"
+                    Margin="30, 200, 0, 0"
+                    FontAttributes="None"
+                    TextColor="{StaticResource WhiteColor}" />
+                <Image Source="automation_62dp_white.png"
                     HorizontalOptions="End"
                     HeightRequest="62"
                     Margin="0, 162, 0, 20" />
@@ -27,35 +84,14 @@
         </StackLayout>
     </Shell.FlyoutHeader>
 
-    <Shell.ItemTemplate>
-        <DataTemplate>
-            <Grid ColumnDefinitions="0.2*,0.9*" >
-                <Image 
-                    Source="{Binding FlyoutIcon}"
-                    HeightRequest="62"
-                    Margin="5" />
-                <Label 
-                    Grid.Column="1"
-                    Text="{Binding Title}"
-                    FontAttributes="Bold"
-                    FontSize="18"
-                    HorizontalTextAlignment="Start"
-                    Margin="20, 0, 0, 0"
-                    VerticalTextAlignment="Center"/>
-            </Grid>
-        </DataTemplate>
-    </Shell.ItemTemplate>
-    
-    <FlyoutItem 
+    <ShellContent 
         Title="Home" 
-        Icon="home_app_logo_62dp_letter.png">
-        <ShellContent 
-            ContentTemplate="{DataTemplate views:HomeView}"/>
-    </FlyoutItem>
+        Icon="home_app_logo_62dp_letter.png"
+        ContentTemplate="{DataTemplate views:HomeView}"/>
 
     <MenuItem Text="Bot"
               x:DataType="locals:AppShell"
-              IconImageSource="home_app_logo_62dp_letter.png"
+              IconImageSource="contacts_product_62dp_letter.png"
               Command="{Binding BotCommand}"/>
 
     <MenuItem Text="Exit"

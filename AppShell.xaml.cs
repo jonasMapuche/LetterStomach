@@ -1,5 +1,4 @@
-﻿using CommunityToolkit.Mvvm.Input;
-using LetterStomach.Models;
+﻿using LetterStomach.Models;
 using LetterStomach.Services;
 using LetterStomach.Views;
 using System.Windows.Input;
@@ -24,25 +23,6 @@ namespace LetterStomach
             this.ExitCommand = new Command(async () => await OnExitCommand());
 
             BindingContext = this;
-
-            /*
-            MenuItem bot_item = new MenuItem
-            {
-                Text = "Bot",
-                IconImageSource = "home_app_logo_62dp_letter.png",
-                Command = new Command(async () => await OnBotCommand())
-            };
-
-            this.Items.Add(bot_item);
-
-            MenuItem exit_item = new MenuItem
-            {
-                Text = "Exit",
-                IconImageSource = "exit_to_app_62dp_letter.png",
-                Command = new Command(async () => await OnExitCommand())
-            };
-            this.Items.Add(exit_item);
-            */
         }
 
         private async Task OnExitCommand()
