@@ -34,9 +34,12 @@ public partial class HomeView : ContentPage
             else ViewModel.error_message = string.Empty;
             if (ViewModel.error_message != string.Empty) throw new InvalidOperationException(ViewModel.error_message);
 
+            var page = NavigationPage.RootPageProperty;
+
             InitializeComponent();
             BindingContext = ViewModel;
             ViewModel.Start();
+
         }
         catch (Exception ex)
         {

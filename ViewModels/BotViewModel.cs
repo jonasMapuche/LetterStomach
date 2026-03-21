@@ -7,7 +7,6 @@ using LetterStomach.Models;
 using LetterStomach.Services;
 using LetterStomach.Services.Interfaces;
 using LetterStomach.Views;
-using MongoDB.Driver;
 using System.Windows.Input;
 
 namespace LetterStomach.ViewModels
@@ -178,6 +177,33 @@ namespace LetterStomach.ViewModels
 
                 this._botService = new BotService();
                 this._botService.OnError += OnError;
+
+                OnInitMessage();
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+            }
+        }
+
+        private void OnInitMessage()
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation init message \"Bot\" view model failed!");
+
+                Username = MessageService.Instance.GetUser(PORTUGUES.Lowercase);
+
+                List<Message> message_language = MessageService.Instance.Messages(Username.Name);
+                if (message_language.Count > 0)
+                {
+                    Messages = message_language;
+                }
+                else
+                {
+                    Messages = MessageService.Instance.Messages(Username, "What can I do for you?", Username.Name);
+                }
+
             }
             catch (Exception ex)
             {
@@ -1054,8 +1080,7 @@ namespace LetterStomach.ViewModels
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation back command \"Bot\" view model failed!");
-
-                await Shell.Current.GoToAsync($"//{nameof(HomeView)}");
+                await Shell.Current.GoToAsync($"..");
             }
             catch (Exception ex)
             {
@@ -1066,7 +1091,7 @@ namespace LetterStomach.ViewModels
 
         public void ApplyQueryAttributes(IDictionary<string, object> query)
         {
-            try 
+            try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation apply query attibutes \"Bot\" view model failed!");
 
@@ -1082,7 +1107,7 @@ namespace LetterStomach.ViewModels
                 }
                 else
                 {
-                    if (Username.Name != PORTUGUES.Lowercase)
+                    if (!((Username.Name == PORTUGUES.Lowercase) || (Username.Name == PORTUGUES.Uppercase)))
                     {
                         List<Message> chats = MessageService.Instance.Chats;
                         Message? chat = chats.Find(index => index.Sender == Username);

@@ -37,6 +37,11 @@ namespace LetterStomach
 
         protected override Window CreateWindow(IActivationState? activationState)
         {
+            /*
+            NavigationPage navigation = new NavigationPage(new AppShell());
+
+            Page paginaAtual = navigation.RootPage;
+            */
             return new Window(new AppShell());
         }
     }

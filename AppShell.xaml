@@ -4,10 +4,12 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:views="clr-namespace:LetterStomach.Views"
+    xmlns:viewmodels="clr-namespace:LetterStomach.ViewModels"
+    xmlns:locals="clr-namespace:LetterStomach"
     BackgroundColor="{StaticResource PrimaryColor}"
     Shell.FlyoutBehavior="Flyout"
     Title="LetterStomach">
-
+    
     <Shell.FlyoutHeader>
         <StackLayout BackgroundColor="{StaticResource FabColor}">
             <Grid ColumnDefinitions="0.9*,0.1*">
@@ -43,26 +45,22 @@
             </Grid>
         </DataTemplate>
     </Shell.ItemTemplate>
-
+    
     <FlyoutItem 
         Title="Home" 
         Icon="home_app_logo_62dp_letter.png">
         <ShellContent 
-            Route="HomeView"
             ContentTemplate="{DataTemplate views:HomeView}"/>
     </FlyoutItem>
-    <FlyoutItem 
-        Title="Bot" 
-        Icon="contacts_product_62dp_letter.png">
-        <ShellContent 
-            Route="BotView"
-            ContentTemplate="{DataTemplate views:BotView}"/>
-    </FlyoutItem>
-    <FlyoutItem 
-        Title="Exit" 
-        Icon="exit_to_app_62dp_letter.png">
-        <ShellContent 
-            Route="ExitView"
-            ContentTemplate="{DataTemplate views:ExitView}"/>
-    </FlyoutItem>
+
+    <MenuItem Text="Bot"
+              x:DataType="locals:AppShell"
+              IconImageSource="home_app_logo_62dp_letter.png"
+              Command="{Binding BotCommand}"/>
+
+    <MenuItem Text="Exit"
+              x:DataType="locals:AppShell"
+              IconImageSource="exit_to_app_62dp_letter.png"
+              Command="{Binding ExitCommand}"/>
+
 </Shell>

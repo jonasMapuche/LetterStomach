@@ -63,13 +63,15 @@ namespace LetterStomach.Services
         #endregion
 
         #region LOAD
-        public void LoadCircustancia() 
+        public void LoadCircustancia()
         {
-            try 
+            try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation load circunstancia \"Mongo DB\" service failed!");
 
-                string connection = "mongodb://labrouste:freedown@ac-qs3nere-shard-00-00.twimpt2.mongodb.net:27017,ac-qs3nere-shard-00-01.twimpt2.mongodb.net:27017,ac-qs3nere-shard-00-02.twimpt2.mongodb.net:27017/?ssl=true&replicaSet=atlas-a5rh82-shard-0&authSource=admin&retryWrites=true&w=majority&appName=clusteradverb";
+                //string connection = "mongodb://labrouste:freedown@ac-qs3nere-shard-00-00.twimpt2.mongodb.net:27017,ac-qs3nere-shard-00-01.twimpt2.mongodb.net:27017,ac-qs3nere-shard-00-02.twimpt2.mongodb.net:27017/?ssl=true&replicaSet=atlas-a5rh82-shard-0&authSource=admin&retryWrites=true&w=majority&appName=clusteradverb";
+                //string connection = "mongodb+srv://berthazatz:freedown@adverb.ewolqjf.mongodb.net/?appName=adverb";
+                string connection = "mongodb://berthazatz:freedown@ac-3vr780m-shard-00-00.ewolqjf.mongodb.net:27017,ac-3vr780m-shard-00-01.ewolqjf.mongodb.net:27017,ac-3vr780m-shard-00-02.ewolqjf.mongodb.net:27017/?ssl=true&replicaSet=atlas-xmcuf5-shard-0&authSource=admin&appName=adverb";
                 string database = "stomach";
                 string collection = "adverb";
                 var mongoClient = new MongoClient(connection);
@@ -90,7 +92,9 @@ namespace LetterStomach.Services
             {
                 if (this._error_off) throw new InvalidOperationException("Operation load estoutro \"Mongo DB\" service failed!");
 
-                string connection = "mongodb://labrouste:freedown@ac-4droh61-shard-00-00.trwpuy0.mongodb.net:27017,ac-4droh61-shard-00-01.trwpuy0.mongodb.net:27017,ac-4droh61-shard-00-02.trwpuy0.mongodb.net:27017/?ssl=true&replicaSet=atlas-xrl9qi-shard-0&authSource=admin&retryWrites=true&w=majority&appName=clusterpronoun";
+                //string connection = "mongodb://labrouste:freedown@ac-4droh61-shard-00-00.trwpuy0.mongodb.net:27017,ac-4droh61-shard-00-01.trwpuy0.mongodb.net:27017,ac-4droh61-shard-00-02.trwpuy0.mongodb.net:27017/?ssl=true&replicaSet=atlas-xrl9qi-shard-0&authSource=admin&retryWrites=true&w=majority&appName=clusterpronoun";
+                //string connection = "mongodb+srv://berthazatz:freedown@pronoun.px3emy6.mongodb.net/?appName=pronoun";
+                string connection = "mongodb://berthazatz:freedown@ac-brgkjgc-shard-00-00.px3emy6.mongodb.net:27017,ac-brgkjgc-shard-00-01.px3emy6.mongodb.net:27017,ac-brgkjgc-shard-00-02.px3emy6.mongodb.net:27017/?ssl=true&replicaSet=atlas-13rqdd-shard-0&authSource=admin&appName=pronoun";
                 string database = "stomach";
                 string collection = "pronoun";
                 var mongoClient = new MongoClient(connection);
@@ -107,11 +111,13 @@ namespace LetterStomach.Services
 
         public void LoadPreceito()
         {
-            try 
+            try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation load preceito \"Mongo DB\" service failed!");
 
-                string connection = "mongodb://labrouste:freedown@ac-dzsg50m-shard-00-00.brox8ik.mongodb.net:27017,ac-dzsg50m-shard-00-01.brox8ik.mongodb.net:27017,ac-dzsg50m-shard-00-02.brox8ik.mongodb.net:27017/?ssl=true&replicaSet=atlas-143za4-shard-0&authSource=admin&retryWrites=true&w=majority&appName=clusterarticle";
+                //string connection = "mongodb://labrouste:freedown@ac-dzsg50m-shard-00-00.brox8ik.mongodb.net:27017,ac-dzsg50m-shard-00-01.brox8ik.mongodb.net:27017,ac-dzsg50m-shard-00-02.brox8ik.mongodb.net:27017/?ssl=true&replicaSet=atlas-143za4-shard-0&authSource=admin&retryWrites=true&w=majority&appName=clusterarticle";
+                //string connection = "mongodb+srv://berthazatz:freedown@article.rzn652o.mongodb.net/?appName=article";
+                string connection = "mongodb://berthazatz:freedown@ac-knhxaxk-shard-00-00.rzn652o.mongodb.net:27017,ac-knhxaxk-shard-00-01.rzn652o.mongodb.net:27017,ac-knhxaxk-shard-00-02.rzn652o.mongodb.net:27017/?ssl=true&replicaSet=atlas-amy702-shard-0&authSource=admin&appName=article";
                 string database = "stomach";
                 string collection = "article";
                 var mongoClient = new MongoClient(connection);
@@ -132,7 +138,9 @@ namespace LetterStomach.Services
             {
                 if (this._error_off) throw new InvalidOperationException("Operation load algarismo \"Mongo DB\" service failed!");
 
-                string connection = "mongodb://labrouste:freedown@clusternumeral-shard-00-00.m6ca3.mongodb.net:27017,clusternumeral-shard-00-01.m6ca3.mongodb.net:27017,clusternumeral-shard-00-02.m6ca3.mongodb.net:27017/?ssl=true&replicaSet=atlas-zqs044-shard-0&authSource=admin&retryWrites=true&w=majority&appName=clusternumeral";
+                //string connection = "mongodb://labrouste:freedown@clusternumeral-shard-00-00.m6ca3.mongodb.net:27017,clusternumeral-shard-00-01.m6ca3.mongodb.net:27017,clusternumeral-shard-00-02.m6ca3.mongodb.net:27017/?ssl=true&replicaSet=atlas-zqs044-shard-0&authSource=admin&retryWrites=true&w=majority&appName=clusternumeral";
+                //string connection = "mongodb+srv://berthazatz:freedown@numeral.ulgehxk.mongodb.net/?appName=numeral";
+                string connection = "mongodb://berthazatz:freedown@ac-5g3pi3r-shard-00-00.ulgehxk.mongodb.net:27017,ac-5g3pi3r-shard-00-01.ulgehxk.mongodb.net:27017,ac-5g3pi3r-shard-00-02.ulgehxk.mongodb.net:27017/?ssl=true&replicaSet=atlas-e1clwb-shard-0&authSource=admin&appName=numeral";
                 string database = "stomach";
                 string collection = "numeral";
                 var mongoClient = new MongoClient(connection);
@@ -153,7 +161,9 @@ namespace LetterStomach.Services
             {
                 if (this._error_off) throw new InvalidOperationException("Operation load elocucao \"Mongo DB\" service failed!");
 
-                string connection = "mongodb://labrouste:freedown@clusterverb-shard-00-00.yhx9b.mongodb.net:27017,clusterverb-shard-00-01.yhx9b.mongodb.net:27017,clusterverb-shard-00-02.yhx9b.mongodb.net:27017/?ssl=true&replicaSet=atlas-bgtfxu-shard-0&authSource=admin&retryWrites=true&w=majority&appName=clusterverb";
+                //string connection = "mongodb://labrouste:freedown@clusterverb-shard-00-00.yhx9b.mongodb.net:27017,clusterverb-shard-00-01.yhx9b.mongodb.net:27017,clusterverb-shard-00-02.yhx9b.mongodb.net:27017/?ssl=true&replicaSet=atlas-bgtfxu-shard-0&authSource=admin&retryWrites=true&w=majority&appName=clusterverb";
+                //string connection = "mongodb+srv://berthazatz:freedown@verb.q3qzht9.mongodb.net/?appName=verb";
+                string connection = "mongodb://berthazatz:freedown@ac-folgaxm-shard-00-00.q3qzht9.mongodb.net:27017,ac-folgaxm-shard-00-01.q3qzht9.mongodb.net:27017,ac-folgaxm-shard-00-02.q3qzht9.mongodb.net:27017/?ssl=true&replicaSet=atlas-11bsn2-shard-0&authSource=admin&appName=verb";
                 string database = "stomach";
                 string collection = "verb";
                 var mongoClient = new MongoClient(connection);
@@ -174,7 +184,9 @@ namespace LetterStomach.Services
             {
                 if (this._error_off) throw new InvalidOperationException("Operation load juncao \"Mongo DB\" service failed!");
 
-                string connection = "mongodb://labrouste:freedown@ac-qbpfxxr-shard-00-00.hjeuzew.mongodb.net:27017,ac-qbpfxxr-shard-00-01.hjeuzew.mongodb.net:27017,ac-qbpfxxr-shard-00-02.hjeuzew.mongodb.net:27017/?ssl=true&replicaSet=atlas-ket9j8-shard-0&authSource=admin&retryWrites=true&w=majority&appName=clusterpreposition";
+                //string connection = "mongodb://labrouste:freedown@ac-qbpfxxr-shard-00-00.hjeuzew.mongodb.net:27017,ac-qbpfxxr-shard-00-01.hjeuzew.mongodb.net:27017,ac-qbpfxxr-shard-00-02.hjeuzew.mongodb.net:27017/?ssl=true&replicaSet=atlas-ket9j8-shard-0&authSource=admin&retryWrites=true&w=majority&appName=clusterpreposition";
+                //string connection = "mongodb+srv://berthazatz:freedown@preposition.bad4zis.mongodb.net/?appName=preposition";
+                string connection = "mongodb://berthazatz:freedown@ac-coldsdi-shard-00-00.bad4zis.mongodb.net:27017,ac-coldsdi-shard-00-01.bad4zis.mongodb.net:27017,ac-coldsdi-shard-00-02.bad4zis.mongodb.net:27017/?ssl=true&replicaSet=atlas-y7pmm5-shard-0&authSource=admin&appName=preposition";
                 string database = "stomach";
                 string collection = "preposition";
                 var mongoClient = new MongoClient(connection);
@@ -195,7 +207,9 @@ namespace LetterStomach.Services
             {
                 if (this._error_off) throw new InvalidOperationException("Operation load materia \"Mongo DB\" service failed!");
 
-                string connection = "mongodb://labrouste:freedown@ac-jiagffd-shard-00-00.hh85dxs.mongodb.net:27017,ac-jiagffd-shard-00-01.hh85dxs.mongodb.net:27017,ac-jiagffd-shard-00-02.hh85dxs.mongodb.net:27017/?ssl=true&replicaSet=atlas-ryd5gy-shard-0&authSource=admin&retryWrites=true&w=majority&appName=clusterletter";
+                //string connection = "mongodb://labrouste:freedown@ac-jiagffd-shard-00-00.hh85dxs.mongodb.net:27017,ac-jiagffd-shard-00-01.hh85dxs.mongodb.net:27017,ac-jiagffd-shard-00-02.hh85dxs.mongodb.net:27017/?ssl=true&replicaSet=atlas-ryd5gy-shard-0&authSource=admin&retryWrites=true&w=majority&appName=clusterletter";
+                //string connection = "mongodb+srv://berthazatz:freedown@letter.88ewwu7.mongodb.net/?appName=letter";
+                string connection = "mongodb://berthazatz:freedown@ac-dgizj8w-shard-00-00.88ewwu7.mongodb.net:27017,ac-dgizj8w-shard-00-01.88ewwu7.mongodb.net:27017,ac-dgizj8w-shard-00-02.88ewwu7.mongodb.net:27017/?ssl=true&replicaSet=atlas-4bl81c-shard-0&authSource=admin&appName=letter";
                 string database = "stomach";
                 string collection = "letter";
                 var mongoClient = new MongoClient(connection);
@@ -216,7 +230,9 @@ namespace LetterStomach.Services
             {
                 if (this._error_off) throw new InvalidOperationException("Operation load sentence \"Mongo DB\" service failed!");
 
-                string connection = "mongodb://labrouste:freedown@ac-3y1axe2-shard-00-00.n5y9bze.mongodb.net:27017,ac-3y1axe2-shard-00-01.n5y9bze.mongodb.net:27017,ac-3y1axe2-shard-00-02.n5y9bze.mongodb.net:27017/?ssl=true&replicaSet=atlas-ifgens-shard-0&authSource=admin&retryWrites=true&w=majority&appName=clustersentence";
+                //string connection = "mongodb://labrouste:freedown@ac-3y1axe2-shard-00-00.n5y9bze.mongodb.net:27017,ac-3y1axe2-shard-00-01.n5y9bze.mongodb.net:27017,ac-3y1axe2-shard-00-02.n5y9bze.mongodb.net:27017/?ssl=true&replicaSet=atlas-ifgens-shard-0&authSource=admin&retryWrites=true&w=majority&appName=clustersentence";
+                //string connection = "mongodb+srv://berthazatz:freedown@sentence.cydv8si.mongodb.net/?appName=sentence";
+                string connection = "mongodb://berthazatz:freedown@ac-clbogfo-shard-00-00.cydv8si.mongodb.net:27017,ac-clbogfo-shard-00-01.cydv8si.mongodb.net:27017,ac-clbogfo-shard-00-02.cydv8si.mongodb.net:27017/?ssl=true&replicaSet=atlas-2biwj4-shard-0&authSource=admin&appName=sentence";
                 string database = "stomach";
                 string collection = "sentence";
                 var mongoClient = new MongoClient(connection);
@@ -237,7 +253,9 @@ namespace LetterStomach.Services
             {
                 if (this._error_off) throw new InvalidOperationException("Operation load ligacao \"Mongo DB\" service failed!");
 
-                string connection = "mongodb://labrouste:freedown@ac-mtuqyju-shard-00-00.nqdittm.mongodb.net:27017,ac-mtuqyju-shard-00-01.nqdittm.mongodb.net:27017,ac-mtuqyju-shard-00-02.nqdittm.mongodb.net:27017/?ssl=true&replicaSet=atlas-cffrmz-shard-0&authSource=admin&retryWrites=true&w=majority&appName=clusterconjunction";
+                //string connection = "mongodb://labrouste:freedown@ac-mtuqyju-shard-00-00.nqdittm.mongodb.net:27017,ac-mtuqyju-shard-00-01.nqdittm.mongodb.net:27017,ac-mtuqyju-shard-00-02.nqdittm.mongodb.net:27017/?ssl=true&replicaSet=atlas-cffrmz-shard-0&authSource=admin&retryWrites=true&w=majority&appName=clusterconjunction";
+                //string connection = "mongodb+srv://berthazatz:freedown@conjunction.55ugps8.mongodb.net/?appName=conjunction";
+                string connection = "mongodb://berthazatz:freedown@ac-caq66mq-shard-00-00.55ugps8.mongodb.net:27017,ac-caq66mq-shard-00-01.55ugps8.mongodb.net:27017,ac-caq66mq-shard-00-02.55ugps8.mongodb.net:27017/?ssl=true&replicaSet=atlas-m1uiq4-shard-0&authSource=admin&appName=conjunction";
                 string database = "stomach";
                 string collection = "conjunction";
                 var mongoClient = new MongoClient(connection);
@@ -258,7 +276,9 @@ namespace LetterStomach.Services
             {
                 if (this._error_off) throw new InvalidOperationException("Operation load assistente \"Mongo DB\" service failed!");
 
-                string connection = "mongodb://labrouste:freedown@clusterauxiliary-shard-00-00.kwsaj.mongodb.net:27017,clusterauxiliary-shard-00-01.kwsaj.mongodb.net:27017,clusterauxiliary-shard-00-02.kwsaj.mongodb.net:27017/?ssl=true&replicaSet=atlas-3mfvr2-shard-0&authSource=admin&retryWrites=true&w=majority&appName=clusterauxiliary";
+                //string connection = "mongodb://labrouste:freedown@clusterauxiliary-shard-00-00.kwsaj.mongodb.net:27017,clusterauxiliary-shard-00-01.kwsaj.mongodb.net:27017,clusterauxiliary-shard-00-02.kwsaj.mongodb.net:27017/?ssl=true&replicaSet=atlas-3mfvr2-shard-0&authSource=admin&retryWrites=true&w=majority&appName=clusterauxiliary";
+                //string connection = "mongodb+srv://berthazatz:freedown@auxiliary.tohxtxd.mongodb.net/?appName=auxiliary";
+                string connection = "mongodb://berthazatz:freedown@ac-grilrgv-shard-00-00.tohxtxd.mongodb.net:27017,ac-grilrgv-shard-00-01.tohxtxd.mongodb.net:27017,ac-grilrgv-shard-00-02.tohxtxd.mongodb.net:27017/?ssl=true&replicaSet=atlas-q1zd06-shard-0&authSource=admin&appName=auxiliary";
                 string database = "stomach";
                 string collection = "auxiliary";
                 var mongoClient = new MongoClient(connection);
