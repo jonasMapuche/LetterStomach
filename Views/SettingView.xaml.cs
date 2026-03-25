@@ -42,8 +42,8 @@ public partial class SettingView : ContentPage
     private int _volume_skeak = 0;
     #endregion
 
-    #region CONTRUCTOR
-    public SettingView(SettingViewModel ViewModel)
+    #region CONSTRUCTOR
+    public SettingView()
     {
         try
         {
@@ -51,8 +51,10 @@ public partial class SettingView : ContentPage
             else this.error_message = string.Empty;
 
             InitializeComponent();
-            ViewModel.OnError += OnError;
+            SettingViewModel ViewModel = new SettingViewModel();
             BindingContext = ViewModel;
+            ViewModel.OnError += OnError;
+
             this._upgrade_init = swiSQLite.IsToggled;
             this._pitch_init = (int)sldPich.Value;
             this._volume_init = (int)sldVolume.Value;
@@ -81,7 +83,7 @@ public partial class SettingView : ContentPage
         catch (Exception ex)
         {
             this.error_message = ex.Message;
-            this.OnError(this.error_message);
+            this.OnError(this, this.error_message);
         }
     }
 
@@ -99,7 +101,7 @@ public partial class SettingView : ContentPage
         catch (Exception ex)
         {
             this.error_message = ex.Message;
-            this.OnError(this.error_message);
+            this.OnError(this, this.error_message);
         }
     }
 
@@ -117,7 +119,7 @@ public partial class SettingView : ContentPage
         catch (Exception ex)
         {
             this.error_message = ex.Message;
-            this.OnError(this.error_message);
+            this.OnError(this, this.error_message);
         }
     }
 
@@ -154,7 +156,7 @@ public partial class SettingView : ContentPage
         catch (Exception ex)
         {
             this.error_message = ex.Message;
-            this.OnError(this.error_message);
+            this.OnError(this, this.error_message);
         }
     }
 
@@ -172,7 +174,7 @@ public partial class SettingView : ContentPage
         catch (Exception ex)
         {
             this.error_message = ex.Message;
-            this.OnError(this.error_message);
+            this.OnError(this, this.error_message);
         }
     }
 
@@ -190,7 +192,7 @@ public partial class SettingView : ContentPage
         catch (Exception ex)
         {
             this.error_message = ex.Message;
-            this.OnError(this.error_message);
+            this.OnError(this, this.error_message);
         }
     }
     #endregion

@@ -36,9 +36,17 @@ namespace LetterStomach.Services
         private static string english = "english";
         private static string deutsch = "deutsch";
         private static string italiano = "italiano";
-        private static string français = "français";
+        private static string francais = "français";
         private static string espanol = "español";
         private static string portugues = "português";
+
+        private static string lesson_english = "lesson";
+        private static string lesson_deutsch = "lektion";
+        private static string lesson_italiano = "lezione";
+        private static string lesson_francais = "leçon";
+        private static string lesson_espanol = "lección";
+        private static string lesson_portugues = "lição";
+
 
         public readonly Language English = new Language
         {
@@ -47,6 +55,7 @@ namespace LetterStomach.Services
             Lowercase = english,
             Code = "en",
             Region = "US",
+            Lesson = lesson_english
         };
 
         public readonly Language Deutsch = new Language
@@ -56,6 +65,7 @@ namespace LetterStomach.Services
             Lowercase = deutsch,
             Code = "de",
             Region = "DE",
+            Lesson = lesson_deutsch
         };
 
         public readonly Language Italino = new Language
@@ -65,15 +75,17 @@ namespace LetterStomach.Services
             Lowercase = italiano,
             Code = "it",
             Region = "IT",
+            Lesson = lesson_italiano
         };
 
         public readonly Language Francais = new Language
         {
             Name = "francais",
             Uppercase = "Français",
-            Lowercase = français,
+            Lowercase = francais,
             Code = "fr",
             Region = "FR",
+            Lesson = lesson_francais
         };
 
         public readonly Language Espanol = new Language
@@ -83,6 +95,7 @@ namespace LetterStomach.Services
             Lowercase = espanol,
             Code = "es",
             Region = "ES",
+            Lesson = lesson_espanol
         };
 
         public readonly Language Portugues = new Language
@@ -92,6 +105,7 @@ namespace LetterStomach.Services
             Lowercase = portugues,
             Code = "pt",
             Region = "PT",
+            Lesson = lesson_portugues
         };
 
         public readonly string Suject = "sujeito";
@@ -718,5 +732,15 @@ namespace LetterStomach.Services
         {
             { to_english, english }
         };
+
+        public HashSet<string> Lesson = new HashSet<String>
+        {
+            lesson_english,
+            lesson_deutsch,
+            lesson_francais,
+            lesson_italiano,
+            lesson_espanol
+        };
+
     }
 }

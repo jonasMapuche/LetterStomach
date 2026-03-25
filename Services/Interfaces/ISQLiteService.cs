@@ -15,11 +15,8 @@ namespace LetterStomach.Services.Interfaces
         List<Ligacao> Ligacao { get; set; }
         List<Assistente> Assistente { get; set; }
 
-        void Connect();
-        Task<int> DeleteAll();
-        Task<int> Delete(int select_table);
-        Task CreateAll();
-        Task Create(int select_table);
+        Task<int> Delete(int select_table, bool select_all);
+        Task Create(int select_table, bool select_all);
         Task InsertAdverb();
         Task InsertPronoun();
         Task InsertArticle();
@@ -31,6 +28,7 @@ namespace LetterStomach.Services.Interfaces
         Task InsertSentence();
         Task InsertConjunction();
         Task InsertAuxiliary();
+        Task InsertModel();
         Task LoadAdverb();
         Task LoadPronoun();
         Task LoadArticle();

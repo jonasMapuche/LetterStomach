@@ -22,7 +22,7 @@ namespace LetterStomach.Services
         public event EventHandler<string> OnError;
         #endregion
 
-        #region INSERT
+        #region OBJECT
         private Circunstancia InsertCircunstancia(string language, string name, List<string> types)
         {
             try
@@ -38,11 +38,9 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return null;
+                throw new InvalidOperationException(this.error_message);
             }
         }
-
 
         private Preceito InsertPreceito(string language, string name, List<string> types, List<string> numbers, List<string> genders)
         {
@@ -61,8 +59,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return null;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -82,8 +79,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return null;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -103,8 +99,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return null;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -124,8 +119,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return null;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -144,8 +138,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return null;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -162,8 +155,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return null;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -180,8 +172,24 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return null;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private Conteudo InsertModel(List<string> models)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation insert model \"Model\" service failed!");
+
+                Conteudo conteudo = new Conteudo();
+                conteudo.verbo = models;
+                return conteudo;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -203,8 +211,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return null;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -223,8 +230,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return null;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -243,8 +249,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return null;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -262,8 +267,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return null;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -283,12 +287,10 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return null;
+                throw new InvalidOperationException(this.error_message);
             }
         }
-
-
+                   
         private Tematica InsertTematica(List<string> mode, List<string> prefix, List<string> preverb, List<string> premode)
         {
             try
@@ -305,8 +307,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return null;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -325,14 +326,13 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return null;
+                throw new InvalidOperationException(this.error_message);
             }
         }
         #endregion
 
-        #region MOUNT
-        private async Task<List<Materia>> MountNoun(List<Substantivo> noun, List<Materia> matter)
+        #region MATERIA
+        private async Task<List<Materia>> MateriaNoun(List<Substantivo> noun, List<Materia> matter)
         {
             try
             {
@@ -355,6 +355,7 @@ namespace LetterStomach.Services
                     language = item.language;
                     lesson = item.lesson;
                     substantivo = item.name;
+                    if (lesson.Split(" ").Count() == 1) continue;
                     if (before_language == "")
                     {
                         before_language = language;
@@ -391,35 +392,37 @@ namespace LetterStomach.Services
                     if ((!substantivos.Contains(substantivo)) || (substantivos.Count == 0)) substantivos.Add(substantivo);
                 }
                 materia = materias.FirstOrDefault(index => index.linguagem == before_language && index.nome == before_lesson);
-                if (materia != null)
+                if (before_lesson.Split(" ").Count() > 1)
                 {
-                    conteudo = new Conteudo();
-                    conteudo = materia.conteudo;
-                    conteudo.substantivo = substantivos;
-                    int index = materias.IndexOf(materia);
-                    materia.conteudo = conteudo;
-                    materias[index] = materia;
-                    substantivos = new List<string>();
-                }
-                else
-                {
-                    conteudo = new Conteudo();
-                    conteudo = InsertSubstantivo(substantivos);
-                    materia = new Materia();
-                    materia = InsertMateria(before_language, before_lesson, conteudo);
-                    materias.Add(materia);
+                    if (materia != null)
+                    {
+                        conteudo = new Conteudo();
+                        conteudo = materia.conteudo;
+                        conteudo.substantivo = substantivos;
+                        int index = materias.IndexOf(materia);
+                        materia.conteudo = conteudo;
+                        materias[index] = materia;
+                        substantivos = new List<string>();
+                    }
+                    else
+                    {
+                        conteudo = new Conteudo();
+                        conteudo = InsertSubstantivo(substantivos);
+                        materia = new Materia();
+                        materia = InsertMateria(before_language, before_lesson, conteudo);
+                        materias.Add(materia);
+                    }
                 }
                 return materias;
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return null;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
-        private async Task<List<Materia>> MountAdjective(List<Adjetivo> adjective, List<Materia> matter)
+        private async Task<List<Materia>> MateriaAdjective(List<Adjetivo> adjective, List<Materia> matter)
         {
             try
             {
@@ -442,6 +445,7 @@ namespace LetterStomach.Services
                     language = item.language;
                     lesson = item.lesson;
                     adjetivo = item.name;
+                    if (lesson.Split(" ").Count() == 1) continue;
                     if (before_language == "")
                     {
                         before_language = language;
@@ -478,31 +482,123 @@ namespace LetterStomach.Services
                     if ((!adjetivos.Contains(adjetivo)) || (adjetivos.Count == 0)) adjetivos.Add(adjetivo);
                 }
                 materia = materias.FirstOrDefault(index => index.linguagem == before_language && index.nome == before_lesson);
-                if (materia != null)
+                if (before_lesson.Split(" ").Count() > 1)
                 {
-                    conteudo = new Conteudo();
-                    conteudo = materia.conteudo;
-                    conteudo.adjetivo = adjetivos;
-                    int index = materias.IndexOf(materia);
-                    materia.conteudo = conteudo;
-                    materias[index] = materia;
-                    adjetivos = new List<string>();
-                }
-                else
-                {
-                    conteudo = new Conteudo();
-                    conteudo = InsertAdjetivo(adjetivos);
-                    materia = new Materia();
-                    materia = InsertMateria(before_language, before_lesson, conteudo);
-                    materias.Add(materia);
+                    if (materia != null)
+                    {
+                        conteudo = new Conteudo();
+                        conteudo = materia.conteudo;
+                        conteudo.adjetivo = adjetivos;
+                        int index = materias.IndexOf(materia);
+                        materia.conteudo = conteudo;
+                        materias[index] = materia;
+                        adjetivos = new List<string>();
+                    }
+                    else
+                    {
+                        conteudo = new Conteudo();
+                        conteudo = InsertAdjetivo(adjetivos);
+                        materia = new Materia();
+                        materia = InsertMateria(before_language, before_lesson, conteudo);
+                        materias.Add(materia);
+                    }
                 }
                 return materias;
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return null;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private async Task<List<Materia>> MateriaModel(List<Model> model, List<Materia> matter)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation mount model \"Model\" service failed!");
+
+                List<Model> models = new List<Model>();
+                models = model.OrderBy(index => index.language).ThenBy(index => index.lesson).ThenBy(index => index.name).ToList();
+                List<Materia> materias = new List<Materia>();
+                materias = matter;
+                string before_language = "";
+                string before_lesson = "";
+                string verbo = "";
+                string language = "";
+                string lesson = "";
+                List<string> verbos = new List<string>();
+                Conteudo conteudo = new Conteudo();
+                Materia materia = new Materia();
+                foreach (Model item in models)
+                {
+                    language = item.language;
+                    lesson = item.lesson;
+                    verbo = item.name;
+                    if (lesson.Split(" ").Count() == 1) continue;
+                    if (before_language == "")
+                    {
+                        before_language = language;
+                        before_lesson = lesson;
+                        verbos = new List<string>();
+                        verbos.Add(verbo);
+                        continue;
+                    }
+                    if ((language != before_language) || ((lesson != before_lesson) && (language == before_language)))
+                    {
+                        materia = materias.FirstOrDefault(index => index.linguagem == before_language && index.nome == before_lesson);
+                        if (materia != null)
+                        {
+                            conteudo = new Conteudo();
+                            conteudo = materia.conteudo;
+                            conteudo.verbo = verbos;
+                            int index = materias.IndexOf(materia);
+                            materia.conteudo = conteudo;
+                            materias[index] = materia;
+                            verbos = new List<string>();
+                        }
+                        else
+                        {
+                            conteudo = new Conteudo();
+                            conteudo = InsertModel(verbos);
+                            materia = new Materia();
+                            materia = InsertMateria(before_language, before_lesson, conteudo);
+                            materias.Add(materia);
+                            verbos = new List<string>();
+                        }
+                    }
+                    before_language = language;
+                    before_lesson = lesson;
+                    if ((!verbos.Contains(verbo)) || (verbos.Count == 0)) verbos.Add(verbo);
+                }
+                materia = materias.FirstOrDefault(index => index.linguagem == before_language && index.nome == before_lesson);
+                if (before_lesson.Split(" ").Count() > 1)
+                {
+                    if (materia != null)
+                    {
+                        conteudo = new Conteudo();
+                        conteudo = materia.conteudo;
+                        conteudo.verbo = verbos;
+                        int index = materias.IndexOf(materia);
+                        materia.conteudo = conteudo;
+                        materias[index] = materia;
+                        verbos = new List<string>();
+                    }
+                    else
+                    {
+                        conteudo = new Conteudo();
+                        conteudo = InsertModel(verbos);
+                        materia = new Materia();
+                        materia = InsertMateria(before_language, before_lesson, conteudo);
+                        materias.Add(materia);
+                    }
+                }
+                return materias;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
             }
         }
         #endregion
@@ -556,8 +652,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return null;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -623,8 +718,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return null;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -754,8 +848,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return null;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -812,8 +905,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return null;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -865,27 +957,26 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return null;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
-        public async Task<List<Materia>> LoadMateria(List<Substantivo> noun, List<Adjetivo> adjective)
+        public async Task<List<Materia>> LoadMateria(List<Substantivo> noun, List<Adjetivo> adjective, List<Model> model)
         {
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation load materia \"Model\" service failed!");
 
                 List<Materia> materias = new List<Materia>();
-                materias = await MountAdjective(adjective, materias);
-                materias = await MountNoun(noun, materias);
+                materias = await MateriaAdjective(adjective, materias);
+                materias = await MateriaNoun(noun, materias);
+                materias = await MateriaModel(model, materias);
                 return materias;
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return null;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -937,8 +1028,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return null;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -990,8 +1080,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return null;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -1080,10 +1169,10 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return null;
+                throw new InvalidOperationException(this.error_message);
             }
         }
+        
         public async Task<List<Assistente>> LoadAssistente(List<Auxiliares> auxiliary)
         {
             try
@@ -1212,8 +1301,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return null;
+                throw new InvalidOperationException(this.error_message);
             }
         }
         #endregion

@@ -28,19 +28,15 @@ namespace LetterStomach.ViewModels
 
         #region VARIABLE
         public List<Hunks> Items { get; set; }
-
         public bool IsUpdateTable { get; set; }
-
         public bool IsSQLiteTable { get; set; }
-
         public int IsPitchSpeak { get; set; }
-
         public int IsVolumeSpeak {  get; set; }
 
         public ICommand CheckCommand { get; set; }
         public ICommand BackCommand { get; set; }
 
-        private readonly SettingService _setting;
+        private SettingService _setting;
         private ISQLiteService _sqlite_service;
 
         private int _pitch_init = 0;
@@ -48,15 +44,15 @@ namespace LetterStomach.ViewModels
         #endregion
 
         #region CONSTRUCTOR
-        public SettingViewModel(SettingService setting)
+        public SettingViewModel()
         {
             try
             {
-                if (this._error_on) throw new InvalidOperationException("Operation contructor \"Setting\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation contructor \"Setting\" view model failed!");
                 else this.error_message = string.Empty;
 
-                _sqlite_service = App.DataService;
-                _setting = setting;
+                this._sqlite_service = HomeViewModel._sQLiteService;
+                this._setting = SettingService.Instance;
 
                 bool sqlite_database = _setting.SQLiteDatabase;
                 bool update_database = _setting.UpdateDatabase;
@@ -78,11 +74,12 @@ namespace LetterStomach.ViewModels
                     new Hunks { Name = "Verb", Value = (int)Hunk.Verb },
                     new Hunks { Name = "Adjective", Value = (int)Hunk.Adjective },
                     new Hunks { Name = "Sentence", Value = (int)Hunk.Sentence },
-                    new Hunks { Name = "Auxiliary", Value = (int)Hunk.Auxiliary }
+                    new Hunks { Name = "Auxiliary", Value = (int)Hunk.Auxiliary },
+                    new Hunks { Name = "Model", Value = (int)Hunk.Model }
                 };
 
-                CheckCommand = new AsyncRelayCommand<object>(OnCheckCommand);
-                BackCommand = new AsyncRelayCommand(OnBackCommand);
+                this.CheckCommand = new AsyncRelayCommand<object>(OnCheckCommand);
+                this.BackCommand = new AsyncRelayCommand(OnBackCommand);
 
                 this.IsUpdateTable = update_database;
                 this.IsSQLiteTable = sqlite_database;
@@ -94,6 +91,7 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
             }
         }
         #endregion
@@ -105,7 +103,7 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation back command \"Setting\" view model failed!");
 
-                bool sqlite_database = _setting.SQLiteDatabase;
+                bool sqlite_database = this._setting.SQLiteDatabase;
                 await Shell.Current.GoToAsync($"..?refresh={sqlite_database}");
             }
             catch (Exception ex)
@@ -139,23 +137,44 @@ namespace LetterStomach.ViewModels
                     if ((sqlite_database) && (update_database) && (pitch_modify) && (volume_modify)) message = "I would like to update database and to upgrade database and to update pitch and to update volume";
                     if ((sqlite_database) && (update_database) && (pitch_modify) && (!volume_modify)) message = "I would like to update database and to upgrade database and to update pitch";
                     if ((sqlite_database) && (update_database) && (!pitch_modify) && (!volume_modify)) message = "I would like to update database and to upgrade database";
+                    if ((sqlite_database) && (!update_database) && (pitch_modify) && (volume_modify)) message = "I would like to uprade database and to update pitch and to update volume";
+
+                    if ((sqlite_database) && (!update_database) && (pitch_modify) && (!volume_modify)) message = "I would like to uprade database and to update pitch";
+                    if ((sqlite_database) && (!update_database) && (!pitch_modify) && (volume_modify)) message = "I would like to uprade database and to update volume";
                     if ((sqlite_database) && (!update_database) && (!pitch_modify) && (!volume_modify)) message = "I would like to uprade database";
+
                     if ((!sqlite_database) && (update_database) && (!pitch_modify) && (!volume_modify)) message = "I would like to update database";
+
+                    if ((!sqlite_database) && (update_database) && (pitch_modify) && (volume_modify)) message = "I would like to update database and to update pitch and to update volume";
+                    if ((!sqlite_database) && (update_database) && (pitch_modify) && (!volume_modify)) message = "I would like to update database and to update pitch";
+                    if ((!sqlite_database) && (update_database) && (!pitch_modify) && (volume_modify)) message = "I would like to update database and to update volume";
+
                     if ((!sqlite_database) && (!update_database) && (pitch_modify) && (volume_modify)) message = "I would like to update pitch and to update volume";
                     if ((!sqlite_database) && (!update_database) && (pitch_modify) && (!volume_modify)) message = "I would like to update pitch";
                     if ((!sqlite_database) && (!update_database) && (!pitch_modify) && (volume_modify)) message = "I would like to update volume";
                 }
                 else
                 {
-                    if ((!sqlite_database) && (update_database) && (pitch_modify) && (volume_modify)) message = "I would like to update database and to upgrade database and to update pitch and to update volume";
-                    if ((!sqlite_database) && (update_database) && (pitch_modify) && (!volume_modify)) message = "I would like to update database and to upgrade database and to update pitch";
-                    if ((!sqlite_database) && (update_database) && (!pitch_modify) && (!volume_modify)) message = "I would like to update database and to upgrade database";
-                    if ((!sqlite_database) && (!update_database) && (!pitch_modify) && (!volume_modify)) message = "I would like to uprade database";
-                    if ((sqlite_database) && (update_database) && (!pitch_modify) && (!volume_modify)) message = "I would like to update database";
-                    if ((sqlite_database) && (!update_database) && (pitch_modify) && (volume_modify)) message = "I would like to update pitch and to update volume";
-                    if ((sqlite_database) && (!update_database) && (pitch_modify) && (!volume_modify)) message = "I would like to update pitch";
-                    if ((sqlite_database) && (!update_database) && (!pitch_modify) && (volume_modify)) message = "I would like to update volume";
-                };
+                    if ((sqlite_database) && (update_database) && (pitch_modify) && (volume_modify)) message = "I would like to update database and to upgrade database and to update pitch and to update volume";
+                    if ((sqlite_database) && (update_database) && (pitch_modify) && (!volume_modify)) message = "I would like to update database and to upgrade database and to update pitch";
+                    if ((sqlite_database) && (update_database) && (!pitch_modify) && (!volume_modify)) message = "I would like to update database and to upgrade database";
+                    if ((sqlite_database) && (!update_database) && (pitch_modify) && (volume_modify)) message = "I would like to uprade database and to update pitch and to update volume";
+
+                    if ((sqlite_database) && (!update_database) && (pitch_modify) && (!volume_modify)) message = "I would like to uprade database and to update pitch";
+                    if ((sqlite_database) && (!update_database) && (!pitch_modify) && (volume_modify)) message = "I would like to uprade database and to update volume";
+                    if ((sqlite_database) && (!update_database) && (!pitch_modify) && (!volume_modify)) message = "I would like to uprade database";
+
+                    if ((!sqlite_database) && (update_database) && (!pitch_modify) && (!volume_modify)) message = "I would like to update database";
+
+                    if ((!sqlite_database) && (update_database) && (pitch_modify) && (volume_modify)) message = "I would like to update database and to update pitch and to update volume";
+                    if ((!sqlite_database) && (update_database) && (pitch_modify) && (!volume_modify)) message = "I would like to update database and to update pitch";
+                    if ((!sqlite_database) && (update_database) && (!pitch_modify) && (volume_modify)) message = "I would like to update database and to update volume";
+
+                    if ((!sqlite_database) && (!update_database) && (pitch_modify) && (volume_modify)) message = "I would like to update pitch and to update volume";
+                    if ((!sqlite_database) && (!update_database) && (pitch_modify) && (!volume_modify)) message = "I would like to update pitch";
+                    if ((!sqlite_database) && (!update_database) && (!pitch_modify) && (volume_modify)) message = "I would like to update volume";
+                }
+                ;
 
                 answer = await Application.Current.MainPage.DisplayAlert("Question?", message, "Yes", "No");
                 if (answer)
@@ -176,7 +195,7 @@ namespace LetterStomach.ViewModels
         #endregion
 
         #region DATABASE
-        public async Task UpdateSQLite(int select_table)
+        private async Task UpdateSQLite(int select_table)
         {
             try 
             {
@@ -184,8 +203,8 @@ namespace LetterStomach.ViewModels
 
                 if (select_table == 0)
                 {
-                    await this._sqlite_service.CreateAll();
-                    await this._sqlite_service.DeleteAll();
+                    await this._sqlite_service.Create(-1, true);
+                    await this._sqlite_service.Delete(-1, true);
                     await this._sqlite_service.InsertAdverb();
                     await this._sqlite_service.InsertPronoun();
                     await this._sqlite_service.InsertArticle();
@@ -199,8 +218,8 @@ namespace LetterStomach.ViewModels
                     await this._sqlite_service.InsertAuxiliary();
                 } else
                 {
-                    await this._sqlite_service.Create(select_table);
-                    await this._sqlite_service.Delete(select_table);
+                    await this._sqlite_service.Create(select_table, false);
+                    await this._sqlite_service.Delete(select_table, false);
                 };
                 if (select_table == (int)Hunk.Adverb) await this._sqlite_service.InsertAdverb();
                 if (select_table == (int)Hunk.Pronoun) await this._sqlite_service.InsertPronoun();
@@ -213,15 +232,16 @@ namespace LetterStomach.ViewModels
                 if (select_table == (int)Hunk.Sentence) await this._sqlite_service.InsertSentence();
                 if (select_table == (int)Hunk.Conjunction) await this._sqlite_service.InsertConjunction();
                 if (select_table == (int)Hunk.Auxiliary) await this._sqlite_service.InsertAuxiliary();
+                if (select_table == (int)Hunk.Model) await this._sqlite_service.InsertModel();
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
-        public async Task UpgradeSQLite()
+        private async Task UpgradeSQLite()
         {
             try
             {
@@ -242,7 +262,7 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
+                throw new InvalidOperationException(this.error_message);
             }
         }
         #endregion

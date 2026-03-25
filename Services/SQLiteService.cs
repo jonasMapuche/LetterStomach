@@ -1,5 +1,7 @@
 ﻿using LetterStomach.Enums;
 using LetterStomach.Models;
+using LetterStomach.Repositories;
+using LetterStomach.Repositories.SQLites;
 using LetterStomach.Services.Interfaces;
 using SQLite;
 using Environment = System.Environment;
@@ -26,8 +28,6 @@ namespace LetterStomach.Services
         #endregion
 
         #region VARIABLE
-        private static SQLiteAsyncConnection _database;
-
         public List<Circunstancia> Circunstancia { get; set; }
         public List<Estoutro> Estoutro { get; set; }
         public List<Preceito> Preceito { get; set; }
@@ -39,7 +39,21 @@ namespace LetterStomach.Services
         public List<Ligacao> Ligacao { get; set; }
         public List<Assistente> Assistente { get; set; }
 
-        private static string FILE_SQLITE = "letter.db";
+        private static SQLiteAsyncConnection _database;
+        private const string FILE_SQLITE = "letter.db";
+
+        private readonly IAdverbioRepository _adverbioRepository;
+        private readonly IArtigoRepository _artigoRepository;
+        private readonly IAuxiliarRepository _auxiliarRepository;
+        private readonly IConjuncaoRepository _conjuncaoRepository;
+        private readonly ISubstantivoRepository _substantivoRepository;
+        private readonly IAdjetivoRepository _adjetivoRepository;
+        private readonly IModelRepository _modelRepository;
+        private readonly INumeralRepository _numeroRepository;
+        private readonly IPreposicaoRepository _preposicaoRepository;
+        private readonly IPronomeRepository _pronomeRepository;
+        private readonly IDitadoRepository _ditadoRepository;
+        private readonly IVerboRepository _verboRepository;
 
         private IHttpService _httpService;
         private IModelService _modelService;
@@ -50,166 +64,179 @@ namespace LetterStomach.Services
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation contructor \"SQLite\" service failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation constructor \"SQLite\" service failed!");
                 else this.error_message = string.Empty;
 
-                _httpService = new HttpService();
-                _modelService = new ModelService();
+                this._httpService = new HttpService();
+                this._modelService = new ModelService();
+
+                Connect();
+
+                this._adverbioRepository = new AdverbioRepository(_database);
+                this._artigoRepository = new ArtigoRepository(_database);
+                this._auxiliarRepository = new AuxiliarRepository(_database);
+                this._conjuncaoRepository = new ConjuncaoRepository(_database);
+                this._substantivoRepository = new SubstantivoRepository(_database);
+                this._adjetivoRepository = new AdjetivoRepository(_database);
+                this._modelRepository = new ModelRepository(_database);
+                this._numeroRepository = new NumeralRepository(_database);
+                this._preposicaoRepository = new PreposicaoRepository(_database);
+                this._pronomeRepository = new PronomeRepository(_database);
+                this._ditadoRepository = new DitadoRepository(_database);
+                this._verboRepository = new VerboRepository(_database);
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
             }
         }
         #endregion
 
         #region CONNECT
-        public void Connect()
+        private void Connect()
         {
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation connect \"SQLite\" service failed!");
 
-                string DataBasePach = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "letter.db");
-                string dbPath = Path.Combine(FileSystem.AppDataDirectory, FILE_SQLITE);
-                _database = new SQLiteAsyncConnection(DataBasePach);
+                string file_path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), FILE_SQLITE);
+                _database = new SQLiteAsyncConnection(file_path);
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
+                throw new InvalidOperationException(this.error_message);
             }
         }
         #endregion
 
         #region DELETE
-        public async Task<int> DeleteAll()
-        {
-            try
-            {
-                if (this._error_off) throw new InvalidOperationException("Operation delete all \"SQLite\" service failed!");
-
-                int quantity = 0;
-                quantity += await _database.DeleteAllAsync<Adverbios>();
-                quantity += await _database.DeleteAllAsync<Pronomes>();
-                quantity += await _database.DeleteAllAsync<Artigos>();
-                quantity += await _database.DeleteAllAsync<Numerais>();
-                quantity += await _database.DeleteAllAsync<Preposicoes>();
-                quantity += await _database.DeleteAllAsync<Substantivo>();
-                quantity += await _database.DeleteAllAsync<Adjetivo>();
-                quantity += await _database.DeleteAllAsync<Verbos>();
-                quantity += await _database.DeleteAllAsync<Sentencas>();
-                quantity += await _database.DeleteAllAsync<Conjuncoes>();
-                quantity += await _database.DeleteAllAsync<Auxiliares>();
-                return quantity;
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return -1;
-            }
-        }
-
-        public async Task<int> Delete(int select_table)
+        public async Task<int> Delete(int select_table, bool select_all)
         {
             try 
             {
                 if (this._error_off) throw new InvalidOperationException("Operation delete \"SQLite\" service failed!");
 
                 int quantity = 0;
-                if (select_table == (int)Hunk.Adverb) quantity += await _database.DeleteAllAsync<Adverbios>();
-                if (select_table == (int)Hunk.Pronoun) quantity += await _database.DeleteAllAsync<Pronomes>();
-                if (select_table == (int)Hunk.Article) quantity += await _database.DeleteAllAsync<Artigos>();
-                if (select_table == (int)Hunk.Numeral) quantity += await _database.DeleteAllAsync<Numerais>();
-                if (select_table == (int)Hunk.Preposition) quantity += await _database.DeleteAllAsync<Preposicoes>();
-                if (select_table == (int)Hunk.Noun) quantity += await _database.DeleteAllAsync<Substantivo>();
-                if (select_table == (int)Hunk.Adjective) quantity += await _database.DeleteAllAsync<Adjetivo>();
-                if (select_table == (int)Hunk.Verb) quantity += await _database.DeleteAllAsync<Verbos>();
-                if (select_table == (int)Hunk.Sentence) quantity += await _database.DeleteAllAsync<Sentencas>();
-                if (select_table == (int)Hunk.Conjunction) quantity += await _database.DeleteAllAsync<Conjuncoes>();
-                if (select_table == (int)Hunk.Auxiliary) quantity += await _database.DeleteAllAsync<Auxiliares>();
+                if ((select_table == (int)Hunk.Adverb) || (select_all))
+                    quantity += await this._adjetivoRepository.DeleteAll(); 
+                if ((select_table == (int)Hunk.Pronoun) || (select_all))
+                    quantity += await this._pronomeRepository.DeleteAll(); 
+                if ((select_table == (int)Hunk.Article) || (select_all))
+                    quantity += await this._artigoRepository.DeleteAll(); 
+                if ((select_table == (int)Hunk.Numeral) || (select_all))
+                    quantity += await this._numeroRepository.DeleteAll(); 
+                if ((select_table == (int)Hunk.Preposition) || (select_all))
+                    quantity += await this._preposicaoRepository.DeleteAll(); 
+                if ((select_table == (int)Hunk.Noun) || (select_all))
+                    quantity += await this._substantivoRepository.DeleteAll(); 
+                if ((select_table == (int)Hunk.Adjective) || (select_all))
+                    quantity += await this._adjetivoRepository.DeleteAll(); 
+                if ((select_table == (int)Hunk.Verb) || (select_all))
+                    quantity += await this._verboRepository.DeleteAll(); 
+                if ((select_table == (int)Hunk.Sentence) || (select_all))
+                    quantity += await this._ditadoRepository.DeleteAll(); 
+                if ((select_table == (int)Hunk.Conjunction) || (select_all))
+                    quantity += await this._conjuncaoRepository.DeleteAll(); 
+                if ((select_table == (int)Hunk.Auxiliary) || (select_all))
+                    quantity += await this._auxiliarRepository.DeleteAll(); 
+                if ((select_table == (int)Hunk.Model) || (select_all))
+                    quantity += await this._modelRepository.DeleteAll(); 
                 return quantity;
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return -1;
+                throw new InvalidOperationException(this.error_message);
             }
         }
         #endregion
 
         #region CREATE
-        public async Task CreateAll()
-        {
-            try
-            {
-                if (this._error_off) throw new InvalidOperationException("Operation create all \"SQLite\" service failed!");
-
-                await _database.CreateTableAsync<Adverbios>();
-                List<Adverbios> adverb = new List<Adverbios>();
-                await _database.InsertAllAsync(adverb);
-                await _database.CreateTableAsync<Pronomes>();
-                List<Pronomes> pronoun = new List<Pronomes>();
-                await _database.InsertAllAsync(pronoun);
-                await _database.CreateTableAsync<Artigos>();
-                List<Artigos> article = new List<Artigos>();
-                await _database.InsertAllAsync(article);
-                await _database.CreateTableAsync<Numerais>();
-                List<Numerais> numeral = new List<Numerais>();
-                await _database.InsertAllAsync(numeral);
-                await _database.CreateTableAsync<Preposicoes>();
-                List<Preposicoes> preposition = new List<Preposicoes>();
-                await _database.InsertAllAsync(preposition);
-                await _database.CreateTableAsync<Substantivo>();
-                List<Substantivo> noun = new List<Substantivo>();
-                await _database.InsertAllAsync(noun);
-                await _database.CreateTableAsync<Adjetivo>();
-                List<Adjetivo> adjective = new List<Adjetivo>();
-                await _database.InsertAllAsync(adjective);
-                await _database.CreateTableAsync<Verbos>();
-                List<Verbos> verb = new List<Verbos>();
-                await _database.InsertAllAsync(verb);
-                await _database.CreateTableAsync<Sentencas>();
-                List<Sentencas> sentence = new List<Sentencas>();
-                await _database.InsertAllAsync(sentence);
-                await _database.CreateTableAsync<Conjuncoes>();
-                List<Conjuncoes> conjunction = new List<Conjuncoes>();
-                await _database.InsertAllAsync(conjunction);
-                await _database.CreateTableAsync<Auxiliares>();
-                List<Auxiliares> auxiliary = new List<Auxiliares>();
-                await _database.InsertAllAsync(auxiliary);
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-            }
-        }
-
-        public async Task Create(int select_table)
+        public async Task Create(int select_table, bool select_all)
         {
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation create \"SQLite\" service failed!");
 
-                if (select_table == (int)Hunk.Adverb) await _database.CreateTableAsync<Adverbios>();
-                if (select_table == (int)Hunk.Pronoun) await _database.CreateTableAsync<Pronomes>();
-                if (select_table == (int)Hunk.Article) await _database.CreateTableAsync<Artigos>();
-                if (select_table == (int)Hunk.Numeral) await _database.CreateTableAsync<Numerais>();
-                if (select_table == (int)Hunk.Preposition) await _database.CreateTableAsync<Preposicoes>();
-                if (select_table == (int)Hunk.Noun) await _database.CreateTableAsync<Substantivo>();
-                if (select_table == (int)Hunk.Adjective) await _database.CreateTableAsync<Adjetivo>();
-                if (select_table == (int)Hunk.Verb) await _database.CreateTableAsync<Verbos>();
-                if (select_table == (int)Hunk.Sentence) await _database.CreateTableAsync<Sentencas>();
-                if (select_table == (int)Hunk.Conjunction) await _database.CreateTableAsync<Conjuncoes>();
-                if (select_table == (int)Hunk.Auxiliary) await _database.CreateTableAsync<Auxiliares>();
+                if ((select_table == (int)Hunk.Adverb) || (select_all))
+                {
+                    this._adverbioRepository.CreateTable();
+                    List<Adverbios> adverb = new List<Adverbios>();
+                    await this._adverbioRepository.Add(adverb);
+                }
+                if (select_table == (int)Hunk.Adjective)
+                {
+                    this._adjetivoRepository.CreateTable();
+                    List<Adjetivo> adjective = new List<Adjetivo>();
+                    await this._adjetivoRepository.Add(adjective);
+                }
+                if ((select_table == (int)Hunk.Article) || (select_all))
+                {
+                    this._artigoRepository.CreateTable();
+                    List<Artigos> article = new List<Artigos>();
+                    await this._artigoRepository.Add(article);
+                }
+                if ((select_table == (int)Hunk.Numeral) || (select_all))
+                {
+                    this._numeroRepository.CreateTable(); 
+                    List<Numerais> numeral = new List<Numerais>();
+                    await this._numeroRepository.Add(numeral);
+                }
+                if ((select_table == (int)Hunk.Preposition) || (select_all))
+                {
+                    this._preposicaoRepository.CreateTable(); 
+                    List<Preposicoes> preposition = new List<Preposicoes>();
+                    await this._preposicaoRepository.Add(preposition);
+                }
+                if ((select_table == (int)Hunk.Pronoun) || (select_all))
+                {
+                    this._pronomeRepository.CreateTable();
+                    List<Pronomes> pronoun = new List<Pronomes>();
+                    await this._pronomeRepository.Add(pronoun);
+                }
+                if ((select_table == (int)Hunk.Noun) || (select_all))
+                {
+                    this._substantivoRepository.CreateTable();
+                    List<Substantivo> noun = new List<Substantivo>();
+                    await this._substantivoRepository.Add(noun);
+                }
+                if ((select_table == (int)Hunk.Verb) || (select_all))
+                {
+                    this._verboRepository.CreateTable();
+                    List<Verbos> verb = new List<Verbos>();
+                    await this._verboRepository.Add(verb);
+                }
+                if ((select_table == (int)Hunk.Sentence) || (select_all))
+                {
+                    this._ditadoRepository.CreateTable();
+                    List<Sentencas> sentence = new List<Sentencas>();
+                    await this._ditadoRepository.Add(sentence);
+                }
+                if ((select_table == (int)Hunk.Conjunction) || (select_all))
+                {
+                    this._conjuncaoRepository.CreateTable();
+                    List<Conjuncoes> conjunction = new List<Conjuncoes>();
+                    await _conjuncaoRepository.Add(conjunction);
+                }
+                if ((select_table == (int)Hunk.Auxiliary) || (select_all))
+                {
+                    this._auxiliarRepository.CreateTable();
+                    List<Auxiliares> auxiliary = new List<Auxiliares>();
+                    await this._auxiliarRepository.Add(auxiliary);
+                }
+                if ((select_table == (int)Hunk.Model) || (select_all))
+                {
+                    this._modelRepository.CreateTable();
+                    List<Model> model = new List<Model>();
+                    await this._modelRepository.Add(model);
+                }
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
+                throw new InvalidOperationException(this.error_message);
             }
         }
         #endregion
@@ -223,12 +250,12 @@ namespace LetterStomach.Services
 
                 List<Adverbios> adverb = new List<Adverbios>();
                 adverb = await this._httpService.HttpAdverb();
-                await _database.InsertAllAsync(adverb);
+                await this._adverbioRepository.Add(adverb);
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -240,12 +267,12 @@ namespace LetterStomach.Services
 
                 List<Pronomes> pronoun = new List<Pronomes>();
                 pronoun = await this._httpService.HttpPronoun();
-                await _database.InsertAllAsync(pronoun);
+                await this._pronomeRepository.Add(pronoun);
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -257,12 +284,12 @@ namespace LetterStomach.Services
 
                 List<Artigos> article = new List<Artigos>();
                 article = await this._httpService.HttpArticle();
-                await _database.InsertAllAsync(article);
+                await this._artigoRepository.Add(article);
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -270,14 +297,16 @@ namespace LetterStomach.Services
         {
             try
             {
+                if (this._error_off) throw new InvalidOperationException("Operation insert numeral \"SQLite\" service failed!");
+
                 List<Numerais> numeral = new List<Numerais>();
                 numeral = await this._httpService.HttpNumeral();
-                await _database.InsertAllAsync(numeral);
+                await this._numeroRepository.Add(numeral);
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -289,12 +318,12 @@ namespace LetterStomach.Services
 
                 List<Preposicoes> preposition = new List<Preposicoes>();
                 preposition = await this._httpService.HttpPreposition();
-                await _database.InsertAllAsync(preposition);
+                await this._preposicaoRepository.Add(preposition);
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -306,12 +335,29 @@ namespace LetterStomach.Services
 
                 List<Substantivo> noun = new List<Substantivo>();
                 noun = await this._httpService.HttpNoun();
-                await _database.InsertAllAsync(noun);
+                await this._substantivoRepository.Add(noun);
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        public async Task InsertModel()
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation insert model \"SQLite\" service failed!");
+
+                List<Model> model = new List<Model>();
+                model = await this._httpService.HttpModel();
+                await this._modelRepository.Add(model);
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -323,12 +369,12 @@ namespace LetterStomach.Services
 
                 List<Adjetivo> adjective = new List<Adjetivo>();
                 adjective = await this._httpService.HttpAdjective();
-                await _database.InsertAllAsync(adjective);
+                await this._adjetivoRepository.Add(adjective);
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -340,12 +386,12 @@ namespace LetterStomach.Services
 
                 List<Verbos> verb = new List<Verbos>();
                 verb = await this._httpService.HttpVerb();
-                await _database.InsertAllAsync(verb);
+                await this._verboRepository.Add(verb);
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -357,12 +403,12 @@ namespace LetterStomach.Services
 
                 List<Sentencas> sentence = new List<Sentencas>();
                 sentence = await this._httpService.HttpSentence();
-                await _database.InsertAllAsync(sentence);
+                await this._ditadoRepository.Add(sentence);
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -374,12 +420,12 @@ namespace LetterStomach.Services
 
                 List<Conjuncoes> conjunction = new List<Conjuncoes>();
                 conjunction = await this._httpService.HttpConjunction();
-                await _database.InsertAllAsync(conjunction);
+                await this._conjuncaoRepository.Add(conjunction);
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -391,12 +437,12 @@ namespace LetterStomach.Services
 
                 List<Auxiliares> auxiliary = new List<Auxiliares>();
                 auxiliary = await this._httpService.HttpAuxiliary();
-                await _database.InsertAllAsync(auxiliary);
+                await this._auxiliarRepository.Add(auxiliary);
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
+                throw new InvalidOperationException(this.error_message);
             }
         }
         #endregion
@@ -409,13 +455,13 @@ namespace LetterStomach.Services
                 if (this._error_off) throw new InvalidOperationException("Operation load adverb \"SQLite\" service failed!");
 
                 List<Adverbios> adverb = new List<Adverbios>();
-                adverb = await _database.Table<Adverbios>().ToListAsync();
+                adverb = await this._adverbioRepository.GetAll();
                 this.Circunstancia = await this._modelService.LoadAdverb(adverb);
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -426,13 +472,13 @@ namespace LetterStomach.Services
                 if (this._error_off) throw new InvalidOperationException("Operation load pronoun \"SQLite\" service failed!");
 
                 List<Pronomes> pronoun = new List<Pronomes>();
-                pronoun = await _database.Table<Pronomes>().ToListAsync();
+                pronoun = await this._pronomeRepository.GetAll();
                 this.Estoutro = await this._modelService.LoadPronoun(pronoun);
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -443,13 +489,13 @@ namespace LetterStomach.Services
                 if (this._error_off) throw new InvalidOperationException("Operation load article \"SQLite\" service failed!");
 
                 List<Artigos> article = new List<Artigos>();
-                article = await _database.Table<Artigos>().ToListAsync();
+                article = await this._artigoRepository.GetAll();
                 this.Preceito = await this._modelService.LoadArticle(article);
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -460,13 +506,13 @@ namespace LetterStomach.Services
                 if (this._error_off) throw new InvalidOperationException("Operation load numeral \"SQLite\" service failed!");
 
                 List<Numerais> numeral = new List<Numerais>();
-                numeral = await _database.Table<Numerais>().ToListAsync();
+                numeral = await this._numeroRepository.GetAll();
                 this.Algarismo = await this._modelService.LoadNumeral(numeral);
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -477,13 +523,13 @@ namespace LetterStomach.Services
                 if (this._error_off) throw new InvalidOperationException("Operation load preposition \"SQLite\" service failed!");
 
                 List<Preposicoes> preposition = new List<Preposicoes>();
-                preposition = await _database.Table<Preposicoes>().ToListAsync();
+                preposition = await this._preposicaoRepository.GetAll();
                 this.Juncao = await this._modelService.LoadPreposition(preposition);
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -494,15 +540,17 @@ namespace LetterStomach.Services
                 if (this._error_off) throw new InvalidOperationException("Operation load letter \"SQLite\" service failed!");
 
                 List<Substantivo> noun = new List<Substantivo>();
-                noun = await _database.Table<Substantivo>().ToListAsync();
+                noun = await this._substantivoRepository.GetAll();
                 List<Adjetivo> adjective = new List<Adjetivo>();
-                adjective = await _database.Table<Adjetivo>().ToListAsync();
-                this.Materia = await this._modelService.LoadMateria(noun, adjective); 
+                adjective = await this._adjetivoRepository.GetAll();
+                List<Model> model = new List<Model>();
+                model = await this._modelRepository.GetAll();
+                this.Materia = await this._modelService.LoadMateria(noun, adjective, model); 
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -513,13 +561,13 @@ namespace LetterStomach.Services
                 if (this._error_off) throw new InvalidOperationException("Operation load verb \"SQLite\" service failed!");
 
                 List<Verbos> verb = new List<Verbos>();
-                verb = await _database.Table<Verbos>().ToListAsync();
+                verb = await this._verboRepository.GetAll();
                 this.Elocucao = await this._modelService.LoadElocucao(verb);
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -530,13 +578,13 @@ namespace LetterStomach.Services
                 if (this._error_off) throw new InvalidOperationException("Operation load sentence \"SQLite\" service failed!");
 
                 List<Sentencas> sentence = new List<Sentencas>();
-                sentence = await _database.Table<Sentencas>().ToListAsync();
+                sentence = await this._ditadoRepository.GetAll();
                 this.Sentenca = await this._modelService.LoadSentenca(sentence);
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -547,13 +595,13 @@ namespace LetterStomach.Services
                 if (this._error_off) throw new InvalidOperationException("Operation load conjunction \"SQLite\" service failed!");
 
                 List<Conjuncoes> conjunction = new List<Conjuncoes>();
-                conjunction = await _database.Table<Conjuncoes>().ToListAsync();
+                conjunction = await this._conjuncaoRepository.GetAll();
                 this.Ligacao = await this._modelService.LoadLigacao(conjunction);
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
+                throw new InvalidOperationException(this.error_message);
             }
         }
         
@@ -564,13 +612,13 @@ namespace LetterStomach.Services
                 if (this._error_off) throw new InvalidOperationException("Operation load auxiliary \"SQLite\" service failed!");
 
                 List<Auxiliares> auxiliary = new List<Auxiliares>();
-                auxiliary = await _database.Table<Auxiliares>().ToListAsync();
+                auxiliary = await this._auxiliarRepository.GetAll();
                 this.Assistente = await this._modelService.LoadAssistente(auxiliary);
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
+                throw new InvalidOperationException(this.error_message);
             }
         }
         #endregion

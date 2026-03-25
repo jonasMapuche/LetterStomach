@@ -18,6 +18,11 @@ public partial class HomeView : ContentPage
         }
     }
 
+    private async void OnError(object sender, string error_message)
+    {
+        await DisplayAlert("Error", error_message, "OK");
+    }
+
     private async void OnError(string error_message)
     {
         await Application.Current.MainPage.DisplayAlert("Error", error_message, "OK");
@@ -26,19 +31,18 @@ public partial class HomeView : ContentPage
     #endregion
 
     #region CONSTRUTOR
-    public HomeView(HomeViewModel ViewModel)
+    public HomeView()
 	{
         try
         {
             if (this._error_off) throw new InvalidOperationException("Operation contructor \"Home\" view failed!!");
-            else ViewModel.error_message = string.Empty;
-            if (ViewModel.error_message != string.Empty) throw new InvalidOperationException(ViewModel.error_message);
+            else this.error_message = string.Empty;
 
-            var page = NavigationPage.RootPageProperty;
-
+            HomeViewModel ViewModel = new HomeViewModel();
             InitializeComponent();
             BindingContext = ViewModel;
-            ViewModel.Start();
+            ViewModel.OnError += OnError;
+            ViewModel.Init();
 
         }
         catch (Exception ex)

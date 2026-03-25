@@ -14,6 +14,7 @@
         Verb = 8,
         Numeral = 9,
         Sentence = 10,
-        Auxiliary = 11
+        Auxiliary = 11,
+        Model = 12
     }
 }

@@ -112,6 +112,7 @@
 
 	<ItemGroup>
 	  <Folder Include="Platforms\Android\Helpers\" />
+	  <Folder Include="ViewModels\Interfaces\" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -122,9 +123,6 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\BotView.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\ExitView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\HomeView.xaml">

@@ -11,6 +11,7 @@ namespace LetterStomach.Services.Interfaces
         Task<List<Numerais>> HttpNumeral();
         Task<List<Preposicoes>> HttpPreposition();
         Task<List<Substantivo>> HttpNoun();
+        Task<List<Model>> HttpModel();
         Task<List<Adjetivo>> HttpAdjective();
         Task<List<Verbos>> HttpVerb();
         Task<List<Sentencas>> HttpSentence();

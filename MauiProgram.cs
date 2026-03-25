@@ -34,25 +34,27 @@ namespace LetterStomach
             builder.Services.AddTransient<ITextSpeakService, TextSpeakService>();
 #endif
 
+            builder.Services.AddSingleton<SettingService>();
+            builder.Services.AddSingleton<MessageService>();
+            builder.Services.AddSingleton<SingletonService>();
+            builder.Services.AddTransient<BotService>();
+            builder.Services.AddTransient<HttpService>();
+            builder.Services.AddTransient<ModelService>();
+            builder.Services.AddTransient<PerceptionService>();
+            builder.Services.AddTransient<SQLiteService>();
+            builder.Services.AddTransient<TextToSpeakService>();
+            builder.Services.AddTransient<WordEmbeddingService>();
+
+            builder.Services.AddTransient<SyntaxService>();
+            builder.Services.AddTransient<MorphologyService>();
+            builder.Services.AddTransient<GrammarService>();
+
             builder.Services.AddTransient<BotViewModel>();
             builder.Services.AddTransient<HomeViewModel>();
             builder.Services.AddTransient<SettingViewModel>();
             builder.Services.AddTransient<HomeView>();
             builder.Services.AddTransient<BotView>();
-            builder.Services.AddTransient<ExitView>();
             builder.Services.AddTransient<SettingView>();
-            builder.Services.AddSingleton<SettingService>();
-            builder.Services.AddSingleton<MessageService>();
-            builder.Services.AddSingleton<SingletonService>();
-
-            builder.Services.AddTransient<BotService>();
-            builder.Services.AddTransient<HttpService>();
-            builder.Services.AddTransient<ModelService>();
-            builder.Services.AddTransient<MongoDBService>();
-            builder.Services.AddTransient<PerceptionService>();
-            builder.Services.AddTransient<SQLiteService>();
-            builder.Services.AddTransient<TextToSpeakService>();
-            builder.Services.AddTransient<WordEmbeddingService>();
 #if DEBUG
             builder.Logging.AddDebug();
 #endif

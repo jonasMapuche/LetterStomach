@@ -25,8 +25,8 @@ namespace LetterStomach.Services
         #endregion
 
         #region VARIABLE
-        //private string URL = "http://192.168.0.3:8885/";
-        private string URL = "http://api.stomach.com.br:8885/";
+        private string URL = "http://192.168.0.3:8885/";
+        //private string URL = "http://api.stomach.com.br:8885/";
 
         private HttpClient _client;
         #endregion
@@ -44,6 +44,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
             }
         }
         #endregion
@@ -63,8 +64,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -84,8 +84,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -108,8 +107,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return null;
+                throw new InvalidOperationException(this.error_message);
             }
         }
         #endregion
@@ -128,8 +126,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -148,8 +145,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return null;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -168,8 +164,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return null;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -188,8 +183,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return null;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -208,8 +202,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return null;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -228,8 +221,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return null;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -248,8 +240,26 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return null;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        public async Task<List<Model>> HttpModel()
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation http model \"Http\" service failed!");
+
+                string path = "Model";
+                string result = await HttpGet(path);
+                List<Model> request = new List<Model>();
+                request = JsonConvert.DeserializeObject<List<Model>>(result);
+                return request;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -268,8 +278,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return null;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -288,8 +297,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return null;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -308,8 +316,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return null;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -328,8 +335,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return null;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -348,8 +354,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return null;
+                throw new InvalidOperationException(this.error_message);
             }
         }
         #endregion

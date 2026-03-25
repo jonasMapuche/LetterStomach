@@ -2,9 +2,10 @@
 using CommunityToolkit.Mvvm.Input;
 using LetterStomach.Models;
 using LetterStomach.Services;
-using LetterStomach.ViewModels.Interfaces;
+using LetterStomach.Services.Interfaces;
 using LetterStomach.Views;
 using System.Collections.ObjectModel;
+using System.Data;
 using System.Windows.Input;
 
 namespace LetterStomach.ViewModels
@@ -26,6 +27,8 @@ namespace LetterStomach.ViewModels
                 this._error_message = value;
             }
         }
+
+        public event EventHandler<string> OnError;
         #endregion
 
         #region VARIABLE
@@ -38,9 +41,9 @@ namespace LetterStomach.ViewModels
         public ICommand SpeakCommand { get; set; }
         public ICommand SwipedCommand { get; set; }
 
-        private SettingService _singleton;
+        private SettingService _setting;
 
-        private IGrammarViewModel _grammarViewModel;
+        private IGrammarService _grammarService;
 
         private List<Materia> _lesson_english;
         private List<Materia> _lesson_deutsch;
@@ -65,15 +68,23 @@ namespace LetterStomach.ViewModels
         private Language ITALIANO = SettingService.Instance.Italino;
         private Language FRANCAIS = SettingService.Instance.Francais;
         private Language ESPANOL = SettingService.Instance.Espanol;
+        private HashSet<string> LESSON = SettingService.Instance.Lesson;
+
+        public static ISQLiteService _sQLiteService;
         #endregion
 
-        #region CONTRUTOR
+        #region CONSTRUCTOR
         public HomeViewModel()
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation contructor \"Home\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation constructor \"Home\" view model failed!");
                 else this.error_message = string.Empty;
+
+                Database();
+
+                this._grammarService = new GrammarService();
+                this._setting = SettingService.Instance;
 
                 this.BotCommand = new AsyncRelayCommand<object>(OnBotCommand);
                 this.SpeakCommand = new AsyncRelayCommand<object>(OnSpeakCommand);
@@ -82,25 +93,7 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-            }
-        }
-
-        public void Start()
-        {
-            try
-            {
-                if (this._error_off) throw new InvalidOperationException("Operation start \"Main\" view model failed!");
-
-                this._grammarViewModel = new GrammarViewModel();
-                this._singleton = SettingService.Instance;
-                bool sqlite_database = this._singleton.SQLiteDatabase;
-                Connect(sqlite_database);
-                Init();
-                MountNext();
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
             }
         }
         #endregion
@@ -110,7 +103,7 @@ namespace LetterStomach.ViewModels
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation swiped command \"Main\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation swiped command \"Home\" view model failed!");
 
                 await Shell.Current.GoToAsync(nameof(ModalView));
                 Thread backgroundThread = new Thread(async () =>
@@ -141,6 +134,7 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
             }
         }
 
@@ -148,11 +142,11 @@ namespace LetterStomach.ViewModels
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation speak command \"Main\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation speak command \"Home\" view model failed!");
 
                 TextToSpeakService speak_service = new TextToSpeakService();
-                int pitch_speak = _singleton.PitchSpeak;
-                int volume_speak = _singleton.VolumeSpeak;
+                int pitch_speak = _setting.PitchSpeak;
+                int volume_speak = _setting.VolumeSpeak;
                 if (SingletonService.Instance.SpeakEnglish)
                 {
                     speak_service.SpeakText(MessageService.Instance.Chats, ENGLISH.Uppercase, pitch_speak, volume_speak);
@@ -182,6 +176,7 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
             }
         }
 
@@ -189,7 +184,7 @@ namespace LetterStomach.ViewModels
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation bot command \"Main\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation bot command \"Home\" view model failed!");
 
                 Dictionary<string, object> navigationParameter = new Dictionary<string, object>
                 {
@@ -200,6 +195,7 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
             }
         }
 
@@ -207,55 +203,103 @@ namespace LetterStomach.ViewModels
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation apply query attibutes \"Main\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation apply query attibutes \"Home\" view model failed!");
 
-                bool sqlite_database = false;
-                if (query.Count > 0) sqlite_database = query["refresh"] as string == "True" ? true : false;
-                if (sqlite_database) Update(sqlite_database);
+                bool database = false;
+                if (query.Count > 0) database = query["refresh"] as string == "True" ? true : false;
+                query.Remove("refresh");
+                if (database) Update(database);
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
             }
         }
         #endregion
 
-        #region MESSAGE
-        private void Connect(bool sqlite_database)
+        #region INITIALIZATION
+        private void Database()
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation connect \"Main\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation init database \"Home\" view model failed!");
 
-                if (sqlite_database)
-                {
-                    this._grammarViewModel.SQLite();
-                    MessageService.Instance.Chats = MessageService.Instance.GetChatsSQLite();
-                }
-                else
-                {
-                    this._grammarViewModel.MongoDB();
-                    MessageService.Instance.Chats = MessageService.Instance.GetChats();
-                };
+                SQLiteService sQLiteService = new SQLiteService();
+                _sQLiteService = sQLiteService;
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
-        private void Init()
+        public void Init()
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation init \"Main\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation init \"Home\" view model failed!");
 
-                this._grammarViewModel.SetGrammar();
-                this._lesson_english = this._grammarViewModel.GetLetter(ENGLISH.Lowercase).OrderBy(index => index.ordem).ToList();
-                this._lesson_deutsch = this._grammarViewModel.GetLetter(DEUTSCH.Lowercase).OrderBy(index => index.ordem).ToList();
-                this._lesson_italiano = this._grammarViewModel.GetLetter(ITALIANO.Lowercase).OrderBy(index => index.ordem).ToList();
-                this._lesson_francais = this._grammarViewModel.GetLetter(FRANCAIS.Lowercase).OrderBy(index => index.ordem).ToList();
-                this._lesson_espanol = this._grammarViewModel.GetLetter(ESPANOL.Lowercase).OrderBy(index => index.ordem).ToList();
+                bool database = this._setting.SQLiteDatabase;
+                Connect(database);
+                Grammar();
+                MountNext();
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private void Update(bool database)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation update \"Home\" view model failed!");
+
+                Connect(database);
+                Grammar();
+                MountNext();
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private void Connect(bool database)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation connect \"Home\" view model failed!");
+
+                if (database) this._grammarService.SQLite(_sQLiteService);
+                else this._grammarService.MongoDB();
+                MessageService.Instance.Chats = MessageService.Instance.GetChats();
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private void Grammar()
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation grammar \"Home\" view model failed!");
+
+                this._grammarService.Init();
+
+                this._lesson_english = this._grammarService.GetLetter(ENGLISH.Lowercase).OrderBy(index => index.ordem).ToList();
+                this._lesson_deutsch = this._grammarService.GetLetter(DEUTSCH.Lowercase).OrderBy(index => index.ordem).ToList();
+                this._lesson_italiano = this._grammarService.GetLetter(ITALIANO.Lowercase).OrderBy(index => index.ordem).ToList();
+                this._lesson_francais = this._grammarService.GetLetter(FRANCAIS.Lowercase).OrderBy(index => index.ordem).ToList();
+                this._lesson_espanol = this._grammarService.GetLetter(ESPANOL.Lowercase).OrderBy(index => index.ordem).ToList();
 
                 this._word_english = new List<Word>();
                 this._word_deutsch = new List<Word>();
@@ -266,30 +310,15 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
-        private void Update(bool sqlite_database)
+        private void Message(MessageService message_service, bool update, string language, string oration)
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation update \"Main\" view model failed!");
-
-                Connect(sqlite_database);
-                Init();
-                Load(MessageService.Instance);
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
-            }
-        }
-
-        private void Load(MessageService message_service, bool update, string language, string oration)
-        {
-            try
-            {
-                if (this._error_off) throw new InvalidOperationException("Operation load \"Main\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation message \"Home\" view model failed!");
 
                 User user_english = message_service.GetUser(ENGLISH.Lowercase);
                 User user_deutsch = message_service.GetUser(DEUTSCH.Lowercase);
@@ -320,67 +349,17 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-            }
-        }
-
-        private void Load(MessageService message_service)
-        {
-            try
-            {
-                if (this._error_off) throw new InvalidOperationException("Operation load \"Main\" view model failed!");
-
-                User user_english = message_service.GetUser(ENGLISH.Lowercase);
-                User user_deutsch = message_service.GetUser(DEUTSCH.Lowercase);
-                User user_italiano = message_service.GetUser(ITALIANO.Lowercase);
-                User user_francais = message_service.GetUser(FRANCAIS.Lowercase);
-                User user_espanol = message_service.GetUser(ESPANOL.Lowercase);
-                List<Message> messages = new List<Message>();
-                messages = message_service.Chats;
-                List<Message> memos = new List<Message>();
-                foreach (Message item in messages)
-                {
-                    if (item.Sender == user_english)
-                    {
-                        memos.Add(item);
-                        continue;
-                    }
-                    if (item.Sender == user_deutsch)
-                    {
-                        memos.Add(item);
-                        continue;
-                    }
-                    if (item.Sender == user_italiano)
-                    {
-                        memos.Add(item);
-                        continue;
-                    }
-                    if (item.Sender == user_francais)
-                    {
-                        memos.Add(item);
-                        continue;
-                    }
-                    if (item.Sender == user_espanol)
-                    {
-                        memos.Add(item);
-                        continue;
-                    }
-                };
-                RecentChat = new ObservableCollection<Message>(memos);
-                MessageService.Instance.Chats = memos;
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
             }
         }
         #endregion
 
-        #region SET
-        private void SetLesson(Materia materia, string language)
+        #region LESSON
+        private void Lesson(Materia materia, string language)
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation set lesson \"Main\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation lesson \"Home\" view model failed!");
 
                 if (language == ENGLISH.Lowercase) this._english = materia;
                 if (language == DEUTSCH.Lowercase) this._deutsch = materia;
@@ -391,14 +370,15 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
-        private void SetOration(List<Word> oration, string language)
+        private void Oration(List<Word> oration, string language)
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation set oration \"Main\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation oration \"Home\" view model failed!");
 
                 if (language == ENGLISH.Lowercase) _word_english = oration;
                 if (language == DEUTSCH.Lowercase) _word_deutsch = oration;
@@ -409,16 +389,17 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
             }
         }
         #endregion
 
-        #region MOVE
+        #region MOUNT
         private void MountNext()
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation mount next \"Main\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation mount next \"Home\" view model failed!");
 
                 Next(_lesson_english, _english, ENGLISH.Lowercase);
                 Next(_lesson_deutsch, _deutsch, DEUTSCH.Lowercase);
@@ -429,6 +410,7 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -436,17 +418,19 @@ namespace LetterStomach.ViewModels
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation mount previous \"Main\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation mount previous \"Home\" view model failed!");
 
                 Previous(_lesson_english, _english, ENGLISH.Lowercase);
                 Previous(_lesson_deutsch, _deutsch, DEUTSCH.Lowercase);
                 Previous(_lesson_italiano, _italiano, ITALIANO.Lowercase);
                 Previous(_lesson_francais, _francais, FRANCAIS.Lowercase);
                 Previous(_lesson_espanol, _espanol, ESPANOL.Lowercase);
+                throw new InvalidOperationException(this.error_message);
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -454,7 +438,7 @@ namespace LetterStomach.ViewModels
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation mount down \"Main\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation mount down \"Home\" view model failed!");
 
                 if (SingletonService.Instance.PauseEnglish) Down(_english, ENGLISH.Lowercase, _word_english);
                 if (SingletonService.Instance.PauseDeutsch) Down(_deutsch, DEUTSCH.Lowercase, _word_deutsch);
@@ -465,6 +449,7 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -472,7 +457,7 @@ namespace LetterStomach.ViewModels
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation mount up \"Main\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation mount up \"Home\" view model failed!");
 
                 if (SingletonService.Instance.PauseEnglish) Up(_english, ENGLISH.Lowercase, _word_english);
                 if (SingletonService.Instance.PauseDeutsch) Up(_deutsch, DEUTSCH.Lowercase, _word_deutsch);
@@ -483,6 +468,32 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+        #endregion
+
+        #region MOVE
+        private List<Materia> BookLesson(List<Materia> books)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation book lesson \"Home\" view model failed!");
+
+                HashSet<string> lecture = new HashSet<string>();
+                lecture = LESSON;
+                List<Materia> edition = new List<Materia>();
+                books.ForEach(index =>
+                {
+                    if (Array.IndexOf(lecture.ToArray(), index.titulo) != -1)
+                        edition.Add(index);
+                });
+                return edition;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -490,20 +501,24 @@ namespace LetterStomach.ViewModels
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation next \"Main\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation next \"Home\" view model failed!");
 
-                int value = books.IndexOf(lesson) + 1;
-                if (value == books.Count) value = books.IndexOf(lesson);
-                if (books.Count != 0)
+                List<Materia> editions = new List<Materia>();
+                editions = BookLesson(books);
+
+                int value = editions.IndexOf(lesson) + 1;
+                if (value == editions.Count) value = editions.IndexOf(lesson);
+                if (editions.Count != 0)
                 {
-                    lesson = books[value];
-                    SetLesson(lesson, language);
-                    Move(language, lesson, books);
+                    lesson = editions[value];
+                    Lesson(lesson, language);
+                    Move(language, lesson, editions);
                 }
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -511,54 +526,24 @@ namespace LetterStomach.ViewModels
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation previous \"Main\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation previous \"Home\" view model failed!");
 
-                int value = books.IndexOf(lesson) - 1;
+                List<Materia> editions = new List<Materia>();
+                editions = BookLesson(books);
+
+                int value = editions.IndexOf(lesson) - 1;
                 if (value == -1) value = 0;
-                if (books.Count != 0)
+                if (editions.Count != 0)
                 {
-                    lesson = books[value];
-                    SetLesson(lesson, language);
-                    Move(language, lesson, books);
+                    lesson = editions[value];
+                    Lesson(lesson, language);
+                    Move(language, lesson, editions);
                 }
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-            }
-        }
-
-        private void Move(string language, Materia lesson, List<Materia> books)
-        {
-            try
-            {
-                if (this._error_off) throw new InvalidOperationException("Operation move \"Main\" view model failed!");
-
-                List<Word> words = this._grammarViewModel.MountSyntax(language, lesson, books);
-                SetOration(words, language);
-                string oration = this._grammarViewModel.MountOration(language, words);
-                Load(MessageService.Instance, true, language, oration);
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
-            }
-        }
-
-        public void Move(string language, List<Word> words, bool reverse)
-        {
-            try
-            {
-                if (this._error_off) throw new InvalidOperationException("Operation move \"Main\" view model failed!");
-
-                List<Word> terms = this._grammarViewModel.MountSyntax(language, words, reverse);
-                SetOration(terms, language);
-                string oration = this._grammarViewModel.MountOration(language, terms);
-                Load(MessageService.Instance, true, language, oration);
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -566,13 +551,14 @@ namespace LetterStomach.ViewModels
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation down \"Main\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation down \"Home\" view model failed!");
 
                 Move(language, words, false);
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -580,13 +566,53 @@ namespace LetterStomach.ViewModels
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation up \"Main\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation up \"Home\" view model failed!");
 
                 Move(language, words, true);
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private void Move(string language, Materia lesson, List<Materia> books)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation move \"Home\" view model failed!");
+
+                List<Materia> editions = new List<Materia>();
+                editions = BookLesson(books);
+
+                List<Word> words = this._grammarService.MountSyntax(language, lesson, editions);
+                Oration(words, language);
+                string oration = this._grammarService.MountOration(language, words);
+                Message(MessageService.Instance, true, language, oration);
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        public void Move(string language, List<Word> words, bool reverse)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation move \"Home\" view model failed!");
+
+                List<Word> terms = this._grammarService.MountSyntax(language, words, reverse);
+                Oration(terms, language);
+                string oration = this._grammarService.MountOration(language, terms);
+                Message(MessageService.Instance, true, language, oration);
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
             }
         }
         #endregion
