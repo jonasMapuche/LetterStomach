@@ -31,7 +31,7 @@ namespace LetterStomach.Services
         #endregion
 
         #region SPEAK
-        public async void SpeakText(List<Message> messages, string language, int pitch_speak, int volume_speak)
+        public async void SpeakText(List<Message> messages, string language, float pitch_speak, float volume_speak)
         {
             try
             {
@@ -56,8 +56,8 @@ namespace LetterStomach.Services
                 if (language == FRANCAIS.Uppercase) locale = locales.FirstOrDefault(l => l.Language == FRANCAIS.Code && l.Country == FRANCAIS.Region);
                 if (language == ESPANOL.Uppercase) locale = locales.FirstOrDefault(l => l.Language == ESPANOL.Code && l.Country == ESPANOL.Region);
 
-                float pitch = 1.0f;
-                float volume = .75f;
+                float pitch = pitch_speak;
+                float volume = volume_speak;
 
                 SpeechOptions settings = new SpeechOptions()
                 {

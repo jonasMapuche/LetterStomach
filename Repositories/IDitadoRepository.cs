@@ -8,5 +8,7 @@ namespace LetterStomach.Repositories
         Task<int> Add(List<Sentencas> sentence);
         void CreateTable();
         Task<int> DeleteAll();
+        Task<int> ExistAsync();
+        int Exist();
     }
 }

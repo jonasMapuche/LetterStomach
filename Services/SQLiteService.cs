@@ -1,4 +1,5 @@
-﻿using LetterStomach.Enums;
+﻿using Android.Database.Sqlite;
+using LetterStomach.Enums;
 using LetterStomach.Models;
 using LetterStomach.Repositories;
 using LetterStomach.Repositories.SQLites;
@@ -41,6 +42,8 @@ namespace LetterStomach.Services
 
         private static SQLiteAsyncConnection _database;
         private const string FILE_SQLITE = "letter.db";
+        private string file_path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), FILE_SQLITE);
+        private const int QUANTITY_SQLITE = 12;
 
         private readonly IAdverbioRepository _adverbioRepository;
         private readonly IArtigoRepository _artigoRepository;
@@ -57,6 +60,7 @@ namespace LetterStomach.Services
 
         private IHttpService _httpService;
         private IModelService _modelService;
+        private SettingService _settingService;
         #endregion
 
         #region CONSTRUCTOR
@@ -69,6 +73,8 @@ namespace LetterStomach.Services
 
                 this._httpService = new HttpService();
                 this._modelService = new ModelService();
+
+                this._settingService = SettingService.Instance;
 
                 Connect();
 
@@ -100,8 +106,42 @@ namespace LetterStomach.Services
             {
                 if (this._error_off) throw new InvalidOperationException("Operation connect \"SQLite\" service failed!");
 
-                string file_path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), FILE_SQLITE);
                 _database = new SQLiteAsyncConnection(file_path);
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+        #endregion
+
+        #region EXIST
+        public void Exist()
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation exit \"SQLite\" service failed!");
+
+                bool exist = File.Exists(file_path);
+                bool connect = (_database is not null) ? true : false;
+                int quantity = 0;
+                if (exist && connect)
+                {
+                    quantity += this._adverbioRepository.Exist();
+                    quantity += this._artigoRepository.Exist();
+                    quantity += this._auxiliarRepository.Exist();
+                    quantity += this._conjuncaoRepository.Exist();
+                    quantity += this._substantivoRepository.Exist();
+                    quantity += this._adjetivoRepository.Exist();
+                    quantity += this._modelRepository.Exist();
+                    quantity += this._numeroRepository.Exist();
+                    quantity += this._preposicaoRepository.Exist();
+                    quantity += this._pronomeRepository.Exist();
+                    quantity += this._ditadoRepository.Exist();
+                    quantity += this._verboRepository.Exist();
+                    if (quantity == QUANTITY_SQLITE) this._settingService.SQLiteDatabase = true;
+                }
             }
             catch (Exception ex)
             {

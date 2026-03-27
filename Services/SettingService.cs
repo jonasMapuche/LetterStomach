@@ -31,6 +31,10 @@ namespace LetterStomach.Services
 
         public int VolumeSpeak { get; set; } = 50;
 
+        public float PitchFloat { get; set; } = 1.0f;
+
+        public float VolumeFloat { get; set; } = .75f;
+
         public bool ModeBot { get; set; } = false;
 
         private static string english = "english";

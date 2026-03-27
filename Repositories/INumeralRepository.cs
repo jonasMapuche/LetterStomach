@@ -8,5 +8,7 @@ namespace LetterStomach.Repositories
         Task<int> Add(List<Numerais> numeral);
         void CreateTable();
         Task<int> DeleteAll();
+        Task<int> ExistAsync();
+        int Exist();
     }
 }

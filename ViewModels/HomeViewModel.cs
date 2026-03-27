@@ -41,10 +41,6 @@ namespace LetterStomach.ViewModels
         public ICommand SpeakCommand { get; set; }
         public ICommand SwipedCommand { get; set; }
 
-        private SettingService _setting;
-
-        private IGrammarService _grammarService;
-
         private List<Materia> _lesson_english;
         private List<Materia> _lesson_deutsch;
         private List<Materia> _lesson_italiano;
@@ -71,6 +67,8 @@ namespace LetterStomach.ViewModels
         private HashSet<string> LESSON = SettingService.Instance.Lesson;
 
         public static ISQLiteService _sQLiteService;
+        private IGrammarService _grammarService;
+        private SettingService _settingService;
         #endregion
 
         #region CONSTRUCTOR
@@ -81,14 +79,14 @@ namespace LetterStomach.ViewModels
                 if (this._error_off) throw new InvalidOperationException("Operation constructor \"Home\" view model failed!");
                 else this.error_message = string.Empty;
 
-                Database();
-
                 this._grammarService = new GrammarService();
-                this._setting = SettingService.Instance;
+                this._settingService = SettingService.Instance;
 
                 this.BotCommand = new AsyncRelayCommand<object>(OnBotCommand);
                 this.SpeakCommand = new AsyncRelayCommand<object>(OnSpeakCommand);
                 this.SwipedCommand = new AsyncRelayCommand<SwipeDirection>(OnSwipedCommand);
+
+                Database();
             }
             catch (Exception ex)
             {
@@ -144,9 +142,9 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation speak command \"Home\" view model failed!");
 
-                TextToSpeakService speak_service = new TextToSpeakService();
-                int pitch_speak = _setting.PitchSpeak;
-                int volume_speak = _setting.VolumeSpeak;
+                ITextToSpeakService speak_service = new TextToSpeakService();
+                float pitch_speak = this._settingService.PitchFloat;
+                float volume_speak = this._settingService.PitchSpeak;
                 if (SingletonService.Instance.SpeakEnglish)
                 {
                     speak_service.SpeakText(MessageService.Instance.Chats, ENGLISH.Uppercase, pitch_speak, volume_speak);
@@ -179,7 +177,7 @@ namespace LetterStomach.ViewModels
                 this.OnError?.Invoke(this, this.error_message);
             }
         }
-
+         
         private async Task OnBotCommand(object user)
         {
             try
@@ -206,9 +204,14 @@ namespace LetterStomach.ViewModels
                 if (this._error_off) throw new InvalidOperationException("Operation apply query attibutes \"Home\" view model failed!");
 
                 bool database = false;
-                if (query.Count > 0) database = query["refresh"] as string == "True" ? true : false;
-                query.Remove("refresh");
-                if (database) Update(database);
+                bool refresh = false;
+                if (query.Count > 0)
+                {
+                    refresh = true;
+                    database = query["refresh"] as string == "True" ? true : false;
+                    query.Remove("refresh");
+                }
+                if (refresh) Update(database);
             }
             catch (Exception ex)
             {
@@ -227,6 +230,7 @@ namespace LetterStomach.ViewModels
 
                 SQLiteService sQLiteService = new SQLiteService();
                 _sQLiteService = sQLiteService;
+                _sQLiteService.Exist();
             }
             catch (Exception ex)
             {
@@ -241,7 +245,7 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation init \"Home\" view model failed!");
 
-                bool database = this._setting.SQLiteDatabase;
+                bool database = this._settingService.SQLiteDatabase;
                 Connect(database);
                 Grammar();
                 MountNext();

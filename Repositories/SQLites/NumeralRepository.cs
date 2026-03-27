@@ -49,7 +49,7 @@ namespace LetterStomach.Repositories.SQLites
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation get all \"Numero\" repository failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation get all \"Numeral\" repository failed!");
 
                 return await this._database.Table<Numerais>().ToListAsync();
             }
@@ -64,7 +64,7 @@ namespace LetterStomach.Repositories.SQLites
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation add \"Numero\" repository failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation add \"Numeral\" repository failed!");
 
                 return await this._database.InsertAllAsync(numeral);
             }
@@ -79,7 +79,7 @@ namespace LetterStomach.Repositories.SQLites
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation create table \"Numero\" repository failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation create table \"Numeral\" repository failed!");
 
                 await this._database.CreateTableAsync<Numerais>();
             }
@@ -94,9 +94,43 @@ namespace LetterStomach.Repositories.SQLites
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation delete all \"Numero\" repository failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation delete all \"Numeral\" repository failed!");
 
                 return await this._database.DeleteAllAsync<Numerais>();
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        public async Task<int> ExistAsync()
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation exist async \"Numeral\" repository failed!");
+
+                string sql = $"SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='Numerais'";
+                int result = await this._database.ExecuteScalarAsync<int>(sql);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        public int Exist()
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation exist \"Numeral\" repository failed!");
+
+                string sql = $"SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='Numerais'";
+                int result = this._database.ExecuteScalarAsync<int>(sql).GetAwaiter().GetResult();
+                return result;
             }
             catch (Exception ex)
             {

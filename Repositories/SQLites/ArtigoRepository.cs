@@ -104,6 +104,40 @@ namespace LetterStomach.Repositories.SQLites
                 throw new InvalidOperationException(this.error_message);
             }
         }
+
+        public async Task<int> ExistAsync()
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation exist async \"Artigo\" repository failed!");
+
+                string sql = $"SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='Artigos'";
+                int result = await this._database.ExecuteScalarAsync<int>(sql);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        public int Exist()
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation exist \"Artigo\" repository failed!");
+
+                string sql = $"SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='Artigos'";
+                int result = this._database.ExecuteScalarAsync<int>(sql).GetAwaiter().GetResult();
+                return result;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
         #endregion
     }
 }

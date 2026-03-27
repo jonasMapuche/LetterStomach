@@ -31,7 +31,7 @@ namespace LetterStomach.ViewModels
         public bool IsUpdateTable { get; set; }
         public bool IsSQLiteTable { get; set; }
         public int IsPitchSpeak { get; set; }
-        public int IsVolumeSpeak {  get; set; }
+        public int IsVolumeSpeak { get; set; }
 
         public ICommand CheckCommand { get; set; }
         public ICommand BackCommand { get; set; }
@@ -126,9 +126,9 @@ namespace LetterStomach.ViewModels
                 int select_table = int.Parse(setting.SelectTable);
                 int pitch_speak = int.Parse(setting.PitchSpeak);
                 int volume_speak = int.Parse(setting.VolumeSpeak);
-                bool init_database = _setting.SQLiteDatabase;
-                bool pitch_modify = this._pitch_init != pitch_speak? true: false;
-                bool volume_modify = this._volume_init != volume_speak? true: false;    
+                bool init_database = this._setting.SQLiteDatabase;
+                bool pitch_modify = this._pitch_init != pitch_speak ? true : false;
+                bool volume_modify = this._volume_init != volume_speak ? true : false;
 
                 string message = "";
 
@@ -181,10 +181,11 @@ namespace LetterStomach.ViewModels
                 {
                     if (update_database) await UpdateSQLite(select_table);
                     if ((!init_database) && (sqlite_database)) await UpgradeSQLite();
-                    if ((init_database) && (!sqlite_database)) _setting.SQLiteDatabase = false;
-                    if (pitch_modify) _setting.PitchSpeak = pitch_speak;
-                    if (volume_modify) _setting.VolumeSpeak = volume_speak;
-                };
+                    if ((init_database) && (!sqlite_database)) this._setting.SQLiteDatabase = false;
+                    if (pitch_modify) await UpdatePitch(pitch_speak);
+                    if (volume_modify) await UpdateVolume(volume_speak);
+                }
+                ;
             }
             catch (Exception ex)
             {
@@ -197,7 +198,7 @@ namespace LetterStomach.ViewModels
         #region DATABASE
         private async Task UpdateSQLite(int select_table)
         {
-            try 
+            try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation update sqlite \"Setting\" view model failed!");
 
@@ -216,11 +217,13 @@ namespace LetterStomach.ViewModels
                     await this._sqlite_service.InsertSentence();
                     await this._sqlite_service.InsertConjunction();
                     await this._sqlite_service.InsertAuxiliary();
-                } else
+                }
+                else
                 {
                     await this._sqlite_service.Create(select_table, false);
                     await this._sqlite_service.Delete(select_table, false);
-                };
+                }
+                ;
                 if (select_table == (int)Hunk.Adverb) await this._sqlite_service.InsertAdverb();
                 if (select_table == (int)Hunk.Pronoun) await this._sqlite_service.InsertPronoun();
                 if (select_table == (int)Hunk.Article) await this._sqlite_service.InsertArticle();
@@ -265,6 +268,46 @@ namespace LetterStomach.ViewModels
                 throw new InvalidOperationException(this.error_message);
             }
         }
+
+        private async Task UpdatePitch(int pitch)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation update pitch \"Setting\" view model failed!");
+
+                float pitch_float = this._setting.PitchFloat;
+                int pitch_speak = this._setting.PitchSpeak;
+                float value = (pitch_float * pitch) / pitch_speak;
+
+                this._setting.PitchFloat = value;
+                this._setting.PitchSpeak = pitch;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private async Task UpdateVolume(int volume)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation update volume \"Setting\" view model failed!");
+
+                float volume_float = this._setting.VolumeFloat;
+                int volume_speak = this._setting.VolumeSpeak;
+                float value = (volume_float * volume) / volume_speak;
+
+                this._setting.VolumeFloat = value;
+                this._setting.VolumeSpeak = volume;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
         #endregion
+        }
     }
 }
