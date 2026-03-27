@@ -1,3 +1,4 @@
+using AndroidX.Lifecycle;
 using LetterStomach.ViewModels;
 
 namespace LetterStomach.Views;
@@ -30,6 +31,10 @@ public partial class HomeView : ContentPage
     }
     #endregion
 
+    #region VARIABLE
+    HomeViewModel _viewModel;
+    #endregion
+
     #region CONSTRUTOR
     public HomeView()
 	{
@@ -41,9 +46,9 @@ public partial class HomeView : ContentPage
             HomeViewModel ViewModel = new HomeViewModel();
             InitializeComponent();
             BindingContext = ViewModel;
-            ViewModel.OnError += OnError;
-            ViewModel.Init();
-
+            this._viewModel = ViewModel;
+            this._viewModel.OnError += OnError;
+            //this._viewModel.Init();
         }
         catch (Exception ex)
         {
@@ -97,6 +102,14 @@ public partial class HomeView : ContentPage
             this.error_message = ex.Message;
             this.OnError(this.error_message);
         }
+    }
+    #endregion
+
+    #region EVENT
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+        await this._viewModel.LoadCommand.ExecuteAsync(this);
     }
     #endregion
 }

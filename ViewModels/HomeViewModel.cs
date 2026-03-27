@@ -40,6 +40,7 @@ namespace LetterStomach.ViewModels
         public ICommand BotCommand { get; set; }
         public ICommand SpeakCommand { get; set; }
         public ICommand SwipedCommand { get; set; }
+        public IAsyncRelayCommand LoadCommand { get; }
 
         private List<Materia> _lesson_english;
         private List<Materia> _lesson_deutsch;
@@ -66,7 +67,7 @@ namespace LetterStomach.ViewModels
         private Language ESPANOL = SettingService.Instance.Espanol;
         private HashSet<string> LESSON = SettingService.Instance.Lesson;
 
-        public static ISQLiteService _sQLiteService;
+        public static ISQLiteService? _sQLiteService;
         private IGrammarService _grammarService;
         private SettingService _settingService;
         #endregion
@@ -85,8 +86,7 @@ namespace LetterStomach.ViewModels
                 this.BotCommand = new AsyncRelayCommand<object>(OnBotCommand);
                 this.SpeakCommand = new AsyncRelayCommand<object>(OnSpeakCommand);
                 this.SwipedCommand = new AsyncRelayCommand<SwipeDirection>(OnSwipedCommand);
-
-                Database();
+                this.LoadCommand = new AsyncRelayCommand(OnLoadCommand);
             }
             catch (Exception ex)
             {
@@ -197,6 +197,37 @@ namespace LetterStomach.ViewModels
             }
         }
 
+        private async Task OnLoadCommand()
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation load command \"Home\" view model failed!");
+
+                SQLiteService sQLiteService = new SQLiteService();
+                _sQLiteService = sQLiteService;
+                bool exist = await _sQLiteService.ExistAsync();
+                if (exist)
+                {
+                    await _sQLiteService.LoadAdverb();
+                    await _sQLiteService.LoadPronoun();
+                    await _sQLiteService.LoadArticle();
+                    await _sQLiteService.LoadNumeral();
+                    await _sQLiteService.LoadPreposition();
+                    await _sQLiteService.LoadLetter();
+                    await _sQLiteService.LoadVerb();
+                    await _sQLiteService.LoadSentence();
+                    await _sQLiteService.LoadConjunction();
+                    await _sQLiteService.LoadAuxiliary();
+                }
+                Init(exist);
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+            }
+        }
+
         public void ApplyQueryAttributes(IDictionary<string, object> query)
         {
             try
@@ -222,30 +253,12 @@ namespace LetterStomach.ViewModels
         #endregion
 
         #region INITIALIZATION
-        private void Database()
-        {
-            try
-            {
-                if (this._error_off) throw new InvalidOperationException("Operation init database \"Home\" view model failed!");
-
-                SQLiteService sQLiteService = new SQLiteService();
-                _sQLiteService = sQLiteService;
-                _sQLiteService.Exist();
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
-                throw new InvalidOperationException(this.error_message);
-            }
-        }
-
-        public void Init()
+        private void Init(bool database)
         {
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation init \"Home\" view model failed!");
 
-                bool database = this._settingService.SQLiteDatabase;
                 Connect(database);
                 Grammar();
                 MountNext();

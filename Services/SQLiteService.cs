@@ -149,6 +149,40 @@ namespace LetterStomach.Services
                 throw new InvalidOperationException(this.error_message);
             }
         }
+
+        public async Task<bool> ExistAsync()
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation exit async \"SQLite\" service failed!");
+
+                bool exist = File.Exists(file_path);
+                bool connect = (_database is not null) ? true : false;
+                int quantity = 0;
+                if (exist && connect)
+                {
+                    quantity += await this._adverbioRepository.ExistAsync();
+                    quantity += await this._artigoRepository.ExistAsync();
+                    quantity += await this._auxiliarRepository.ExistAsync();
+                    quantity += await this._conjuncaoRepository.ExistAsync();
+                    quantity += await this._substantivoRepository.ExistAsync();
+                    quantity += await this._adjetivoRepository.ExistAsync();
+                    quantity += await this._modelRepository.ExistAsync();
+                    quantity += await this._numeroRepository.ExistAsync();
+                    quantity += await this._preposicaoRepository.ExistAsync();
+                    quantity += await this._pronomeRepository.ExistAsync();
+                    quantity += await this._ditadoRepository.ExistAsync();
+                    quantity += await this._verboRepository.ExistAsync();
+                    if (quantity == QUANTITY_SQLITE) return true;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
         #endregion
 
         #region DELETE

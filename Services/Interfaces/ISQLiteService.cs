@@ -18,6 +18,7 @@ namespace LetterStomach.Services.Interfaces
         Task<int> Delete(int select_table, bool select_all);
         Task Create(int select_table, bool select_all);
         void Exist();
+        Task<bool> ExistAsync();
         Task InsertAdverb();
         Task InsertPronoun();
         Task InsertArticle();
