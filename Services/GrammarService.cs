@@ -130,7 +130,7 @@ namespace LetterStomach.ViewModels
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation set grammar \"Grammar\" service failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation init \"Grammar\" service failed!");
 
                 this._adverb_english = GetAdverb(ENGLISH.Lowercase).Distinct().ToList();
                 this._adverb_deutsch = GetAdverb(DEUTSCH.Lowercase).Distinct().ToList();
@@ -1239,13 +1239,13 @@ namespace LetterStomach.ViewModels
                 List<string> list_adjective = this._morphologyService.GetLessonAdjective(lesson, book);
                 List<string> list_model = this._morphologyService.GetLessonVerb(lesson);
 
-                List<Juncao> list_preposition = SelectPreposition(language);
-                List<Preceito> list_article = SelectArticle(language);
-                List<Algarismo> list_numeral = SelectNumeral(language);
-                List<Circunstancia> list_adverb = SelectAdverb(language);
-                List<Elocucao> list_verb = SelectVerb(language);
-                List<Estoutro> list_pronoun = SelectPronoun(language);
-                List<Ligacao> list_conjunction = SelectConjunction(language);
+                List<Juncao> list_preposition = SelectPreposition(language).OrderBy(index => index.nome).ToList();
+                List<Preceito> list_article = SelectArticle(language).OrderBy(index => index.nome).ToList();
+                List<Algarismo> list_numeral = SelectNumeral(language).OrderBy(index => index.sigla).ToList();
+                List<Circunstancia> list_adverb = SelectAdverb(language).OrderBy(index => index.nome).ToList();
+                List<Elocucao> list_verb = SelectVerb(language).OrderBy(index => index.nome).ToList();
+                List<Estoutro> list_pronoun = SelectPronoun(language).OrderBy(index => index.nome).ToList();
+                List<Ligacao> list_conjunction = SelectConjunction(language).OrderBy(index => index.nome).ToList();
 
                 List<Lesson> mount_noun = this._morphologyService.GetNoun(sentence, list_noun, list_pronoun, list_article, list_numeral);
                 List<Lesson> mount_verb = this._morphologyService.GetVerb(sentence, list_model, list_verb, list_adverb);
@@ -1256,7 +1256,7 @@ namespace LetterStomach.ViewModels
                 List<Lesson> mount_pronoun = this._morphologyService.GetPronoun(sentence, list_pronoun);
                 List<Lesson> mount_conjunction = this._morphologyService.GetConjunction(sentence, list_conjunction);
                 List<Lesson> mount_numeral_noun = this._morphologyService.GetNumeralNoun(sentence, list_noun, list_article, list_numeral);
-                List <Lesson> mount_numeral = this._morphologyService.GetNumeral(sentence, list_numeral);
+                List<Lesson> mount_numeral = this._morphologyService.GetNumeral(sentence, list_numeral);
                 List<Lesson> mount_article = this._morphologyService.GetArticle(sentence, list_article);
 
                 List<Lesson> matters = Union(mount_noun, mount_verb);

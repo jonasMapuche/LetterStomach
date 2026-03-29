@@ -64,7 +64,7 @@ namespace LetterStomach.Services
                 {
                     types.ForEach(item =>
                     {
-                        if (matters[quantity].team.Contains(item))
+                        if (matters[quantity].team == item)
                             lessons.Add(matters[quantity]);
                     });
                 }

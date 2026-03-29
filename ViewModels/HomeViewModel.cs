@@ -34,6 +34,8 @@ namespace LetterStomach.ViewModels
         #region VARIABLE
         public bool Refresh { get; set; }
 
+        private bool _update_view = true;
+
         [ObservableProperty]
         public ObservableCollection<Message> recentChat;
 
@@ -203,23 +205,26 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation load command \"Home\" view model failed!");
 
-                SQLiteService sQLiteService = new SQLiteService();
-                _sQLiteService = sQLiteService;
-                bool exist = await _sQLiteService.ExistAsync();
-                if (exist)
+                if (this._update_view)
                 {
-                    await _sQLiteService.LoadAdverb();
-                    await _sQLiteService.LoadPronoun();
-                    await _sQLiteService.LoadArticle();
-                    await _sQLiteService.LoadNumeral();
-                    await _sQLiteService.LoadPreposition();
-                    await _sQLiteService.LoadLetter();
-                    await _sQLiteService.LoadVerb();
-                    await _sQLiteService.LoadSentence();
-                    await _sQLiteService.LoadConjunction();
-                    await _sQLiteService.LoadAuxiliary();
+                    SQLiteService sQLiteService = new SQLiteService();
+                    _sQLiteService = sQLiteService;
+                    bool exist = await _sQLiteService.ExistAsync();
+                    if (exist)
+                    {
+                        await _sQLiteService.LoadAdverb();
+                        await _sQLiteService.LoadPronoun();
+                        await _sQLiteService.LoadArticle();
+                        await _sQLiteService.LoadNumeral();
+                        await _sQLiteService.LoadPreposition();
+                        await _sQLiteService.LoadLetter();
+                        await _sQLiteService.LoadVerb();
+                        await _sQLiteService.LoadSentence();
+                        await _sQLiteService.LoadConjunction();
+                        await _sQLiteService.LoadAuxiliary();
+                    }
+                    Init(exist);
                 }
-                Init(exist);
             }
             catch (Exception ex)
             {
@@ -234,15 +239,16 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation apply query attibutes \"Home\" view model failed!");
 
-                bool database = false;
-                bool refresh = false;
+                bool update = false;
                 if (query.Count > 0)
                 {
-                    refresh = true;
-                    database = query["refresh"] as string == "True" ? true : false;
+                    update = query["refresh"] as string == "True" ? true : false;
                     query.Remove("refresh");
+                    this._update_view = update;
                 }
-                if (refresh) Update(database);
+                else this._update_view = false;
+
+                //if (refresh) Update(database);
             }
             catch (Exception ex)
             {
@@ -253,32 +259,21 @@ namespace LetterStomach.ViewModels
         #endregion
 
         #region INITIALIZATION
-        private void Init(bool database)
+        private void Init(bool sqlite)
         {
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation init \"Home\" view model failed!");
 
+                bool database = sqlite;
+                bool init = this._settingService.InitDatabase;
+                if (!init) database = this._settingService.SQLiteDatabase;
+                
                 Connect(database);
                 Grammar();
                 MountNext();
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
-                throw new InvalidOperationException(this.error_message);
-            }
-        }
 
-        private void Update(bool database)
-        {
-            try
-            {
-                if (this._error_off) throw new InvalidOperationException("Operation update \"Home\" view model failed!");
-
-                Connect(database);
-                Grammar();
-                MountNext();
+                this._settingService.InitDatabase = false;
             }
             catch (Exception ex)
             {
@@ -293,7 +288,11 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation connect \"Home\" view model failed!");
 
-                if (database) this._grammarService.SQLite(_sQLiteService);
+                if (database)
+                {
+                    this._settingService.SQLiteDatabase = true;
+                    this._grammarService.SQLite(_sQLiteService);
+                }
                 else this._grammarService.MongoDB();
                 MessageService.Instance.Chats = MessageService.Instance.GetChats();
             }
@@ -418,10 +417,10 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation mount next \"Home\" view model failed!");
 
-                Next(_lesson_english, _english, ENGLISH.Lowercase);
-                Next(_lesson_deutsch, _deutsch, DEUTSCH.Lowercase);
-                Next(_lesson_italiano, _italiano, ITALIANO.Lowercase);
-                Next(_lesson_francais, _francais, FRANCAIS.Lowercase);
+                //Next(_lesson_english, _english, ENGLISH.Lowercase);
+                //Next(_lesson_deutsch, _deutsch, DEUTSCH.Lowercase);
+                //Next(_lesson_italiano, _italiano, ITALIANO.Lowercase);
+                //Next(_lesson_francais, _francais, FRANCAIS.Lowercase);
                 Next(_lesson_espanol, _espanol, ESPANOL.Lowercase);
             }
             catch (Exception ex)

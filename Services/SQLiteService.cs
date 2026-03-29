@@ -1,5 +1,4 @@
-﻿using Android.Database.Sqlite;
-using LetterStomach.Enums;
+﻿using LetterStomach.Enums;
 using LetterStomach.Models;
 using LetterStomach.Repositories;
 using LetterStomach.Repositories.SQLites;

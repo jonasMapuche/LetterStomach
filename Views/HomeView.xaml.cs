@@ -1,4 +1,3 @@
-using AndroidX.Lifecycle;
 using LetterStomach.ViewModels;
 
 namespace LetterStomach.Views;
@@ -48,7 +47,6 @@ public partial class HomeView : ContentPage
             BindingContext = ViewModel;
             this._viewModel = ViewModel;
             this._viewModel.OnError += OnError;
-            //this._viewModel.Init();
         }
         catch (Exception ex)
         {
@@ -108,8 +106,18 @@ public partial class HomeView : ContentPage
     #region EVENT
     protected override async void OnAppearing()
     {
-        base.OnAppearing();
-        await this._viewModel.LoadCommand.ExecuteAsync(this);
+        try
+        {
+            if (this._error_off) throw new InvalidOperationException("Operation appearing \"Home\" view failed!!");
+
+            base.OnAppearing();
+            await this._viewModel.LoadCommand.ExecuteAsync(this);
+        }
+        catch (Exception ex)
+        {
+            this.error_message = ex.Message;
+            this.OnError(this.error_message);
+        }
     }
     #endregion
 }

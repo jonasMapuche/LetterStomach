@@ -168,16 +168,16 @@ namespace LetterStomach.Services
             }
         }
 
-        private List<Estoutro> FilterTypePronoun(List<Estoutro> pronouns, List<string> type)
+        private List<Estoutro> FilterTypePronoun(List<Estoutro> pronouns, List<string> kind)
         {
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation filter type pronoun \"Morphology\" service failed!");
 
                 List<Estoutro> words = new List<Estoutro>();
-                for (int quantity = 0; quantity < pronouns.Count() - 1; quantity++)
+                for (int quantity = 0; quantity < pronouns.Count(); quantity++)
                 {
-                    type.ForEach(item =>
+                    kind.ForEach(item =>
                     {
                         if (pronouns[quantity].tipo.Contains(item))
                             words.Add(pronouns[quantity]);
@@ -275,6 +275,7 @@ namespace LetterStomach.Services
                 List<Estoutro> words = new List<Estoutro>();
                 words = pronouns;
                 int quantity = pronouns.Count();
+                //for (int first = 0; first < quantity - 1; first++)
                 for (int first = 0; first < quantity - 1; first++)
                 {
                     int index = first;
@@ -1431,30 +1432,48 @@ namespace LetterStomach.Services
             {
                 if (this._error_off) throw new InvalidOperationException("Operation mount pronoun \"Morphology\" service failed!");
 
-                List<Estoutro> surrogates = new List<Estoutro>();
                 List<Estoutro> single = new List<Estoutro>();
-                List<Estoutro> kind = FilterTypePronoun(pronouns, types);
-                kind.ForEach(item =>
+                List<Estoutro> plural = new List<Estoutro>();
+                List<Estoutro> kinds = FilterTypePronoun(pronouns, types);
+
+                foreach (Estoutro item in kinds) 
                 {
+                    List<Contento> contents = new List<Contento>();
                     item.contento.ForEach(contento =>
                     {
                         if (contento.numero.Contains(VAR_SINGLE))
-                            single.Add(item);
+                            contents.Add(contento);
                     });
-                });
+                    Estoutro pronoun = new Estoutro();
+                    pronoun.nome = item.nome;
+                    pronoun.linguagem = item.linguagem;
+                    pronoun.tipo = item.tipo;
+                    pronoun.contento = contents;
+                    if (contents.Count > 0) single.Add(pronoun);
+                };
                 single = SortPronoun(single);
-                List<Estoutro> plural = new List<Estoutro>();
-                kind.ForEach(item =>
+
+                foreach (Estoutro item in kinds)
                 {
+                    List<Contento> contents = new List<Contento>();
                     item.contento.ForEach(contento =>
                     {
                         if (contento.numero.Contains(VAR_PLURAL))
-                            plural.Add(item);
+                            contents.Add(contento);
                     });
-                });
+                    Estoutro pronoun = new Estoutro();
+                    pronoun.nome = item.nome;
+                    pronoun.linguagem = item.linguagem;
+                    pronoun.tipo = item.tipo;
+                    pronoun.contento = contents;
+                    if (contents.Count > 0) plural.Add(pronoun);
+                };
                 plural = SortPronoun(plural);
-                single.ForEach(estrouto => surrogates.Add(estrouto));
-                plural.ForEach(estrouto => surrogates.Add(estrouto));
+
+                List<Estoutro> surrogates = new List<Estoutro>();
+                single.ForEach(item => surrogates.Add(item));
+                plural.ForEach(item => surrogates.Add(item));
+
                 return surrogates;
             }
             catch (Exception ex)
@@ -1623,7 +1642,8 @@ namespace LetterStomach.Services
                 if (this._error_off) throw new InvalidOperationException("Operation mount verb \"Morphology\" service failed!");
 
                 List<Elocucao> words = new List<Elocucao>();
-                for (int quantity = 0; quantity < verbs.Count() - 1; quantity++)
+                //for (int quantity = 0; quantity < verbs.Count() - 1; quantity++)
+                for (int quantity = 0; quantity < verbs.Count(); quantity++)
                 {
                     models.ForEach(item =>
                     {
@@ -1850,6 +1870,7 @@ namespace LetterStomach.Services
                     }
                 }
                 adjectives.Distinct();
+                adjectives.Sort();  
                 return adjectives;
             }
             catch (Exception ex)
@@ -1882,6 +1903,7 @@ namespace LetterStomach.Services
                     }
                 }
                 nouns.Distinct();
+                nouns.Sort();
                 return nouns;
             }
             catch (Exception ex)
@@ -1908,6 +1930,7 @@ namespace LetterStomach.Services
                     }
                 });
                 verbs.Distinct();
+                verbs.Sort();
                 return verbs;
             }
             catch (Exception ex)

@@ -41,6 +41,8 @@ namespace LetterStomach.ViewModels
 
         private int _pitch_init = 0;
         private int _volume_init = 0;
+
+        private bool _update_setting = false;
         #endregion
 
         #region CONSTRUCTOR
@@ -103,8 +105,8 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation back command \"Setting\" view model failed!");
 
-                bool sqlite_database = this._setting.SQLiteDatabase;
-                await Shell.Current.GoToAsync($"..?refresh={sqlite_database}");
+                bool update_setting = this._update_setting;
+                await Shell.Current.GoToAsync($"..?refresh={update_setting}");
             }
             catch (Exception ex)
             {
@@ -162,7 +164,7 @@ namespace LetterStomach.ViewModels
 
                     if ((sqlite_database) && (!update_database) && (pitch_modify) && (!volume_modify)) message = "I would like to uprade database and to update pitch";
                     if ((sqlite_database) && (!update_database) && (!pitch_modify) && (volume_modify)) message = "I would like to uprade database and to update volume";
-                    if ((sqlite_database) && (!update_database) && (!pitch_modify) && (!volume_modify)) message = "I would like to uprade database";
+                    if ((!sqlite_database) && (!update_database) && (!pitch_modify) && (!volume_modify)) message = "I would like to uprade database";
 
                     if ((!sqlite_database) && (update_database) && (!pitch_modify) && (!volume_modify)) message = "I would like to update database";
 
@@ -173,8 +175,7 @@ namespace LetterStomach.ViewModels
                     if ((!sqlite_database) && (!update_database) && (pitch_modify) && (volume_modify)) message = "I would like to update pitch and to update volume";
                     if ((!sqlite_database) && (!update_database) && (pitch_modify) && (!volume_modify)) message = "I would like to update pitch";
                     if ((!sqlite_database) && (!update_database) && (!pitch_modify) && (volume_modify)) message = "I would like to update volume";
-                }
-                ;
+                };
 
                 answer = await Application.Current.MainPage.DisplayAlert("Question?", message, "Yes", "No");
                 if (answer)
@@ -184,8 +185,8 @@ namespace LetterStomach.ViewModels
                     if ((init_database) && (!sqlite_database)) this._setting.SQLiteDatabase = false;
                     if (pitch_modify) await UpdatePitch(pitch_speak);
                     if (volume_modify) await UpdateVolume(volume_speak);
-                }
-                ;
+                    this._update_setting = true;   
+                };
             }
             catch (Exception ex)
             {

@@ -35,6 +35,8 @@ namespace LetterStomach.Services
 
         public float VolumeFloat { get; set; } = .75f;
 
+        public bool InitDatabase { get; set; } = true;
+
         public bool ModeBot { get; set; } = false;
 
         private static string english = "english";
