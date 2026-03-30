@@ -7,7 +7,7 @@ namespace LetterStomach
 {
     public partial class AppShell : Shell
     {
-        private Language PORTUGUES = SettingService.Instance.Portugues;
+        private Language _language_portugues;
         public ICommand BotCommand { get; set; }
         public ICommand ExitCommand { get; set; }
 
@@ -18,6 +18,8 @@ namespace LetterStomach
             Routing.RegisterRoute(nameof(BotView), typeof(BotView));
             Routing.RegisterRoute(nameof(SettingView), typeof(SettingView));
             Routing.RegisterRoute(nameof(ModalView), typeof(ModalView));
+
+            this._language_portugues = SettingService.Instance.Portugues;
 
             this.BotCommand = new Command(async () => await OnBotCommand());
             this.ExitCommand = new Command(async () => await OnExitCommand());
@@ -33,7 +35,7 @@ namespace LetterStomach
         private async Task OnBotCommand()
         {
             User user = new User();
-            user = MessageService.Instance.GetUser(PORTUGUES.Lowercase);
+            user = MessageService.Instance.GetUser(this._language_portugues.Lowercase);
             Dictionary<string, object> navigationParameter = new Dictionary<string, object>
                 {
                     { "username", user }

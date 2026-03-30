@@ -143,6 +143,8 @@ namespace LetterStomach.Services
 
         public readonly string Declarative = "declarativa";
 
+        public readonly string Infinitive = "infinitivo";
+
         private static readonly string load_english = "load";
         private static readonly string execute_english = "execute";
         private static readonly string see_english = "see";

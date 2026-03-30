@@ -3,7 +3,7 @@ using MongoDB.Driver;
 
 namespace LetterStomach.Repositories.MongoDBs
 {
-    public class ConjunctionRepoitory : ILigacaoRepository
+    public class LigacaoRepoitory : ILigacaoRepository
     {
         #region ERROR
         private bool _error_on = true;
@@ -27,7 +27,7 @@ namespace LetterStomach.Repositories.MongoDBs
         #endregion
 
         #region CONSTRUCTOR
-        public ConjunctionRepoitory()
+        public LigacaoRepoitory()
         {
             try
             {

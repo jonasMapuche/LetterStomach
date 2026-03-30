@@ -3,7 +3,7 @@ using LetterStomach.Models;
 
 namespace LetterStomach.Repositories.MongoDBs
 {
-    public class LigacaoRepository : ICircunstanciaRepository
+    public class CircusnstanciaRepository : ICircunstanciaRepository
     {
         #region ERROR
         private bool _error_on = true;
@@ -27,7 +27,7 @@ namespace LetterStomach.Repositories.MongoDBs
         #endregion
 
         #region CONSTRUCTOR
-        public LigacaoRepository()
+        public CircusnstanciaRepository()
         {
             try
             {

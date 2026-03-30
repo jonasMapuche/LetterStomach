@@ -239,7 +239,7 @@ namespace LetterStomach.Services
                     List<Adverbios> adverb = new List<Adverbios>();
                     await this._adverbioRepository.Add(adverb);
                 }
-                if (select_table == (int)Hunk.Adjective)
+                if ((select_table == (int)Hunk.Adjective) || (select_all))
                 {
                     this._adjetivoRepository.CreateTable();
                     List<Adjetivo> adjective = new List<Adjetivo>();

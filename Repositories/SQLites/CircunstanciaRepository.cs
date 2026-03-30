@@ -1,5 +1,4 @@
 ﻿using LetterStomach.Models;
-using SQLite;
 
 namespace LetterStomach.Repositories.SQLites
 {

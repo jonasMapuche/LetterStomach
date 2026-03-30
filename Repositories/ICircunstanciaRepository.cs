@@ -6,5 +6,6 @@ namespace LetterStomach.Repositories
     {
         public Circunstancia GetName(string name);
         public List<Circunstancia> GetLanguage(string language);
+        public Task<List<Circunstancia>> GetLanguageAsync(string language);
     }
 }

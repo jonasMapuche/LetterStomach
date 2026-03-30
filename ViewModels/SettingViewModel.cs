@@ -140,41 +140,35 @@ namespace LetterStomach.ViewModels
                     if ((sqlite_database) && (update_database) && (pitch_modify) && (!volume_modify)) message = "I would like to update database and to upgrade database and to update pitch";
                     if ((sqlite_database) && (update_database) && (!pitch_modify) && (!volume_modify)) message = "I would like to update database and to upgrade database";
                     if ((sqlite_database) && (!update_database) && (pitch_modify) && (volume_modify)) message = "I would like to uprade database and to update pitch and to update volume";
-
                     if ((sqlite_database) && (!update_database) && (pitch_modify) && (!volume_modify)) message = "I would like to uprade database and to update pitch";
                     if ((sqlite_database) && (!update_database) && (!pitch_modify) && (volume_modify)) message = "I would like to uprade database and to update volume";
                     if ((sqlite_database) && (!update_database) && (!pitch_modify) && (!volume_modify)) message = "I would like to uprade database";
 
                     if ((!sqlite_database) && (update_database) && (!pitch_modify) && (!volume_modify)) message = "I would like to update database";
-
                     if ((!sqlite_database) && (update_database) && (pitch_modify) && (volume_modify)) message = "I would like to update database and to update pitch and to update volume";
                     if ((!sqlite_database) && (update_database) && (pitch_modify) && (!volume_modify)) message = "I would like to update database and to update pitch";
                     if ((!sqlite_database) && (update_database) && (!pitch_modify) && (volume_modify)) message = "I would like to update database and to update volume";
-
                     if ((!sqlite_database) && (!update_database) && (pitch_modify) && (volume_modify)) message = "I would like to update pitch and to update volume";
                     if ((!sqlite_database) && (!update_database) && (pitch_modify) && (!volume_modify)) message = "I would like to update pitch";
                     if ((!sqlite_database) && (!update_database) && (!pitch_modify) && (volume_modify)) message = "I would like to update volume";
                 }
                 else
                 {
-                    if ((sqlite_database) && (update_database) && (pitch_modify) && (volume_modify)) message = "I would like to update database and to upgrade database and to update pitch and to update volume";
-                    if ((sqlite_database) && (update_database) && (pitch_modify) && (!volume_modify)) message = "I would like to update database and to upgrade database and to update pitch";
-                    if ((sqlite_database) && (update_database) && (!pitch_modify) && (!volume_modify)) message = "I would like to update database and to upgrade database";
-                    if ((sqlite_database) && (!update_database) && (pitch_modify) && (volume_modify)) message = "I would like to uprade database and to update pitch and to update volume";
+                    if ((sqlite_database) && (update_database) && (pitch_modify) && (volume_modify)) message = "I would like to update database and to update pitch and to update volume";
+                    if ((sqlite_database) && (update_database) && (pitch_modify) && (!volume_modify)) message = "I would like to update database and to update pitch";
+                    if ((sqlite_database) && (update_database) && (!pitch_modify) && (!volume_modify)) message = "I would like to update database";
+                    if ((sqlite_database) && (!update_database) && (pitch_modify) && (volume_modify)) message = "I would like to update pitch and to update volume";
+                    if ((sqlite_database) && (!update_database) && (pitch_modify) && (!volume_modify)) message = "I would like to update pitch";
+                    if ((sqlite_database) && (!update_database) && (!pitch_modify) && (volume_modify)) message = "I would like to update volume";
 
-                    if ((sqlite_database) && (!update_database) && (pitch_modify) && (!volume_modify)) message = "I would like to uprade database and to update pitch";
-                    if ((sqlite_database) && (!update_database) && (!pitch_modify) && (volume_modify)) message = "I would like to uprade database and to update volume";
                     if ((!sqlite_database) && (!update_database) && (!pitch_modify) && (!volume_modify)) message = "I would like to uprade database";
-
                     if ((!sqlite_database) && (update_database) && (!pitch_modify) && (!volume_modify)) message = "I would like to update database";
-
-                    if ((!sqlite_database) && (update_database) && (pitch_modify) && (volume_modify)) message = "I would like to update database and to update pitch and to update volume";
-                    if ((!sqlite_database) && (update_database) && (pitch_modify) && (!volume_modify)) message = "I would like to update database and to update pitch";
-                    if ((!sqlite_database) && (update_database) && (!pitch_modify) && (volume_modify)) message = "I would like to update database and to update volume";
-
-                    if ((!sqlite_database) && (!update_database) && (pitch_modify) && (volume_modify)) message = "I would like to update pitch and to update volume";
-                    if ((!sqlite_database) && (!update_database) && (pitch_modify) && (!volume_modify)) message = "I would like to update pitch";
-                    if ((!sqlite_database) && (!update_database) && (!pitch_modify) && (volume_modify)) message = "I would like to update volume";
+                    if ((!sqlite_database) && (update_database) && (pitch_modify) && (volume_modify)) message = "I would like to upgrade database and to update database and to update pitch and to update volume";
+                    if ((!sqlite_database) && (update_database) && (pitch_modify) && (!volume_modify)) message = "I would like to upgrade database and to update database and to update pitch";
+                    if ((!sqlite_database) && (update_database) && (!pitch_modify) && (volume_modify)) message = "I would like to upgrade database and to update database and to update volume";
+                    if ((!sqlite_database) && (!update_database) && (pitch_modify) && (volume_modify)) message = "I would like to upgrade database and to update pitch and to update volume";
+                    if ((!sqlite_database) && (!update_database) && (pitch_modify) && (!volume_modify)) message = "I would like to upgrade database and to update pitch";
+                    if ((!sqlite_database) && (!update_database) && (!pitch_modify) && (volume_modify)) message = "I would like to upgrade database and to update volume";
                 };
 
                 answer = await Application.Current.MainPage.DisplayAlert("Question?", message, "Yes", "No");
@@ -218,6 +212,7 @@ namespace LetterStomach.ViewModels
                     await this._sqlite_service.InsertSentence();
                     await this._sqlite_service.InsertConjunction();
                     await this._sqlite_service.InsertAuxiliary();
+                    await this._sqlite_service.InsertModel();
                 }
                 else
                 {
@@ -308,7 +303,7 @@ namespace LetterStomach.ViewModels
                 this.error_message = ex.Message;
                 throw new InvalidOperationException(this.error_message);
             }
-        #endregion
         }
+        #endregion
     }
 }

@@ -6,9 +6,11 @@ namespace LetterStomach.Services.Interfaces
     {
         event EventHandler<string> OnError;
         void Init();
+        Task InitAsync();
         void MongoDB();
         void SQLite(ISQLiteService sQLiteService);
         List<Materia> GetLetter(string language);
+        Task<List<Materia>> GetLetterAsync(string language);
         List<Word> MountSyntax(string language, Materia lesson, List<Materia> book);
         List<Word> MountSyntax(string language, List<Word> terms, bool reverse);
         string MountOration(string language, List<Word> words);

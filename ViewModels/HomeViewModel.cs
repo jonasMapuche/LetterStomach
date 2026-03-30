@@ -44,17 +44,17 @@ namespace LetterStomach.ViewModels
         public ICommand SwipedCommand { get; set; }
         public IAsyncRelayCommand LoadCommand { get; }
 
-        private List<Materia> _lesson_english;
-        private List<Materia> _lesson_deutsch;
-        private List<Materia> _lesson_italiano;
-        private List<Materia> _lesson_francais;
-        private List<Materia> _lesson_espanol;
+        private List<Materia> _book_english;
+        private List<Materia> _book_deutsch;
+        private List<Materia> _book_italiano;
+        private List<Materia> _book_francais;
+        private List<Materia> _book_espanol;
 
-        private Materia _english;
-        private Materia _deutsch;
-        private Materia _italiano;
-        private Materia _francais;
-        private Materia _espanol;
+        private Materia _lesson_english;
+        private Materia _lesson_deutsch;
+        private Materia _lesson_italiano;
+        private Materia _lesson_francais;
+        private Materia _lesson_espanol;
 
         private List<Word> _word_english;
         private List<Word> _word_deutsch;
@@ -62,12 +62,12 @@ namespace LetterStomach.ViewModels
         private List<Word> _word_francais;
         private List<Word> _word_espanol;
 
-        private Language ENGLISH = SettingService.Instance.English;
-        private Language DEUTSCH = SettingService.Instance.Deutsch;
-        private Language ITALIANO = SettingService.Instance.Italino;
-        private Language FRANCAIS = SettingService.Instance.Francais;
-        private Language ESPANOL = SettingService.Instance.Espanol;
-        private HashSet<string> LESSON = SettingService.Instance.Lesson;
+        private Language _language_english;
+        private Language _language_deutsch;
+        private Language _language_italiano;
+        private Language _language_francais;
+        private Language _language_espanol;
+        private HashSet<string> LESSON;
 
         public static ISQLiteService? _sQLiteService;
         private IGrammarService _grammarService;
@@ -84,6 +84,13 @@ namespace LetterStomach.ViewModels
 
                 this._grammarService = new GrammarService();
                 this._settingService = SettingService.Instance;
+
+                this._language_english = SettingService.Instance.English;
+                this._language_deutsch = SettingService.Instance.Deutsch;
+                this._language_italiano = SettingService.Instance.Italino;
+                this._language_francais = SettingService.Instance.Francais;
+                this._language_espanol = SettingService.Instance.Espanol;
+                this.LESSON = SettingService.Instance.Lesson;
 
                 this.BotCommand = new AsyncRelayCommand<object>(OnBotCommand);
                 this.SpeakCommand = new AsyncRelayCommand<object>(OnSpeakCommand);
@@ -149,27 +156,27 @@ namespace LetterStomach.ViewModels
                 float volume_speak = this._settingService.PitchSpeak;
                 if (SingletonService.Instance.SpeakEnglish)
                 {
-                    speak_service.SpeakText(MessageService.Instance.Chats, ENGLISH.Uppercase, pitch_speak, volume_speak);
+                    speak_service.SpeakText(MessageService.Instance.Chats, this._language_english.Uppercase, pitch_speak, volume_speak);
                 }
                 ;
                 if (SingletonService.Instance.SpeakDeutsch)
                 {
-                    speak_service.SpeakText(MessageService.Instance.Chats, DEUTSCH.Uppercase, pitch_speak, volume_speak);
+                    speak_service.SpeakText(MessageService.Instance.Chats, this._language_deutsch.Uppercase, pitch_speak, volume_speak);
                 }
                 ;
                 if (SingletonService.Instance.SpeakItaliano)
                 {
-                    speak_service.SpeakText(MessageService.Instance.Chats, ITALIANO.Uppercase, pitch_speak, volume_speak);
+                    speak_service.SpeakText(MessageService.Instance.Chats, this._language_italiano.Uppercase, pitch_speak, volume_speak);
                 }
                 ;
                 if (SingletonService.Instance.SpeakFrancais)
                 {
-                    speak_service.SpeakText(MessageService.Instance.Chats, FRANCAIS.Uppercase, pitch_speak, volume_speak);
+                    speak_service.SpeakText(MessageService.Instance.Chats, this._language_francais.Uppercase, pitch_speak, volume_speak);
                 }
                 ;
                 if (SingletonService.Instance.SpeakEspanol)
                 {
-                    speak_service.SpeakText(MessageService.Instance.Chats, ESPANOL.Uppercase, pitch_speak, volume_speak);
+                    speak_service.SpeakText(MessageService.Instance.Chats, this._language_espanol.Uppercase, pitch_speak, volume_speak);
                 }
                 ;
             }
@@ -207,6 +214,8 @@ namespace LetterStomach.ViewModels
 
                 if (this._update_view)
                 {
+                    await Shell.Current.GoToAsync(nameof(ModalView));
+
                     SQLiteService sQLiteService = new SQLiteService();
                     _sQLiteService = sQLiteService;
                     bool exist = await _sQLiteService.ExistAsync();
@@ -223,8 +232,28 @@ namespace LetterStomach.ViewModels
                         await _sQLiteService.LoadConjunction();
                         await _sQLiteService.LoadAuxiliary();
                     }
-                    Init(exist);
+                    //Init(exist);
+                    await InitAsync(exist);
+                    this._update_view = false;
+                    await Shell.Current.GoToAsync("..");
                 }
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+            }
+        }
+
+        public void ClearMessage()
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation clear message \"Home\" view model failed!");
+
+                List<Message> memos = new List<Message>();
+                RecentChat = new ObservableCollection<Message>(memos);
+                MessageService.Instance.Chats = memos;
             }
             catch (Exception ex)
             {
@@ -245,10 +274,9 @@ namespace LetterStomach.ViewModels
                     update = query["refresh"] as string == "True" ? true : false;
                     query.Remove("refresh");
                     this._update_view = update;
+                    if (update) ClearMessage();
                 }
                 else this._update_view = false;
-
-                //if (refresh) Update(database);
             }
             catch (Exception ex)
             {
@@ -271,6 +299,29 @@ namespace LetterStomach.ViewModels
                 
                 Connect(database);
                 Grammar();
+                MountNext();
+
+                this._settingService.InitDatabase = false;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private async Task InitAsync(bool sqlite)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation init \"Home\" view model failed!");
+
+                bool database = sqlite;
+                bool init = this._settingService.InitDatabase;
+                if (!init) database = this._settingService.SQLiteDatabase;
+
+                Connect(database);
+                await GrammarAsync();
                 MountNext();
 
                 this._settingService.InitDatabase = false;
@@ -311,11 +362,38 @@ namespace LetterStomach.ViewModels
 
                 this._grammarService.Init();
 
-                this._lesson_english = this._grammarService.GetLetter(ENGLISH.Lowercase).OrderBy(index => index.ordem).ToList();
-                this._lesson_deutsch = this._grammarService.GetLetter(DEUTSCH.Lowercase).OrderBy(index => index.ordem).ToList();
-                this._lesson_italiano = this._grammarService.GetLetter(ITALIANO.Lowercase).OrderBy(index => index.ordem).ToList();
-                this._lesson_francais = this._grammarService.GetLetter(FRANCAIS.Lowercase).OrderBy(index => index.ordem).ToList();
-                this._lesson_espanol = this._grammarService.GetLetter(ESPANOL.Lowercase).OrderBy(index => index.ordem).ToList();
+                this._book_english = this._grammarService.GetLetter(this._language_english.Lowercase).OrderBy(index => index.ordem).ToList();
+                this._book_deutsch = this._grammarService.GetLetter(this._language_deutsch.Lowercase).OrderBy(index => index.ordem).ToList();
+                this._book_italiano = this._grammarService.GetLetter(this._language_italiano.Lowercase).OrderBy(index => index.ordem).ToList();
+                this._book_francais = this._grammarService.GetLetter(this._language_francais.Lowercase).OrderBy(index => index.ordem).ToList();
+                this._book_espanol = this._grammarService.GetLetter(this._language_espanol.Lowercase).OrderBy(index => index.ordem).ToList();
+
+                this._word_english = new List<Word>();
+                this._word_deutsch = new List<Word>();
+                this._word_italiano = new List<Word>();
+                this._word_francais = new List<Word>();
+                this._word_espanol = new List<Word>();
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private async Task GrammarAsync()
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation grammar async \"Home\" view model failed!");
+
+                await this._grammarService.InitAsync();
+
+                this._book_english = await this._grammarService.GetLetterAsync(this._language_english.Lowercase);
+                this._book_deutsch = await this._grammarService.GetLetterAsync(this._language_deutsch.Lowercase);
+                this._book_italiano = await this._grammarService.GetLetterAsync(this._language_italiano.Lowercase);
+                this._book_francais = await this._grammarService.GetLetterAsync(this._language_francais.Lowercase);
+                this._book_espanol = await this._grammarService.GetLetterAsync(this._language_espanol.Lowercase);
 
                 this._word_english = new List<Word>();
                 this._word_deutsch = new List<Word>();
@@ -336,21 +414,21 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation message \"Home\" view model failed!");
 
-                User user_english = message_service.GetUser(ENGLISH.Lowercase);
-                User user_deutsch = message_service.GetUser(DEUTSCH.Lowercase);
-                User user_italiano = message_service.GetUser(ITALIANO.Lowercase);
-                User user_francais = message_service.GetUser(FRANCAIS.Lowercase);
-                User user_espanol = message_service.GetUser(ESPANOL.Lowercase);
+                User user_english = message_service.GetUser(this._language_english.Lowercase);
+                User user_deutsch = message_service.GetUser(this._language_deutsch.Lowercase);
+                User user_italiano = message_service.GetUser(this._language_italiano.Lowercase);
+                User user_francais = message_service.GetUser(this._language_francais.Lowercase);
+                User user_espanol = message_service.GetUser(this._language_espanol.Lowercase);
                 List<Message> messages = message_service.Chats;
                 List<Message> memos = new List<Message>();
                 message_service.Chats.ForEach(index => memos.Add(index));
                 foreach (Message item in messages)
                 {
-                    if (((item.Sender == user_english) && (language == ENGLISH.Lowercase))
-                        || ((item.Sender == user_deutsch) && (language == DEUTSCH.Lowercase))
-                        || ((item.Sender == user_italiano) && (language == ITALIANO.Lowercase))
-                        || ((item.Sender == user_francais) && (language == FRANCAIS.Lowercase))
-                        || ((item.Sender == user_espanol) && (language == ESPANOL.Lowercase)))
+                    if (((item.Sender == user_english) && (language == this._language_english.Lowercase))
+                        || ((item.Sender == user_deutsch) && (language == this._language_deutsch.Lowercase))
+                        || ((item.Sender == user_italiano) && (language == this._language_italiano.Lowercase))
+                        || ((item.Sender == user_francais) && (language == this._language_francais.Lowercase))
+                        || ((item.Sender == user_espanol) && (language == this._language_espanol.Lowercase)))
                     {
                         int index = memos.IndexOf(item);
                         Message message = new Message();
@@ -377,11 +455,11 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation lesson \"Home\" view model failed!");
 
-                if (language == ENGLISH.Lowercase) this._english = materia;
-                if (language == DEUTSCH.Lowercase) this._deutsch = materia;
-                if (language == ITALIANO.Lowercase) this._italiano = materia;
-                if (language == FRANCAIS.Lowercase) this._francais = materia;
-                if (language == ESPANOL.Lowercase) this._espanol = materia;
+                if (language == this._language_english.Lowercase) this._lesson_english = materia;
+                if (language == this._language_deutsch.Lowercase) this._lesson_deutsch = materia;
+                if (language == this._language_italiano.Lowercase) this._lesson_italiano = materia;
+                if (language == this._language_francais.Lowercase) this._lesson_francais = materia;
+                if (language == this._language_espanol.Lowercase) this._lesson_espanol = materia;
             }
             catch (Exception ex)
             {
@@ -396,11 +474,11 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation oration \"Home\" view model failed!");
 
-                if (language == ENGLISH.Lowercase) _word_english = oration;
-                if (language == DEUTSCH.Lowercase) _word_deutsch = oration;
-                if (language == ITALIANO.Lowercase) _word_italiano = oration;
-                if (language == FRANCAIS.Lowercase) _word_francais = oration;
-                if (language == ESPANOL.Lowercase) _word_espanol = oration;
+                if (language == this._language_english.Lowercase) this._word_english = oration;
+                if (language == this._language_deutsch.Lowercase) this._word_deutsch = oration;
+                if (language == this._language_italiano.Lowercase) this._word_italiano = oration;
+                if (language == this._language_francais.Lowercase) this._word_francais = oration;
+                if (language == this._language_espanol.Lowercase) this._word_espanol = oration;
             }
             catch (Exception ex)
             {
@@ -417,11 +495,11 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation mount next \"Home\" view model failed!");
 
-                //Next(_lesson_english, _english, ENGLISH.Lowercase);
-                //Next(_lesson_deutsch, _deutsch, DEUTSCH.Lowercase);
-                //Next(_lesson_italiano, _italiano, ITALIANO.Lowercase);
-                //Next(_lesson_francais, _francais, FRANCAIS.Lowercase);
-                Next(_lesson_espanol, _espanol, ESPANOL.Lowercase);
+                //Next(this._book_english, this._lesson_english, this._language_english.Lowercase);
+                //Next(this._book_deutsch, this._lesson_deutsch, this._language_deutsch.Lowercase);
+                //Next(this._book_italiano, this._lesson_italiano, this._language_italiano.Lowercase);
+                //Next(this._book_francais, this._lesson_francais, this._language_francais.Lowercase);
+                Next(this._book_espanol, this._lesson_espanol, this._language_espanol.Lowercase);
             }
             catch (Exception ex)
             {
@@ -436,12 +514,11 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation mount previous \"Home\" view model failed!");
 
-                Previous(_lesson_english, _english, ENGLISH.Lowercase);
-                Previous(_lesson_deutsch, _deutsch, DEUTSCH.Lowercase);
-                Previous(_lesson_italiano, _italiano, ITALIANO.Lowercase);
-                Previous(_lesson_francais, _francais, FRANCAIS.Lowercase);
-                Previous(_lesson_espanol, _espanol, ESPANOL.Lowercase);
-                throw new InvalidOperationException(this.error_message);
+                //Previous(this._book_english, this._lesson_english, this._language_english.Lowercase);
+                //Previous(this._book_deutsch, this._lesson_deutsch, this._language_deutsch.Lowercase);
+                //Previous(this._book_italiano, this._lesson_italiano, this._language_italiano.Lowercase);
+                //Previous(this._book_francais, this._lesson_francais, this._language_francais.Lowercase);
+                Previous(this._book_espanol, this._lesson_espanol, this._language_espanol.Lowercase);
             }
             catch (Exception ex)
             {
@@ -456,11 +533,11 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation mount down \"Home\" view model failed!");
 
-                if (SingletonService.Instance.PauseEnglish) Down(_english, ENGLISH.Lowercase, _word_english);
-                if (SingletonService.Instance.PauseDeutsch) Down(_deutsch, DEUTSCH.Lowercase, _word_deutsch);
-                if (SingletonService.Instance.PauseItaliano) Down(_italiano, ITALIANO.Lowercase, _word_italiano);
-                if (SingletonService.Instance.PauseFrancais) Down(_francais, FRANCAIS.Lowercase, _word_francais);
-                if (SingletonService.Instance.PauseEspanol) Down(_espanol, ESPANOL.Lowercase, _word_espanol);
+                if (SingletonService.Instance.PauseEnglish) Down(this._lesson_english, this._language_english.Lowercase, this._word_english);
+                if (SingletonService.Instance.PauseDeutsch) Down(this._lesson_deutsch, this._language_deutsch.Lowercase, this._word_deutsch);
+                if (SingletonService.Instance.PauseItaliano) Down(this._lesson_italiano, this._language_italiano.Lowercase, this._word_italiano);
+                if (SingletonService.Instance.PauseFrancais) Down(this._lesson_francais, this._language_francais.Lowercase, this._word_francais);
+                if (SingletonService.Instance.PauseEspanol) Down(this._lesson_espanol, this._language_espanol.Lowercase, this._word_espanol);
             }
             catch (Exception ex)
             {
@@ -475,11 +552,11 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation mount up \"Home\" view model failed!");
 
-                if (SingletonService.Instance.PauseEnglish) Up(_english, ENGLISH.Lowercase, _word_english);
-                if (SingletonService.Instance.PauseDeutsch) Up(_deutsch, DEUTSCH.Lowercase, _word_deutsch);
-                if (SingletonService.Instance.PauseItaliano) Up(_italiano, ITALIANO.Lowercase, _word_italiano);
-                if (SingletonService.Instance.PauseFrancais) Up(_francais, FRANCAIS.Lowercase, _word_francais);
-                if (SingletonService.Instance.PauseEspanol) Up(_espanol, ESPANOL.Lowercase, _word_espanol);
+                if (SingletonService.Instance.PauseEnglish) Up(this._lesson_english, this._language_english.Lowercase, this._word_english);
+                if (SingletonService.Instance.PauseDeutsch) Up(this._lesson_deutsch, this._language_deutsch.Lowercase, this._word_deutsch);
+                if (SingletonService.Instance.PauseItaliano) Up(this._lesson_italiano, this._language_italiano.Lowercase, this._word_italiano);
+                if (SingletonService.Instance.PauseFrancais) Up(this._lesson_francais, this._language_francais.Lowercase, this._word_francais);
+                if (SingletonService.Instance.PauseEspanol) Up(this._lesson_espanol, this._language_espanol.Lowercase, this._word_espanol);
             }
             catch (Exception ex)
             {
@@ -496,10 +573,12 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation book lesson \"Home\" view model failed!");
 
-                HashSet<string> lecture = new HashSet<string>();
-                lecture = LESSON;
+                HashSet<string> lecture = new HashSet<string>(LESSON);
+                List<Materia> lessons = new List<Materia>();
+                lessons = books.OrderBy(index => index.ordem).ToList();
+
                 List<Materia> edition = new List<Materia>();
-                books.ForEach(index =>
+                lessons.ForEach(index =>
                 {
                     if (Array.IndexOf(lecture.ToArray(), index.titulo) != -1)
                         edition.Add(index);

@@ -6,7 +6,6 @@ using LetterStomach.Interfaces;
 using LetterStomach.Models;
 using LetterStomach.Services;
 using LetterStomach.Services.Interfaces;
-using LetterStomach.Views;
 using System.Windows.Input;
 
 namespace LetterStomach.ViewModels

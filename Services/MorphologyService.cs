@@ -43,6 +43,7 @@ namespace LetterStomach.Services
         private string VAR_SINGLE = SettingService.Instance.Single;
         private string VAR_PLURAL = SettingService.Instance.Plural;
         private string VAR_NUMERAL_NOUN = SettingService.Instance.Numeral_Noun;
+        private string VAR_INFINITIVE = SettingService.Instance.Infinitive;
 
         private IWordEmbeddingService _wordEmbeddingService = new WordEmbeddingService();
         #endregion
@@ -230,6 +231,41 @@ namespace LetterStomach.Services
                     word = this._wordEmbeddingService.RemoveAccent(item.nome.ToLower());
                     if (Array.IndexOf(vocabulary.ToArray(), word) != -1)
                         words.Add(item);
+                });
+                return words;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private List<Elocucao> FilterReverseVerb(List<Elocucao> verbs, List<string> modes)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation filter verb \"Morphology\" service failed!");
+                HashSet<string> styles = new HashSet<string>(modes);
+                List<Elocucao> words = new List<Elocucao>();
+                string word = string.Empty;
+                verbs.ForEach(item =>
+                {
+                    List<Teor> contents = new List<Teor>();
+                    item.teor.ForEach(subject =>
+                    {
+                        subject.modo.ForEach(mode =>
+                        {
+                            if (Array.IndexOf(styles.ToArray(), mode) == -1)
+                                contents.Add(subject);
+                        });
+                    });
+                    Elocucao word = new Elocucao();
+                    word.nome = item.nome;
+                    word.linguagem = item.linguagem;
+                    word.modelo = item.modelo;
+                    word.teor = contents;
+                    if (contents.Count > 0) words.Add(word);
                 });
                 return words;
             }
@@ -1731,14 +1767,17 @@ namespace LetterStomach.Services
 
                 List<Elocucao> list_verb_model = MountVerb(models, verbs);
                 List<Elocucao> filter_verb = FilterVerb(list_verb_model, sentences);
+                List<string> kind = new List<string>();
+                kind.Add(VAR_INFINITIVE);
+                List<Elocucao> filter_infinitive = FilterReverseVerb(filter_verb, kind);
                 List<Circunstancia> filter_adverb = FilterAdverb(adverbs, sentences);
-                List<Lesson> mount_verb_adverb = MountVerbAdverb(filter_verb, filter_adverb);
+                List<Lesson> mount_verb_adverb = MountVerbAdverb(filter_infinitive, filter_adverb);
                 List<Lesson> verify_verb_adverb = VerifyVerbAdverb(mount_verb_adverb, sentences);
                 List<Lesson> mount_adverb_adverb = MountAdverbAdverb(filter_adverb);
                 List<Lesson> verify_adverb_adverb = VerifyAdverb(mount_adverb_adverb, sentences);
-                List<Lesson> mount_verb_adverb_adverb = MountVerbAdverb(filter_verb, verify_adverb_adverb);
+                List<Lesson> mount_verb_adverb_adverb = MountVerbAdverb(filter_infinitive, verify_adverb_adverb);
                 List<Lesson> verify_verb_adverb_adverb = VerifyVerbAdverb(mount_verb_adverb_adverb, sentences);
-                List<Lesson> union_verb_adverb = UnionVerb(filter_verb, verify_verb_adverb);
+                List<Lesson> union_verb_adverb = UnionVerb(filter_infinitive, verify_verb_adverb);
                 List<Lesson> union_verb_adverb_adverb = UnionVerb(union_verb_adverb, verify_verb_adverb_adverb);
 
                 List<Lesson> lessons = new List<Lesson>();

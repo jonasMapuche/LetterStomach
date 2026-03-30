@@ -25,26 +25,25 @@ namespace LetterStomach.ViewModels
         #endregion
 
         #region VARIABLE
-        private IMateriaRepository _lettersViewModel;
-        private ICircunstanciaRepository _adverbsViewModel;
-        private IPreceitoRepository _articlesViewModel;
-        private IEstoutroRepository _pronounsViewModel;
-        private IAlgarismoRepository _numeralsViewModel;
-        private IJuncaoRepository _prepositionsViewModel;
-        private IElocucaoRepository _verbsViewModel;
-        private ISentencaRepository _sentencesViewModel;
-        private ILigacaoRepository _conjunctionViewModel;
+        private IMateriaRepository _materiasRepository;
+        private ICircunstanciaRepository _circunstanciasRepository;
+        private IPreceitoRepository _preceitosRepository;
+        private IEstoutroRepository _estoutrosRepository;
+        private IAlgarismoRepository _algarismosRepository;
+        private IJuncaoRepository _juncoesRepository;
+        private IElocucaoRepository _elocucoesRepository;
+        private ISentencaRepository _sentencasRepository;
+        private ILigacaoRepository _ligacoesRepository;
 
-        private ISyntaxService _syntaxService = new SyntaxService();
-        private IMorphologyService _morphologyService = new MorphologyService();
-        
-        private IWordEmbeddingService _wordEmbeddingService = new WordEmbeddingService();
+        private ISyntaxService _syntaxService;
+        private IMorphologyService _morphologyService;
+        private IWordEmbeddingService _wordEmbeddingService;
 
-        private List<Lesson> _lesson_english;
-        private List<Lesson> _lesson_deutsch;
-        private List<Lesson> _lesson_italiano;
-        private List<Lesson> _lesson_francais;
-        private List<Lesson> _lesson_espanol;
+        private List<Lesson>? _book_english;
+        private List<Lesson>? _book_deutsch;
+        private List<Lesson>? _book_italiano;
+        private List<Lesson>? _book_francais;
+        private List<Lesson>? _book_espanol;
 
         private List<Circunstancia> _adverb_english = new List<Circunstancia>();
         private List<Circunstancia> _adverb_deutsch = new List<Circunstancia>();
@@ -94,11 +93,11 @@ namespace LetterStomach.ViewModels
         private List<Ligacao> _conjunction_francais = new List<Ligacao>();
         private List<Ligacao> _conjunction_espanol = new List<Ligacao>();
 
-        private Language ENGLISH = SettingService.Instance.English;
-        private Language DEUTSCH = SettingService.Instance.Deutsch;
-        private Language ITALIANO = SettingService.Instance.Italino;
-        private Language FRANCAIS = SettingService.Instance.Francais;
-        private Language ESPANOL = SettingService.Instance.Espanol;
+        private Language _language_english;
+        private Language _language_deutsch;
+        private Language _language_italiano;
+        private Language _language_francais;
+        private Language _language_espanol;
 
         private string VAR_SUBJECT = SettingService.Instance.Suject;
         private string VAR_PREDICATE = SettingService.Instance.Predicate;
@@ -125,6 +124,31 @@ namespace LetterStomach.ViewModels
         private int VAR_ORDER_6 = 6;
         #endregion
 
+        #region CONSTRUCTOR
+        public GrammarService()
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation constructor \"Grammar\" service failed!");
+
+                this._syntaxService = new SyntaxService();
+                this._morphologyService = new MorphologyService();
+                this._wordEmbeddingService = new WordEmbeddingService();
+
+                this._language_english = SettingService.Instance.English;
+                this._language_deutsch = SettingService.Instance.Deutsch;
+                this._language_italiano = SettingService.Instance.Italino;
+                this._language_francais = SettingService.Instance.Francais;
+                this._language_espanol = SettingService.Instance.Espanol;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+        #endregion
+
         #region INIT
         public void Init()
         {
@@ -132,53 +156,114 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation init \"Grammar\" service failed!");
 
-                this._adverb_english = GetAdverb(ENGLISH.Lowercase).Distinct().ToList();
-                this._adverb_deutsch = GetAdverb(DEUTSCH.Lowercase).Distinct().ToList();
-                this._adverb_italiano = GetAdverb(ITALIANO.Lowercase).Distinct().ToList();
-                this._adverb_francais = GetAdverb(FRANCAIS.Lowercase).Distinct().ToList();
-                this._adverb_espanol = GetAdverb(ESPANOL.Lowercase).Distinct().ToList();
+                this._adverb_english = GetAdverb(this._language_english.Lowercase).Distinct().ToList();
+                this._adverb_deutsch = GetAdverb(this._language_deutsch.Lowercase).Distinct().ToList();
+                this._adverb_italiano = GetAdverb(this._language_italiano.Lowercase).Distinct().ToList();
+                this._adverb_francais = GetAdverb(this._language_francais.Lowercase).Distinct().ToList();
+                this._adverb_espanol = GetAdverb(this._language_espanol.Lowercase).Distinct().ToList();
 
-                this._pronoun_english = GetPronoun(ENGLISH.Lowercase).Distinct().ToList();
-                this._pronoun_deutsch = GetPronoun(DEUTSCH.Lowercase).Distinct().ToList();
-                this._pronoun_italiano = GetPronoun(ITALIANO.Lowercase).Distinct().ToList();
-                this._pronoun_francais = GetPronoun(FRANCAIS.Lowercase).Distinct().ToList();
-                this._pronoun_espanol = GetPronoun(ESPANOL.Lowercase).Distinct().ToList();
+                this._pronoun_english = GetPronoun(this._language_english.Lowercase).Distinct().ToList();
+                this._pronoun_deutsch = GetPronoun(this._language_deutsch.Lowercase).Distinct().ToList();
+                this._pronoun_italiano = GetPronoun(this._language_italiano.Lowercase).Distinct().ToList();
+                this._pronoun_francais = GetPronoun(this._language_francais.Lowercase).Distinct().ToList();
+                this._pronoun_espanol = GetPronoun(this._language_espanol.Lowercase).Distinct().ToList();
 
-                this._article_english = GetArticle(ENGLISH.Lowercase).Distinct().ToList();
-                this._article_deutsch = GetArticle(DEUTSCH.Lowercase).Distinct().ToList();
-                this._article_italiano = GetArticle(ITALIANO.Lowercase).Distinct().ToList();
-                this._article_francais = GetArticle(FRANCAIS.Lowercase).Distinct().ToList();
-                this._article_espanol = GetArticle(ESPANOL.Lowercase).Distinct().ToList();
+                this._article_english = GetArticle(this._language_english.Lowercase).Distinct().ToList();
+                this._article_deutsch = GetArticle(this._language_deutsch.Lowercase).Distinct().ToList();
+                this._article_italiano = GetArticle(this._language_italiano.Lowercase).Distinct().ToList();
+                this._article_francais = GetArticle(this._language_francais.Lowercase).Distinct().ToList();
+                this._article_espanol = GetArticle(this._language_espanol.Lowercase).Distinct().ToList();
 
-                this._numeral_english = GetNumeral(ENGLISH.Lowercase).Distinct().ToList();
-                this._numeral_deutsch = GetNumeral(DEUTSCH.Lowercase).Distinct().ToList();
-                this._numeral_italiano = GetNumeral(ITALIANO.Lowercase).Distinct().ToList();
-                this._numeral_francais = GetNumeral(FRANCAIS.Lowercase).Distinct().ToList();
-                this._numeral_espanol = GetNumeral(ESPANOL.Lowercase).Distinct().ToList();
+                this._numeral_english = GetNumeral(this._language_english.Lowercase).Distinct().ToList();
+                this._numeral_deutsch = GetNumeral(this._language_deutsch.Lowercase).Distinct().ToList();
+                this._numeral_italiano = GetNumeral(this._language_italiano.Lowercase).Distinct().ToList();
+                this._numeral_francais = GetNumeral(this._language_francais.Lowercase).Distinct().ToList();
+                this._numeral_espanol = GetNumeral(this._language_espanol.Lowercase).Distinct().ToList();
 
-                this._preposition_english = GetPreposition(ENGLISH.Lowercase).Distinct().ToList();
-                this._preposition_deutsch = GetPreposition(DEUTSCH.Lowercase).Distinct().ToList();
-                this._preposition_italiano = GetPreposition(ITALIANO.Lowercase).Distinct().ToList();
-                this._preposition_francais = GetPreposition(FRANCAIS.Lowercase).Distinct().ToList();
-                this._preposition_espanol = GetPreposition(ESPANOL.Lowercase).Distinct().ToList();
+                this._preposition_english = GetPreposition(this._language_english.Lowercase).Distinct().ToList();
+                this._preposition_deutsch = GetPreposition(this._language_deutsch.Lowercase).Distinct().ToList();
+                this._preposition_italiano = GetPreposition(this._language_italiano.Lowercase).Distinct().ToList();
+                this._preposition_francais = GetPreposition(this._language_francais.Lowercase).Distinct().ToList();
+                this._preposition_espanol = GetPreposition(this._language_espanol.Lowercase).Distinct().ToList();
 
-                this._conjunction_english = GetConjunction(ENGLISH.Lowercase).Distinct().ToList();
-                this._conjunction_deutsch = GetConjunction(DEUTSCH.Lowercase).Distinct().ToList();
-                this._conjunction_italiano = GetConjunction(ITALIANO.Lowercase).Distinct().ToList();
-                this._conjunction_francais = GetConjunction(FRANCAIS.Lowercase).Distinct().ToList();
-                this._conjunction_espanol = GetConjunction(ESPANOL.Lowercase).Distinct().ToList();
+                this._conjunction_english = GetConjunction(this._language_english.Lowercase).Distinct().ToList();
+                this._conjunction_deutsch = GetConjunction(this._language_deutsch.Lowercase).Distinct().ToList();
+                this._conjunction_italiano = GetConjunction(this._language_italiano.Lowercase).Distinct().ToList();
+                this._conjunction_francais = GetConjunction(this._language_francais.Lowercase).Distinct().ToList();
+                this._conjunction_espanol = GetConjunction(this._language_espanol.Lowercase).Distinct().ToList();
 
-                this._verb_english = GetVerb(ENGLISH.Lowercase).Distinct().ToList();
-                this._verb_deutsch = GetVerb(DEUTSCH.Lowercase).Distinct().ToList();
-                this._verb_italiano = GetVerb(ITALIANO.Lowercase).Distinct().ToList();
-                this._verb_francais = GetVerb(FRANCAIS.Lowercase).Distinct().ToList();
-                this._verb_espanol = GetVerb(ESPANOL.Lowercase).Distinct().ToList();
+                this._verb_english = GetVerb(this._language_english.Lowercase).Distinct().ToList();
+                this._verb_deutsch = GetVerb(this._language_deutsch.Lowercase).Distinct().ToList();
+                this._verb_italiano = GetVerb(this._language_italiano.Lowercase).Distinct().ToList();
+                this._verb_francais = GetVerb(this._language_francais.Lowercase).Distinct().ToList();
+                this._verb_espanol = GetVerb(this._language_espanol.Lowercase).Distinct().ToList();
 
-                this._sentence_english = GetSentence(ENGLISH.Lowercase).Distinct().ToList();
-                this._sentence_deutsch = GetSentence(DEUTSCH.Lowercase).Distinct().ToList();
-                this._sentence_italiano = GetSentence(ITALIANO.Lowercase).Distinct().ToList();
-                this._sentence_francais = GetSentence(FRANCAIS.Lowercase).Distinct().ToList();
-                this._sentence_espanol = GetSentence(ESPANOL.Lowercase).Distinct().ToList();
+                this._sentence_english = GetSentence(this._language_english.Lowercase).Distinct().ToList();
+                this._sentence_deutsch = GetSentence(this._language_deutsch.Lowercase).Distinct().ToList();
+                this._sentence_italiano = GetSentence(this._language_italiano.Lowercase).Distinct().ToList();
+                this._sentence_francais = GetSentence(this._language_francais.Lowercase).Distinct().ToList();
+                this._sentence_espanol = GetSentence(this._language_espanol.Lowercase).Distinct().ToList();
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        public async Task InitAsync()
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation init async \"Grammar\" service failed!");
+
+                this._adverb_english = await GetAdverbAsync(this._language_english.Lowercase);
+                this._adverb_deutsch = await GetAdverbAsync(this._language_deutsch.Lowercase);
+                this._adverb_italiano = await GetAdverbAsync(this._language_italiano.Lowercase);
+                this._adverb_francais = await GetAdverbAsync(this._language_francais.Lowercase);
+                this._adverb_espanol = await GetAdverbAsync(this._language_espanol.Lowercase);
+
+                this._pronoun_english = await GetPronounAsync(this._language_english.Lowercase);
+                this._pronoun_deutsch = await GetPronounAsync(this._language_deutsch.Lowercase);
+                this._pronoun_italiano = await GetPronounAsync(this._language_italiano.Lowercase);
+                this._pronoun_francais = await GetPronounAsync(this._language_francais.Lowercase);
+                this._pronoun_espanol = await GetPronounAsync(this._language_espanol.Lowercase);
+
+                this._article_english = await GetArticleAsync(this._language_english.Lowercase);
+                this._article_deutsch = await GetArticleAsync(this._language_deutsch.Lowercase);
+                this._article_italiano = await GetArticleAsync(this._language_italiano.Lowercase);
+                this._article_francais = await GetArticleAsync(this._language_francais.Lowercase);
+                this._article_espanol = await GetArticleAsync(this._language_espanol.Lowercase);
+
+                this._numeral_english = await GetNumeralAsync(this._language_english.Lowercase);
+                this._numeral_deutsch = await GetNumeralAsync(this._language_deutsch.Lowercase);
+                this._numeral_italiano = await GetNumeralAsync(this._language_italiano.Lowercase);
+                this._numeral_francais = await GetNumeralAsync(this._language_francais.Lowercase);
+                this._numeral_espanol = await GetNumeralAsync(this._language_espanol.Lowercase);
+
+                this._preposition_english = await GetPrepositionAsync(this._language_english.Lowercase);
+                this._preposition_deutsch = await GetPrepositionAsync(this._language_deutsch.Lowercase);
+                this._preposition_italiano = await GetPrepositionAsync(this._language_italiano.Lowercase);
+                this._preposition_francais = await GetPrepositionAsync(this._language_francais.Lowercase);
+                this._preposition_espanol = await GetPrepositionAsync(this._language_espanol.Lowercase);
+
+                this._conjunction_english = await GetConjunctionAsync(this._language_english.Lowercase);
+                this._conjunction_deutsch = await GetConjunctionAsync(this._language_deutsch.Lowercase);
+                this._conjunction_italiano = await GetConjunctionAsync(this._language_italiano.Lowercase);
+                this._conjunction_francais = await GetConjunctionAsync(this._language_francais.Lowercase);
+                this._conjunction_espanol = await GetConjunctionAsync(this._language_espanol.Lowercase);
+
+                this._verb_english = await GetVerbAsync(this._language_english.Lowercase);
+                this._verb_deutsch = await GetVerbAsync(this._language_deutsch.Lowercase);
+                this._verb_italiano = await GetVerbAsync(this._language_italiano.Lowercase);
+                this._verb_francais = await GetVerbAsync(this._language_francais.Lowercase);
+                this._verb_espanol = await GetVerbAsync(this._language_espanol.Lowercase);
+
+                this._sentence_english = await GetSentenceAsync(this._language_english.Lowercase);
+                this._sentence_deutsch = await GetSentenceAsync(this._language_deutsch.Lowercase);
+                this._sentence_italiano = await GetSentenceAsync(this._language_italiano.Lowercase);
+                this._sentence_francais = await GetSentenceAsync(this._language_francais.Lowercase);
+                this._sentence_espanol = await GetSentenceAsync(this._language_espanol.Lowercase);
             }
             catch (Exception ex)
             {
@@ -193,15 +278,15 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation mongodb \"Grammar\" service failed!");
 
-                this._adverbsViewModel = new Repositories.MongoDBs.LigacaoRepository();
-                this._articlesViewModel = new Repositories.MongoDBs.PreceitoRepository();
-                this._pronounsViewModel = new Repositories.MongoDBs.EstoutroRepository();
-                this._numeralsViewModel = new Repositories.MongoDBs.AlgarismoRepository();
-                this._prepositionsViewModel = new Repositories.MongoDBs.JuncaoRepository();
-                this._verbsViewModel = new Repositories.MongoDBs.ElocucaoRepository();
-                this._lettersViewModel = new Repositories.MongoDBs.MateriaRepository();
-                this._sentencesViewModel = new Repositories.MongoDBs.SentencaRepository();
-                this._conjunctionViewModel = new Repositories.MongoDBs.ConjunctionRepoitory();
+                this._circunstanciasRepository = new Repositories.MongoDBs.CircusnstanciaRepository();
+                this._preceitosRepository = new Repositories.MongoDBs.PreceitoRepository();
+                this._estoutrosRepository = new Repositories.MongoDBs.EstoutroRepository();
+                this._algarismosRepository = new Repositories.MongoDBs.AlgarismoRepository();
+                this._juncoesRepository = new Repositories.MongoDBs.JuncaoRepository();
+                this._elocucoesRepository = new Repositories.MongoDBs.ElocucaoRepository();
+                this._materiasRepository = new Repositories.MongoDBs.MateriaRepository();
+                this._sentencasRepository = new Repositories.MongoDBs.SentencaRepository();
+                this._ligacoesRepository = new Repositories.MongoDBs.LigacaoRepoitory();
             }
             catch (Exception ex)
             {
@@ -216,15 +301,15 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation sqlite \"Grammar\" service failed!");
 
-                this._adverbsViewModel = new Repositories.SQLites.CircunstanciaRepository(sQLiteService.Circunstancia);
-                this._articlesViewModel = new Repositories.SQLites.PreceitoRepository(sQLiteService.Preceito);
-                this._pronounsViewModel = new Repositories.SQLites.EstoutroRepository(sQLiteService.Estoutro);
-                this._numeralsViewModel = new Repositories.SQLites.AlgarismoRepository(sQLiteService.Algarismo);
-                this._prepositionsViewModel = new Repositories.SQLites.JuncaoRepository(sQLiteService.Juncao);
-                this._verbsViewModel = new Repositories.SQLites.ElocucaoRepository(sQLiteService.Elocucao);
-                this._lettersViewModel = new Repositories.SQLites.MateriaRepository(sQLiteService.Materia);
-                this._sentencesViewModel = new Repositories.SQLites.SentencaRepository(sQLiteService.Sentenca);
-                this._conjunctionViewModel = new Repositories.SQLites.LigacaoRepository(sQLiteService.Ligacao);
+                this._circunstanciasRepository = new Repositories.SQLites.CircunstanciaRepository(sQLiteService.Circunstancia);
+                this._preceitosRepository = new Repositories.SQLites.PreceitoRepository(sQLiteService.Preceito);
+                this._estoutrosRepository = new Repositories.SQLites.EstoutroRepository(sQLiteService.Estoutro);
+                this._algarismosRepository = new Repositories.SQLites.AlgarismoRepository(sQLiteService.Algarismo);
+                this._juncoesRepository = new Repositories.SQLites.JuncaoRepository(sQLiteService.Juncao);
+                this._elocucoesRepository = new Repositories.SQLites.ElocucaoRepository(sQLiteService.Elocucao);
+                this._materiasRepository = new Repositories.SQLites.MateriaRepository(sQLiteService.Materia);
+                this._sentencasRepository = new Repositories.SQLites.SentencaRepository(sQLiteService.Sentenca);
+                this._ligacoesRepository = new Repositories.SQLites.LigacaoRepository(sQLiteService.Ligacao);
             }
             catch (Exception ex)
             {
@@ -241,7 +326,22 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation get adverb \"Grammar\" service failed!");
 
-                return this._adverbsViewModel.GetLanguage(language);
+                return this._circunstanciasRepository.GetLanguage(language);
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private async Task<List<Circunstancia>> GetAdverbAsync(string language)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation get adverb async \"Grammar\" service failed!");
+
+                return await this._circunstanciasRepository.GetLanguageAsync(language);
             }
             catch (Exception ex)
             {
@@ -256,7 +356,22 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation get article \"Grammar\" service failed!");
 
-                return this._articlesViewModel.GetLanguage(language);
+                return this._preceitosRepository.GetLanguage(language);
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private async Task<List<Preceito>> GetArticleAsync(string language)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation get article async \"Grammar\" service failed!");
+
+                return await this._preceitosRepository.GetLanguageAsync(language);
             }
             catch (Exception ex)
             {
@@ -271,7 +386,7 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation get pronoun \"Grammar\" service failed!");
 
-                return this._pronounsViewModel.GetLanguage(language);
+                return this._estoutrosRepository.GetLanguage(language);
             }
             catch (Exception ex)
             {
@@ -280,13 +395,43 @@ namespace LetterStomach.ViewModels
             }
         }
 
-        public List<Algarismo> GetNumeral(string language)
+        private async Task<List<Estoutro>> GetPronounAsync(string language)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation get pronoun async \"Grammar\" service failed!");
+
+                return await this._estoutrosRepository.GetLanguageAsync(language);
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private List<Algarismo> GetNumeral(string language)
         {
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation get numeral \"Grammar\" service failed!");
 
-                return this._numeralsViewModel.GetLanguage(language);
+                return this._algarismosRepository.GetLanguage(language);
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private async Task<List<Algarismo>> GetNumeralAsync(string language)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation get numeral async \"Grammar\" service failed!");
+
+                return await this._algarismosRepository.GetLanguageAsync(language);
             }
             catch (Exception ex)
             {
@@ -301,7 +446,22 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation get proposition \"Grammar\" service failed!");
 
-                return this._prepositionsViewModel.GetLanguage(language);
+                return this._juncoesRepository.GetLanguage(language);
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private async Task<List<Juncao>> GetPrepositionAsync(string language)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation get proposition async \"Grammar\" service failed!");
+
+                return await this._juncoesRepository.GetLanguageAsync(language);
             }
             catch (Exception ex)
             {
@@ -316,7 +476,22 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation get verb \"Grammar\" service failed!");
 
-                return this._verbsViewModel.GetLanguage(language);
+                return this._elocucoesRepository.GetLanguage(language);
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private async Task<List<Elocucao>> GetVerbAsync(string language)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation get verb async \"Grammar\" service failed!");
+
+                return await this._elocucoesRepository.GetLanguageAsync(language);
             }
             catch (Exception ex)
             {
@@ -331,7 +506,22 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation get sentence \"Grammar\" service failed!");
 
-                return this._sentencesViewModel.GetLanguage(language);
+                return this._sentencasRepository.GetLanguage(language);
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private async Task<List<Sentenca>> GetSentenceAsync(string language)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation get sentence async \"Grammar\" service failed!");
+
+                return await this._sentencasRepository.GetLanguageAsync(language);
             }
             catch (Exception ex)
             {
@@ -346,7 +536,37 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation get conjunction \"Grammar\" service failed!");
 
-                return this._conjunctionViewModel.GetLanguage(language);
+                return this._ligacoesRepository.GetLanguage(language);
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private async Task<List<Ligacao>> GetConjunctionAsync(string language)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation get conjunction async \"Grammar\" service failed!");
+
+                return await this._ligacoesRepository.GetLanguageAsync(language);
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        public async Task<List<Materia>> GetLetterAsync(string language)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation get letter async \"Grammar\" service failed!");
+
+                return await this._materiasRepository.GetLessonSimpleAsync(true, language);
             }
             catch (Exception ex)
             {
@@ -361,7 +581,7 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation get letter \"Grammar\" service failed!");
 
-                return this._lettersViewModel.GetLessonSimple(true, language);
+                return this._materiasRepository.GetLessonSimple(true, language);
             }
             catch (Exception ex)
             {
@@ -372,17 +592,17 @@ namespace LetterStomach.ViewModels
         #endregion
 
         #region SET
-        private void SetOration(string language, List<Lesson> lesson_word)
+        private void SetBook(string language, List<Lesson> lesson_word)
         {
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation set oration \"Grammar\" service failed!");
 
-                if (language == ENGLISH.Lowercase) _lesson_english = lesson_word;
-                if (language == DEUTSCH.Lowercase) _lesson_deutsch = lesson_word;
-                if (language == ITALIANO.Lowercase) _lesson_italiano = lesson_word;
-                if (language == FRANCAIS.Lowercase) _lesson_francais = lesson_word;
-                if (language == ESPANOL.Lowercase) _lesson_espanol = lesson_word;
+                if (language == this._language_english.Lowercase) this._book_english = lesson_word;
+                if (language == this._language_deutsch.Lowercase) this._book_deutsch = lesson_word;
+                if (language == this._language_italiano.Lowercase) this._book_italiano = lesson_word;
+                if (language == this._language_francais.Lowercase) this._book_francais = lesson_word;
+                if (language == this._language_espanol.Lowercase) this._book_espanol = lesson_word;
             }
             catch (Exception ex)
             {
@@ -393,17 +613,17 @@ namespace LetterStomach.ViewModels
         #endregion
 
         #region SELECT
-        private List<Lesson> SelectOration(string language)
+        private List<Lesson>? SelectBook(string language)
         {
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation select oration \"Grammar\" service failed!");
 
-                if (language == ENGLISH.Lowercase) return _lesson_english;
-                if (language == DEUTSCH.Lowercase) return _lesson_deutsch;
-                if (language == ITALIANO.Lowercase) return _lesson_italiano;
-                if (language == FRANCAIS.Lowercase) return _lesson_francais;
-                if (language == ESPANOL.Lowercase) return _lesson_espanol;
+                if (language == this._language_english.Lowercase) return this._book_english;
+                if (language == this._language_deutsch.Lowercase) return this._book_deutsch;
+                if (language == this._language_italiano.Lowercase) return this._book_italiano;
+                if (language == this._language_francais.Lowercase) return this._book_francais;
+                if (language == this._language_espanol.Lowercase) return this._book_espanol;
                 return null;
             }
             catch (Exception ex)
@@ -413,17 +633,17 @@ namespace LetterStomach.ViewModels
             }
         }
 
-        private List<Sentenca> SelectSentence(string language)
+        private List<Sentenca>? SelectSentence(string language)
         {
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation select sentence \"Grammar\" service failed!");
 
-                if (language == ENGLISH.Lowercase) return this._sentence_english;
-                if (language == DEUTSCH.Lowercase) return this._sentence_deutsch;
-                if (language == ITALIANO.Lowercase) return this._sentence_italiano;
-                if (language == FRANCAIS.Lowercase) return this._sentence_francais;
-                if (language == ESPANOL.Lowercase) return this._sentence_espanol;
+                if (language == this._language_english.Lowercase) return this._sentence_english;
+                if (language == this._language_deutsch.Lowercase) return this._sentence_deutsch;
+                if (language == this._language_italiano.Lowercase) return this._sentence_italiano;
+                if (language == this._language_francais.Lowercase) return this._sentence_francais;
+                if (language == this._language_espanol.Lowercase) return this._sentence_espanol;
                 return null;
             }
             catch (Exception ex)
@@ -433,17 +653,17 @@ namespace LetterStomach.ViewModels
             }
         }
 
-        private List<Juncao> SelectPreposition(string language)
+        private List<Juncao>? SelectPreposition(string language)
         {
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation select preposition \"Grammar\" service failed!");
 
-                if (language == ENGLISH.Lowercase) return _preposition_english;
-                if (language == DEUTSCH.Lowercase) return _preposition_deutsch;
-                if (language == ITALIANO.Lowercase) return _preposition_italiano;
-                if (language == FRANCAIS.Lowercase) return _preposition_francais;
-                if (language == ESPANOL.Lowercase) return _preposition_espanol;
+                if (language == this._language_english.Lowercase) return this._preposition_english;
+                if (language == this._language_deutsch.Lowercase) return this._preposition_deutsch;
+                if (language == this._language_italiano.Lowercase) return this._preposition_italiano;
+                if (language == this._language_francais.Lowercase) return this._preposition_francais;
+                if (language == this._language_espanol.Lowercase) return this._preposition_espanol;
                 return null;
             }
             catch (Exception ex)
@@ -453,17 +673,17 @@ namespace LetterStomach.ViewModels
             }
         }
 
-        private List<Preceito> SelectArticle(string language)
+        private List<Preceito>? SelectArticle(string language)
         {
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation select article \"Grammar\" service failed!");
 
-                if (language == ENGLISH.Lowercase) return _article_english;
-                if (language == DEUTSCH.Lowercase) return _article_deutsch;
-                if (language == ITALIANO.Lowercase) return _article_italiano;
-                if (language == FRANCAIS.Lowercase) return _article_francais;
-                if (language == ESPANOL.Lowercase) return _article_espanol;
+                if (language == this._language_english.Lowercase) return this._article_english;
+                if (language == this._language_deutsch.Lowercase) return this._article_deutsch;
+                if (language == this._language_italiano.Lowercase) return this._article_italiano;
+                if (language == this._language_francais.Lowercase) return this._article_francais;
+                if (language == this._language_espanol.Lowercase) return this._article_espanol;
                 return null;
             }
             catch (Exception ex)
@@ -473,17 +693,17 @@ namespace LetterStomach.ViewModels
             }
         }
 
-        private List<Algarismo> SelectNumeral(string language)
+        private List<Algarismo>? SelectNumeral(string language)
         {
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation select numeral \"Grammar\" service failed!");
 
-                if (language == ENGLISH.Lowercase) return _numeral_english;
-                if (language == DEUTSCH.Lowercase) return _numeral_deutsch;
-                if (language == ITALIANO.Lowercase) return _numeral_italiano;
-                if (language == FRANCAIS.Lowercase) return _numeral_francais;
-                if (language == ESPANOL.Lowercase) return _numeral_espanol;
+                if (language == this._language_english.Lowercase) return this._numeral_english;
+                if (language == this._language_deutsch.Lowercase) return this._numeral_deutsch;
+                if (language == this._language_italiano.Lowercase) return this._numeral_italiano;
+                if (language == this._language_francais.Lowercase) return this._numeral_francais;
+                if (language == this._language_espanol.Lowercase) return this._numeral_espanol;
                 return null;
             }
             catch (Exception ex)
@@ -493,17 +713,17 @@ namespace LetterStomach.ViewModels
             }
         }
 
-        private List<Circunstancia> SelectAdverb(string language)
+        private List<Circunstancia>? SelectAdverb(string language)
         {
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation select adverb \"Grammar\" service failed!");
 
-                if (language == ENGLISH.Lowercase) return _adverb_english;
-                if (language == DEUTSCH.Lowercase) return _adverb_deutsch;
-                if (language == ITALIANO.Lowercase) return _adverb_italiano;
-                if (language == FRANCAIS.Lowercase) return _adverb_francais;
-                if (language == ESPANOL.Lowercase) return _adverb_espanol;
+                if (language == this._language_english.Lowercase) return this._adverb_english;
+                if (language == this._language_deutsch.Lowercase) return this._adverb_deutsch;
+                if (language == this._language_italiano.Lowercase) return this._adverb_italiano;
+                if (language == this._language_francais.Lowercase) return this._adverb_francais;
+                if (language == this._language_espanol.Lowercase) return this._adverb_espanol;
                 return null;
             }
             catch (Exception ex)
@@ -513,17 +733,17 @@ namespace LetterStomach.ViewModels
             }
         }
 
-        private List<Ligacao> SelectConjunction(string language)
+        private List<Ligacao>? SelectConjunction(string language)
         {
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation select conjunction \"Grammar\" service failed!");
 
-                if (language == ENGLISH.Lowercase) return _conjunction_english;
-                if (language == DEUTSCH.Lowercase) return _conjunction_deutsch;
-                if (language == ITALIANO.Lowercase) return _conjunction_italiano;
-                if (language == FRANCAIS.Lowercase) return _conjunction_francais;
-                if (language == ESPANOL.Lowercase) return _conjunction_espanol;
+                if (language == this._language_english.Lowercase) return this._conjunction_english;
+                if (language == this._language_deutsch.Lowercase) return this._conjunction_deutsch;
+                if (language == this._language_italiano.Lowercase) return this._conjunction_italiano;
+                if (language == this._language_francais.Lowercase) return this._conjunction_francais;
+                if (language == this._language_espanol.Lowercase) return this._conjunction_espanol;
                 return null;
             }
             catch (Exception ex)
@@ -533,17 +753,17 @@ namespace LetterStomach.ViewModels
             }
         }
 
-        private List<Elocucao> SelectVerb(string language)
+        private List<Elocucao>? SelectVerb(string language)
         {
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation select verb \"Grammar\" service failed!");
 
-                if (language == ENGLISH.Lowercase) return _verb_english;
-                if (language == DEUTSCH.Lowercase) return _verb_deutsch;
-                if (language == ITALIANO.Lowercase) return _verb_italiano;
-                if (language == FRANCAIS.Lowercase) return _verb_francais;
-                if (language == ESPANOL.Lowercase) return _verb_espanol;
+                if (language == this._language_english.Lowercase) return this._verb_english;
+                if (language == this._language_deutsch.Lowercase) return this._verb_deutsch;
+                if (language == this._language_italiano.Lowercase) return this._verb_italiano;
+                if (language == this._language_francais.Lowercase) return this._verb_francais;
+                if (language == this._language_espanol.Lowercase) return this._verb_espanol;
                 return null;
             }
             catch (Exception ex)
@@ -553,17 +773,17 @@ namespace LetterStomach.ViewModels
             }
         }
 
-        private List<Estoutro> SelectPronoun(string language)
+        private List<Estoutro>? SelectPronoun(string language)
         {
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation select pronoun \"Grammar\" service failed!");
 
-                if (language == ENGLISH.Lowercase) return _pronoun_english;
-                if (language == DEUTSCH.Lowercase) return _pronoun_deutsch;
-                if (language == ITALIANO.Lowercase) return _pronoun_italiano;
-                if (language == FRANCAIS.Lowercase) return _pronoun_francais;
-                if (language == ESPANOL.Lowercase) return _pronoun_espanol;
+                if (language == this._language_english.Lowercase) return this._pronoun_english;
+                if (language == this._language_deutsch.Lowercase) return this._pronoun_deutsch;
+                if (language == this._language_italiano.Lowercase) return this._pronoun_italiano;
+                if (language == this._language_francais.Lowercase) return this._pronoun_francais;
+                if (language == this._language_espanol.Lowercase) return this._pronoun_espanol;
                 return null;
             }
             catch (Exception ex)
@@ -1108,13 +1328,13 @@ namespace LetterStomach.ViewModels
                 {
                     if (word != string.Empty) word += " ";
                     if (article != null)
-                        word += article.term + " " + noun.term;
+                        word += article.term;
                     if (numeral != null)
-                        word += numeral.term + " " + noun.term;
+                        word += numeral.term;
                     if (pronoun != null)
-                        word += pronoun.term + " " + noun.term;
+                        word += pronoun.term;
                 }
-                if (team == VAR_NOUN)
+                if ((team == VAR_NOUN) || (team == VAR_NUMERAL_NOUN))
                 {
                     if (word != string.Empty) word += " ";
                     word += noun.term;
@@ -1273,7 +1493,7 @@ namespace LetterStomach.ViewModels
                 terms = OrderLesson(MountOrationSample(sentence, matters));
                 //terms = OrderLesson(terms, MountOrationCompound(sentence, matters));
 
-                SetOration(language, terms);
+                SetBook(language, terms);
                 List<Word> words = new List<Word>();
 
                 foreach (Lesson phrase in terms)
@@ -1297,7 +1517,7 @@ namespace LetterStomach.ViewModels
                 if (this._error_off) throw new InvalidOperationException("Operation mount syntax \"Grammar\" service failed!");
 
                 List<Word> words = new List<Word>();
-                List<Lesson> lessons = SelectOration(language).OrderBy(index => index.order).Distinct().ToList();
+                List<Lesson> lessons = SelectBook(language).OrderBy(index => index.order).Distinct().ToList();
                 List<Sentenca> sentence = SelectSentence(language).Distinct().ToList();
                 if (reverse) lessons.Reverse();
                 bool next = false;
