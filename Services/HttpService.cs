@@ -25,10 +25,10 @@ namespace LetterStomach.Services
         #endregion
 
         #region VARIABLE
-        private string URL = "http://192.168.0.3:8885/";
-        //private string URL = "http://api.stomach.com.br:8885/";
+        private string _url = "http://192.168.0.3:8885/";
+        //private string _url = "http://api.stomach.com.br:8885/";
 
-        private HttpClient _client;
+        private HttpClient _httpClient;
         #endregion
 
         #region CONSTRUCTOR
@@ -39,7 +39,7 @@ namespace LetterStomach.Services
                 if (this._error_off) throw new InvalidOperationException("Operation contructor \"Http\" service failed!");
                 else this.error_message = string.Empty;
 
-                _client = new HttpClient();
+                this._httpClient = new HttpClient();
             }
             catch (Exception ex)
             {
@@ -49,7 +49,7 @@ namespace LetterStomach.Services
         }
         #endregion
 
-        #region POST
+        #region HTTP
         public async Task<string> HttpPost(Grammar message)
         {
             try
@@ -58,7 +58,7 @@ namespace LetterStomach.Services
 
                 string json = JsonConvert.SerializeObject(message);
                 var data = new StringContent(json, Encoding.UTF8, "application/json");
-                using HttpResponseMessage response = await _client.PostAsync(URL, data);
+                using HttpResponseMessage response = await this._httpClient.PostAsync(this._url, data);
                 return await response.Content.ReadAsStringAsync();
             }
             catch (Exception ex)
@@ -75,10 +75,10 @@ namespace LetterStomach.Services
                 if (this._error_off) throw new InvalidOperationException("Operation http post \"Http\" service failed!");
 
                 string path = "File";
-                string uri = URL + path;
+                string uri = this._url + path;
                 using var content = new MultipartFormDataContent();
                 content.Add(message, "\"fileUpload\"", $"{file_name}");
-                using HttpResponseMessage response = await _client.PostAsync(uri, content);
+                using HttpResponseMessage response = await this._httpClient.PostAsync(uri, content);
                 return await response.Content.ReadAsStringAsync();
             }
             catch (Exception ex)
@@ -95,10 +95,10 @@ namespace LetterStomach.Services
                 if (this._error_off) throw new InvalidOperationException("Operation http go \"Http\" service failed!");
 
                 string path = "Message";
-                string uri = URL + path;
+                string uri = this._url + path;
                 string json = JsonConvert.SerializeObject(message);
                 var data = new StringContent(json, Encoding.UTF8, "application/json");
-                using HttpResponseMessage response = await _client.PostAsync(uri, data);
+                using HttpResponseMessage response = await this._httpClient.PostAsync(uri, data);
                 string result = await response.Content.ReadAsStringAsync();
                 List<Locution> request = new List<Locution>();
                 request = JsonConvert.DeserializeObject<List<Locution>>(result);
@@ -110,17 +110,15 @@ namespace LetterStomach.Services
                 throw new InvalidOperationException(this.error_message);
             }
         }
-        #endregion
 
-        #region GET
         private async Task<string> HttpGet(string path)
         {
             try 
             {
                 if (this._error_off) throw new InvalidOperationException("Operation http get \"Http\" service failed!");
 
-                string uri = URL + path;
-                using HttpResponseMessage response = await _client.GetAsync(uri);
+                string uri = this._url + path;
+                using HttpResponseMessage response = await this._httpClient.GetAsync(uri);
                 return await response.Content.ReadAsStringAsync();
             }
             catch (Exception ex)
@@ -129,7 +127,9 @@ namespace LetterStomach.Services
                 throw new InvalidOperationException(this.error_message);
             }
         }
+        #endregion
 
+        #region LETTER
         public async Task<List<Adverbios>> HttpAdverb()
         {
             try 

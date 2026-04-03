@@ -8,9 +8,9 @@ namespace LetterStomach.Services
         #region ERROR
         private bool _error_on = true;
         private bool _error_off = false;
-        private string _error_message;
+        private string? _error_message;
 
-        public string error_message
+        public string? error_message
         {
             get => this._error_message;
             set
@@ -19,10 +19,10 @@ namespace LetterStomach.Services
             }
         }
 
-        public event EventHandler<string> OnError;
+        public event EventHandler<string>? OnError;
         #endregion
 
-        #region OBJECT
+        #region MOUNT OBJECT
         private Circunstancia InsertCircunstancia(string language, string name, List<string> types)
         {
             try
@@ -331,7 +331,7 @@ namespace LetterStomach.Services
         }
         #endregion
 
-        #region MATERIA
+        #region MOUNT LETTER
         private async Task<List<Materia>> MateriaNoun(List<Substantivo> noun, List<Materia> matter)
         {
             try
@@ -349,7 +349,7 @@ namespace LetterStomach.Services
                 string lesson = "";
                 List<string> substantivos = new List<string>();
                 Conteudo conteudo = new Conteudo();
-                Materia materia = new Materia();
+                Materia? materia = new Materia();
                 foreach (Substantivo item in nouns)
                 {
                     language = item.language;
@@ -439,7 +439,7 @@ namespace LetterStomach.Services
                 string lesson = "";
                 List<string> adjetivos = new List<string>();
                 Conteudo conteudo = new Conteudo();
-                Materia materia = new Materia();
+                Materia? materia = new Materia();
                 foreach (Adjetivo item in adjectives)
                 {
                     language = item.language;
@@ -529,7 +529,7 @@ namespace LetterStomach.Services
                 string lesson = "";
                 List<string> verbos = new List<string>();
                 Conteudo conteudo = new Conteudo();
-                Materia materia = new Materia();
+                Materia? materia = new Materia();
                 foreach (Model item in models)
                 {
                     language = item.language;
@@ -603,7 +603,7 @@ namespace LetterStomach.Services
         }
         #endregion
 
-        #region LOAD
+        #region MOUNT MODEL
         public async Task<List<Circunstancia>> LoadAdverb(List<Adverbios> adverb)
         {
             try

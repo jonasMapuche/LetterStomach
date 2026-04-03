@@ -105,6 +105,21 @@ namespace LetterStomach.Repositories.SQLites
             }
         }
 
+        public async Task<int> DropTable()
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation drop table \"Substantivo\" repository failed!");
+
+                return await this._database.DropTableAsync<Substantivo>();
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
         public async Task<int> ExistAsync()
         {
             try

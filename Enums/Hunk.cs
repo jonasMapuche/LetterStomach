@@ -15,6 +15,7 @@
         Numeral = 9,
         Sentence = 10,
         Auxiliary = 11,
-        Model = 12
+        Model = 12,
+        Nothing = 13
     }
 }

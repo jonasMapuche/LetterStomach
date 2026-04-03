@@ -3,11 +3,13 @@ using LetterStomach.Enums;
 using LetterStomach.Models;
 using LetterStomach.Services;
 using LetterStomach.Services.Interfaces;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Windows.Input;
 
 namespace LetterStomach.ViewModels
 {
-    public class SettingViewModel
+    public class SettingViewModel : INotifyPropertyChanged
     {
         #region ERROR
         private bool _error_on = true;
@@ -24,20 +26,105 @@ namespace LetterStomach.ViewModels
         }
 
         public event EventHandler<string> OnError;
+
+        public event PropertyChangedEventHandler? PropertyChanged;
         #endregion
 
         #region VARIABLE
         public List<Hunks> Items { get; set; }
-        public bool IsUpdateTable { get; set; }
-        public bool IsSQLiteTable { get; set; }
+
+        private Hunks _selectedItem;
+        public Hunks SelectedItem
+        {
+            get => _selectedItem;
+            set
+            {
+                if (_selectedItem != value)
+                {
+                    _selectedItem = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private bool _isUpdateTable;
+        public bool IsUpdateTable 
+        {
+            get => _isUpdateTable;
+            set
+            {
+                if (_isUpdateTable != value)
+                {
+                    _isUpdateTable = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private bool _isSQLiteTable;
+        public bool IsSQLiteTable 
+        {
+            get => _isSQLiteTable;
+            set
+            {
+                if (_isSQLiteTable != value)
+                {
+                    _isSQLiteTable = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private bool _isSQLiteDrop;
+        public bool IsSQLiteDrop 
+        {
+            get => _isSQLiteDrop;
+            set
+            {
+                if (_isSQLiteDrop != value)
+                {
+                    _isSQLiteDrop = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private bool _isCheckSetting;
+
+        public bool IsCheckSetting
+        {
+            get => _isCheckSetting;
+            set
+            {
+                if (_isCheckSetting != value)
+                {
+                    _isCheckSetting = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         public int IsPitchSpeak { get; set; }
         public int IsVolumeSpeak { get; set; }
 
         public ICommand CheckCommand { get; set; }
         public ICommand BackCommand { get; set; }
 
-        private SettingService _setting;
+        private SettingService _settingService;
         private ISQLiteService _sqlite_service;
+
+        /*
+        private ISQLiteService _sQLiteService;
+
+        public ISQLiteService SQLiteService
+        {
+            get => _sQLiteService;
+            set 
+            {
+                _sQLiteService = value;
+            }
+        }
+        */
 
         private int _pitch_init = 0;
         private int _volume_init = 0;
@@ -54,17 +141,19 @@ namespace LetterStomach.ViewModels
                 else this.error_message = string.Empty;
 
                 this._sqlite_service = HomeViewModel._sQLiteService;
-                this._setting = SettingService.Instance;
+                this._settingService = SettingService.Instance;
 
-                bool sqlite_database = _setting.SQLiteDatabase;
-                bool update_database = _setting.UpdateDatabase;
-                int pitch_speak = _setting.PitchSpeak;
-                int volume_speak = _setting.VolumeSpeak;
-                int pitch_init = _setting.PitchSpeak;
-                int volume_init = _setting.VolumeSpeak;
+                //bool sqlite_database = this._settingService.SQLiteDatabase;
+                //bool update_database = this._settingService.UpdateDatabase;
+                //bool drop_database = this._settingService.DropDatabase;
+                //int pitch_speak = this._settingService.PitchSpeak;
+                //int volume_speak = this._settingService.VolumeSpeak;
+                //int pitch_init = this._settingService.PitchSpeak;
+                //int volume_init = this._settingService.VolumeSpeak;
 
                 Items = new List<Hunks>
                 {
+                    new Hunks { Name = "Nothing", Value = (int)Hunk.Nothing },
                     new Hunks { Name = "All", Value = (int)Hunk.All },
                     new Hunks { Name = "Adverb", Value = (int)Hunk.Adverb },
                     new Hunks { Name = "Pronoun", Value = (int)Hunk.Pronoun },
@@ -83,18 +172,28 @@ namespace LetterStomach.ViewModels
                 this.CheckCommand = new AsyncRelayCommand<object>(OnCheckCommand);
                 this.BackCommand = new AsyncRelayCommand(OnBackCommand);
 
-                this.IsUpdateTable = update_database;
-                this.IsSQLiteTable = sqlite_database;
-                this.IsPitchSpeak = pitch_speak;
-                this.IsVolumeSpeak = volume_speak;
-                this._pitch_init = pitch_init;
-                this._volume_init = volume_init;
+                this.IsUpdateTable = this._settingService.UpdateDatabase;
+                this.IsSQLiteTable = this._settingService.SQLiteDatabase;
+                this.IsSQLiteDrop = this._settingService.DropDatabase;
+                this.IsPitchSpeak = this._settingService.PitchSpeak;
+                this.IsVolumeSpeak = this._settingService.VolumeSpeak;
+                this._pitch_init = this._settingService.PitchSpeak;
+                this._volume_init = this._settingService.VolumeSpeak;
+
+                this.IsCheckSetting = false;
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
                 throw new InvalidOperationException(this.error_message);
             }
+        }
+        #endregion
+
+        #region EVENTO CHANGE
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
         #endregion
 
@@ -115,6 +214,135 @@ namespace LetterStomach.ViewModels
             }
         }
 
+        private string MessageQuestion(bool init_database, bool sqlite_database, bool update_database, bool drop_database, bool pitch_modify, bool volume_modify)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation message question \"Setting\" view model failed!");
+
+                bool conjunction = false;
+                string message = "I would like";
+                if (!init_database)
+                {
+                    if (sqlite_database)
+                    {
+                        message += " to upgrade database";
+                        conjunction = true;
+                    }
+                } else
+                {
+                    if (!sqlite_database)
+                    {
+                        message += " to upgrade database";
+                        conjunction = true;
+                    }
+                }
+                if (update_database)
+                {
+                    if (conjunction) message += " and"; 
+                    message += " to update database";
+                    conjunction = true;
+                }
+                if (drop_database)
+                {
+                    if (conjunction) message += " and";
+                    message += " to drop database";
+                    conjunction = true;
+                }
+                if (pitch_modify)
+                {
+                    if (conjunction) message += " and";
+                    message += " to update pitch";
+                    conjunction = true;
+                }
+                if (volume_modify)
+                {
+                    if (conjunction) message += " and";
+                    message += " to update pitch";
+                    conjunction = true;
+                }
+                return message;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private string MessageCheck(bool init_database, bool sqlite_database, bool update_database, bool drop_database, bool pitch_modify, bool volume_modify)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation message check \"Setting\" view model failed!");
+
+                bool conjunction = false;
+                string message = "Update setting";
+                if (!init_database)
+                {
+                    if (sqlite_database)
+                    {
+                        message += " upgrade database";
+                        conjunction = true;
+                    }
+                }
+                else
+                {
+                    if (!sqlite_database)
+                    {
+                        message += " upgrade database";
+                        conjunction = true;
+                    }
+                }
+                if (update_database)
+                {
+                    if (conjunction) message += " and";
+                    message += " update database";
+                    conjunction = true;
+                }
+                if (drop_database)
+                {
+                    if (conjunction) message += " and";
+                    message += " drop database";
+                    conjunction = true;
+                }
+                if (pitch_modify)
+                {
+                    if (conjunction) message += " and";
+                    message += " pitch";
+                    conjunction = true;
+                }
+                if (volume_modify)
+                {
+                    if (conjunction) message += " and";
+                    message += " pitch";
+                    conjunction = true;
+                }
+                return message;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private string MessageError()
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation message check \"Setting\" view model failed!");
+
+                string message = "Setting do not update";
+                return message;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
         private async Task OnCheckCommand(object parameter)
         {
             try
@@ -125,61 +353,41 @@ namespace LetterStomach.ViewModels
                 Setting setting = (Setting)parameter;
                 bool update_database = setting.UpdateDatabase == "True" ? true : false;
                 bool sqlite_database = setting.SQLiteDatabase == "True" ? true : false;
+                bool drop_database = setting.DropDatabase == "True" ? true : false;
                 int select_table = int.Parse(setting.SelectTable);
                 int pitch_speak = int.Parse(setting.PitchSpeak);
                 int volume_speak = int.Parse(setting.VolumeSpeak);
-                bool init_database = this._setting.SQLiteDatabase;
+                bool init_database = this._settingService.SQLiteDatabase;
                 bool pitch_modify = this._pitch_init != pitch_speak ? true : false;
                 bool volume_modify = this._volume_init != volume_speak ? true : false;
+                this.IsCheckSetting = !this.IsCheckSetting;
 
-                string message = "";
-
-                if (!init_database)
-                {
-                    if ((sqlite_database) && (update_database) && (pitch_modify) && (volume_modify)) message = "I would like to update database and to upgrade database and to update pitch and to update volume";
-                    if ((sqlite_database) && (update_database) && (pitch_modify) && (!volume_modify)) message = "I would like to update database and to upgrade database and to update pitch";
-                    if ((sqlite_database) && (update_database) && (!pitch_modify) && (!volume_modify)) message = "I would like to update database and to upgrade database";
-                    if ((sqlite_database) && (!update_database) && (pitch_modify) && (volume_modify)) message = "I would like to uprade database and to update pitch and to update volume";
-                    if ((sqlite_database) && (!update_database) && (pitch_modify) && (!volume_modify)) message = "I would like to uprade database and to update pitch";
-                    if ((sqlite_database) && (!update_database) && (!pitch_modify) && (volume_modify)) message = "I would like to uprade database and to update volume";
-                    if ((sqlite_database) && (!update_database) && (!pitch_modify) && (!volume_modify)) message = "I would like to uprade database";
-
-                    if ((!sqlite_database) && (update_database) && (!pitch_modify) && (!volume_modify)) message = "I would like to update database";
-                    if ((!sqlite_database) && (update_database) && (pitch_modify) && (volume_modify)) message = "I would like to update database and to update pitch and to update volume";
-                    if ((!sqlite_database) && (update_database) && (pitch_modify) && (!volume_modify)) message = "I would like to update database and to update pitch";
-                    if ((!sqlite_database) && (update_database) && (!pitch_modify) && (volume_modify)) message = "I would like to update database and to update volume";
-                    if ((!sqlite_database) && (!update_database) && (pitch_modify) && (volume_modify)) message = "I would like to update pitch and to update volume";
-                    if ((!sqlite_database) && (!update_database) && (pitch_modify) && (!volume_modify)) message = "I would like to update pitch";
-                    if ((!sqlite_database) && (!update_database) && (!pitch_modify) && (volume_modify)) message = "I would like to update volume";
-                }
-                else
-                {
-                    if ((sqlite_database) && (update_database) && (pitch_modify) && (volume_modify)) message = "I would like to update database and to update pitch and to update volume";
-                    if ((sqlite_database) && (update_database) && (pitch_modify) && (!volume_modify)) message = "I would like to update database and to update pitch";
-                    if ((sqlite_database) && (update_database) && (!pitch_modify) && (!volume_modify)) message = "I would like to update database";
-                    if ((sqlite_database) && (!update_database) && (pitch_modify) && (volume_modify)) message = "I would like to update pitch and to update volume";
-                    if ((sqlite_database) && (!update_database) && (pitch_modify) && (!volume_modify)) message = "I would like to update pitch";
-                    if ((sqlite_database) && (!update_database) && (!pitch_modify) && (volume_modify)) message = "I would like to update volume";
-
-                    if ((!sqlite_database) && (!update_database) && (!pitch_modify) && (!volume_modify)) message = "I would like to uprade database";
-                    if ((!sqlite_database) && (update_database) && (!pitch_modify) && (!volume_modify)) message = "I would like to update database";
-                    if ((!sqlite_database) && (update_database) && (pitch_modify) && (volume_modify)) message = "I would like to upgrade database and to update database and to update pitch and to update volume";
-                    if ((!sqlite_database) && (update_database) && (pitch_modify) && (!volume_modify)) message = "I would like to upgrade database and to update database and to update pitch";
-                    if ((!sqlite_database) && (update_database) && (!pitch_modify) && (volume_modify)) message = "I would like to upgrade database and to update database and to update volume";
-                    if ((!sqlite_database) && (!update_database) && (pitch_modify) && (volume_modify)) message = "I would like to upgrade database and to update pitch and to update volume";
-                    if ((!sqlite_database) && (!update_database) && (pitch_modify) && (!volume_modify)) message = "I would like to upgrade database and to update pitch";
-                    if ((!sqlite_database) && (!update_database) && (!pitch_modify) && (volume_modify)) message = "I would like to upgrade database and to update volume";
-                };
+                string message = string.Empty;
+                message = MessageQuestion(init_database, sqlite_database, update_database, drop_database, pitch_modify, volume_modify);
 
                 answer = await Application.Current.MainPage.DisplayAlert("Question?", message, "Yes", "No");
                 if (answer)
                 {
-                    if (update_database) await UpdateSQLite(select_table);
-                    if ((!init_database) && (sqlite_database)) await UpgradeSQLite();
-                    if ((init_database) && (!sqlite_database)) this._setting.SQLiteDatabase = false;
-                    if (pitch_modify) await UpdatePitch(pitch_speak);
-                    if (volume_modify) await UpdateVolume(volume_speak);
-                    this._update_setting = true;   
+                    bool update = false;
+                    if (update_database) update = await UpdateSQLite(select_table);
+                    if ((!init_database) && (sqlite_database)) update = await UpgradeSQLite();
+                    if ((init_database) && (!sqlite_database))
+                    {
+                        this._settingService.SQLiteDatabase = false;
+                        update = true;
+                    }
+                    if (pitch_modify) update = await UpdatePitch(pitch_speak);
+                    if (volume_modify) update = await UpdateVolume(volume_speak);
+                    if (drop_database) update = await DropSQLite();
+
+                    if (update)
+                    {
+                        this._update_setting = true;
+                        message = MessageCheck(init_database, sqlite_database, update_database, drop_database, pitch_modify, volume_modify);
+                        this.IsCheckSetting = !this.IsCheckSetting;
+                    }
+                    else message = MessageError();
+                    await Application.Current.MainPage.DisplayAlert("Conclusion", message, "Ok");
                 };
             }
             catch (Exception ex)
@@ -191,12 +399,16 @@ namespace LetterStomach.ViewModels
         #endregion
 
         #region DATABASE
-        private async Task UpdateSQLite(int select_table)
+        private async Task<bool> UpdateSQLite(int select_table)
         {
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation update sqlite \"Setting\" view model failed!");
 
+                if ((select_table == (int)Hunk.Null) || (select_table == (int)Hunk.Nothing)) 
+                {
+                    return false;
+                }
                 if (select_table == 0)
                 {
                     await this._sqlite_service.Create(-1, true);
@@ -218,8 +430,8 @@ namespace LetterStomach.ViewModels
                 {
                     await this._sqlite_service.Create(select_table, false);
                     await this._sqlite_service.Delete(select_table, false);
-                }
-                ;
+                };
+
                 if (select_table == (int)Hunk.Adverb) await this._sqlite_service.InsertAdverb();
                 if (select_table == (int)Hunk.Pronoun) await this._sqlite_service.InsertPronoun();
                 if (select_table == (int)Hunk.Article) await this._sqlite_service.InsertArticle();
@@ -232,6 +444,13 @@ namespace LetterStomach.ViewModels
                 if (select_table == (int)Hunk.Conjunction) await this._sqlite_service.InsertConjunction();
                 if (select_table == (int)Hunk.Auxiliary) await this._sqlite_service.InsertAuxiliary();
                 if (select_table == (int)Hunk.Model) await this._sqlite_service.InsertModel();
+
+                this.IsUpdateTable = !this.IsUpdateTable;
+                foreach (Hunks item in Items)
+                {
+                    if (item.Value == (int)Hunk.Nothing) this.SelectedItem = item;
+                }
+                return true;
             }
             catch (Exception ex)
             {
@@ -240,23 +459,38 @@ namespace LetterStomach.ViewModels
             }
         }
 
-        private async Task UpgradeSQLite()
+        private async Task<bool> DropSQLite()
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation drop sqlite \"Setting\" view model failed!");
+
+                await this._sqlite_service.Drop(-1, true);
+                this._settingService.SQLiteDatabase = false;
+                this.IsSQLiteTable = false;
+                this.IsSQLiteDrop = false;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private async Task<bool> UpgradeSQLite()
         {
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation upgrade sqlite \"Setting\" view model failed!");
 
-                await this._sqlite_service.LoadAdverb();
-                await this._sqlite_service.LoadPronoun();
-                await this._sqlite_service.LoadArticle();
-                await this._sqlite_service.LoadNumeral();
-                await this._sqlite_service.LoadPreposition();
-                await this._sqlite_service.LoadLetter();
-                await this._sqlite_service.LoadVerb();
-                await this._sqlite_service.LoadSentence();
-                await this._sqlite_service.LoadConjunction();
-                await this._sqlite_service.LoadAuxiliary();
-                _setting.SQLiteDatabase = true;
+                bool exist = await this._sqlite_service.ExistAsync();
+                if (exist)
+                {
+                    this._settingService.SQLiteDatabase = true;
+                    return true;
+                } else this.IsSQLiteTable = false;
+                return false;
             }
             catch (Exception ex)
             {
@@ -265,18 +499,18 @@ namespace LetterStomach.ViewModels
             }
         }
 
-        private async Task UpdatePitch(int pitch)
+        private async Task<bool> UpdatePitch(int pitch)
         {
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation update pitch \"Setting\" view model failed!");
 
-                float pitch_float = this._setting.PitchFloat;
-                int pitch_speak = this._setting.PitchSpeak;
+                float pitch_float = this._settingService.PitchFloat;
+                int pitch_speak = this._settingService.PitchSpeak;
                 float value = (pitch_float * pitch) / pitch_speak;
-
-                this._setting.PitchFloat = value;
-                this._setting.PitchSpeak = pitch;
+                this._settingService.PitchFloat = value;
+                this._settingService.PitchSpeak = pitch;
+                return true;
             }
             catch (Exception ex)
             {
@@ -285,18 +519,18 @@ namespace LetterStomach.ViewModels
             }
         }
 
-        private async Task UpdateVolume(int volume)
+        private async Task<bool> UpdateVolume(int volume)
         {
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation update volume \"Setting\" view model failed!");
 
-                float volume_float = this._setting.VolumeFloat;
-                int volume_speak = this._setting.VolumeSpeak;
+                float volume_float = this._settingService.VolumeFloat;
+                int volume_speak = this._settingService.VolumeSpeak;
                 float value = (volume_float * volume) / volume_speak;
-
-                this._setting.VolumeFloat = value;
-                this._setting.VolumeSpeak = volume;
+                this._settingService.VolumeFloat = value;
+                this._settingService.VolumeSpeak = volume;
+                return true;
             }
             catch (Exception ex)
             {

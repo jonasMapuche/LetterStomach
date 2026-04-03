@@ -34,7 +34,8 @@ namespace LetterStomach.Repositories.MongoDBs
                 if (this._error_off) throw new InvalidOperationException("Operation constructor \"Preposition\" view model failed!");
                 else this._error_message = string.Empty;
 
-                string connection = "mongodb://berthazatz:freedown@ac-coldsdi-shard-00-00.bad4zis.mongodb.net:27017,ac-coldsdi-shard-00-01.bad4zis.mongodb.net:27017,ac-coldsdi-shard-00-02.bad4zis.mongodb.net:27017/?ssl=true&replicaSet=atlas-y7pmm5-shard-0&authSource=admin&appName=preposition";
+                //string connection = "mongodb://berthazatz:freedown@ac-coldsdi-shard-00-00.bad4zis.mongodb.net:27017,ac-coldsdi-shard-00-01.bad4zis.mongodb.net:27017,ac-coldsdi-shard-00-02.bad4zis.mongodb.net:27017/?ssl=true&replicaSet=atlas-y7pmm5-shard-0&authSource=admin&appName=preposition";
+                string connection = "mongodb://berthazatz:freedown@ac-bhaknbb-shard-00-00.egswt6j.mongodb.net:27017,ac-bhaknbb-shard-00-01.egswt6j.mongodb.net:27017,ac-bhaknbb-shard-00-02.egswt6j.mongodb.net:27017/?ssl=true&replicaSet=atlas-m120wo-shard-0&authSource=admin&appName=preposition";
                 string database = "stomach";
                 string collection = "preposition";
                 var mongoClient = new MongoClient(connection);

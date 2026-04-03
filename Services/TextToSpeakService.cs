@@ -23,11 +23,32 @@ namespace LetterStomach.Services
         #endregion
 
         #region VARIABLE
-        private Language ENGLISH = SettingService.Instance.English;
-        private Language DEUTSCH = SettingService.Instance.Deutsch;
-        private Language ITALIANO = SettingService.Instance.Italino;
-        private Language FRANCAIS = SettingService.Instance.Francais;
-        private Language ESPANOL = SettingService.Instance.Espanol;
+        private Language _language_english;
+        private Language _language_deutsch ;
+        private Language _language_italiano;
+        private Language _language_francais;
+        private Language _language_espanol;
+        #endregion
+
+        #region CONSTRUCTOR
+        public TextToSpeakService()
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation constructor \"Text to Speak\" service failed!");
+                
+                this._language_english = SettingService.Instance.English;
+                this._language_deutsch = SettingService.Instance.Deutsch;
+                this._language_italiano = SettingService.Instance.Italino;
+                this._language_francais = SettingService.Instance.Francais;
+                this._language_espanol = SettingService.Instance.Espanol;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
         #endregion
 
         #region SPEAK
@@ -50,11 +71,11 @@ namespace LetterStomach.Services
 
                 IEnumerable <Locale> locales = await TextToSpeech.GetLocalesAsync();
                 Locale locale = null;
-                if (language == ENGLISH.Uppercase) locale = locales.FirstOrDefault(l => l.Language == ENGLISH.Code && l.Country == ENGLISH.Region);
-                if (language == DEUTSCH.Uppercase) locale = locales.FirstOrDefault(l => l.Language == DEUTSCH.Code && l.Country == DEUTSCH.Region);
-                if (language == ITALIANO.Uppercase) locale = locales.FirstOrDefault(l => l.Language == ITALIANO.Code && l.Country == ITALIANO.Region);
-                if (language == FRANCAIS.Uppercase) locale = locales.FirstOrDefault(l => l.Language == FRANCAIS.Code && l.Country == FRANCAIS.Region);
-                if (language == ESPANOL.Uppercase) locale = locales.FirstOrDefault(l => l.Language == ESPANOL.Code && l.Country == ESPANOL.Region);
+                if (language == this._language_english.Uppercase) locale = locales.FirstOrDefault(l => l.Language == this._language_english.Code && l.Country == this._language_english.Region);
+                if (language == this._language_deutsch.Uppercase) locale = locales.FirstOrDefault(l => l.Language == this._language_deutsch.Code && l.Country == this._language_deutsch.Region);
+                if (language == this._language_italiano.Uppercase) locale = locales.FirstOrDefault(l => l.Language == this._language_italiano.Code && l.Country == this._language_italiano.Region);
+                if (language == this._language_francais.Uppercase) locale = locales.FirstOrDefault(l => l.Language == this._language_francais.Code && l.Country == this._language_francais.Region);
+                if (language == this._language_espanol.Uppercase) locale = locales.FirstOrDefault(l => l.Language == this._language_espanol.Code && l.Country == this._language_espanol.Region);
 
                 float pitch = pitch_speak;
                 float volume = volume_speak;
@@ -70,7 +91,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
+                throw new InvalidOperationException(this.error_message);
             }
         }
         #endregion

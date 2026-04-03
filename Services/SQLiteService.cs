@@ -1,9 +1,11 @@
-﻿using LetterStomach.Enums;
+﻿using Javax.Annotation.Meta;
+using LetterStomach.Enums;
 using LetterStomach.Models;
 using LetterStomach.Repositories;
 using LetterStomach.Repositories.SQLites;
 using LetterStomach.Services.Interfaces;
 using SQLite;
+using System.Runtime.CompilerServices;
 using Environment = System.Environment;
 
 namespace LetterStomach.Services
@@ -72,7 +74,6 @@ namespace LetterStomach.Services
 
                 this._httpService = new HttpService();
                 this._modelService = new ModelService();
-
                 this._settingService = SettingService.Instance;
 
                 Connect();
@@ -291,7 +292,7 @@ namespace LetterStomach.Services
                 {
                     this._conjuncaoRepository.CreateTable();
                     List<Conjuncoes> conjunction = new List<Conjuncoes>();
-                    await _conjuncaoRepository.Add(conjunction);
+                    await this._conjuncaoRepository.Add(conjunction);
                 }
                 if ((select_table == (int)Hunk.Auxiliary) || (select_all))
                 {
@@ -304,6 +305,83 @@ namespace LetterStomach.Services
                     this._modelRepository.CreateTable();
                     List<Model> model = new List<Model>();
                     await this._modelRepository.Add(model);
+                }
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+        #endregion
+
+        #region DROP
+        public async Task Drop(int select_table, bool select_all)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation drop \"SQLite\" service failed!");
+
+                int quantity = 0;
+                if ((select_table == (int)Hunk.Adverb) || (select_all))
+                {
+                    this._adverbioRepository.CreateTable();
+                    quantity += await this._adverbioRepository.DropTable();
+                }
+                if ((select_table == (int)Hunk.Adjective) || (select_all))
+                {
+                    this._adjetivoRepository.CreateTable();
+                    quantity += await this._adjetivoRepository.DropTable();
+                }
+                if ((select_table == (int)Hunk.Article) || (select_all))
+                {
+                    this._artigoRepository.CreateTable();
+                    quantity += await this._artigoRepository.DropTable();
+                }
+                if ((select_table == (int)Hunk.Numeral) || (select_all))
+                {
+                    this._numeroRepository.CreateTable();
+                    quantity += await this._numeroRepository.DropTable();
+                }
+                if ((select_table == (int)Hunk.Preposition) || (select_all))
+                {
+                    this._preposicaoRepository.CreateTable();
+                    quantity += await this._preposicaoRepository.DropTable();
+                }
+                if ((select_table == (int)Hunk.Pronoun) || (select_all))
+                {
+                    this._pronomeRepository.CreateTable();
+                    quantity += await this._pronomeRepository.DropTable();
+                }
+                if ((select_table == (int)Hunk.Noun) || (select_all))
+                {
+                    this._substantivoRepository.CreateTable();
+                    quantity += await this._substantivoRepository.DropTable();
+                }
+                if ((select_table == (int)Hunk.Verb) || (select_all))
+                {
+                    this._verboRepository.CreateTable();
+                    quantity += await this._verboRepository.DropTable();
+                }
+                if ((select_table == (int)Hunk.Sentence) || (select_all))
+                {
+                    this._ditadoRepository.CreateTable();
+                    quantity += await this._ditadoRepository.DropTable();
+                }
+                if ((select_table == (int)Hunk.Conjunction) || (select_all))
+                {
+                    this._conjuncaoRepository.CreateTable();
+                    quantity += await this._conjuncaoRepository.DropTable();
+                }
+                if ((select_table == (int)Hunk.Auxiliary) || (select_all))
+                {
+                    this._auxiliarRepository.CreateTable();
+                    quantity += await this._auxiliarRepository.DropTable();
+                }
+                if ((select_table == (int)Hunk.Model) || (select_all))
+                {
+                    this._modelRepository.CreateTable();
+                    quantity += await this._modelRepository.DropTable();
                 }
             }
             catch (Exception ex)
@@ -538,6 +616,25 @@ namespace LetterStomach.Services
             }
         }
 
+        public async Task<List<Circunstancia>> GetCircunstancia()
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation get circunstancia \"SQLite\" service failed!");
+
+                List<Adverbios> adverb = new List<Adverbios>();
+                adverb = await this._adverbioRepository.GetAll();
+                List<Circunstancia> circunstancias = new List<Circunstancia>();
+                circunstancias = await this._modelService.LoadAdverb(adverb);
+                return circunstancias;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
         public async Task LoadPronoun()
         {
             try
@@ -547,6 +644,25 @@ namespace LetterStomach.Services
                 List<Pronomes> pronoun = new List<Pronomes>();
                 pronoun = await this._pronomeRepository.GetAll();
                 this.Estoutro = await this._modelService.LoadPronoun(pronoun);
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        public async Task<List<Estoutro>> GetEstoutro()
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation get estoutro \"SQLite\" service failed!");
+
+                List<Pronomes> pronoun = new List<Pronomes>();
+                pronoun = await this._pronomeRepository.GetAll();
+                List<Estoutro> estoutros = new List<Estoutro>();
+                estoutros = await this._modelService.LoadPronoun(pronoun);
+                return estoutros;
             }
             catch (Exception ex)
             {
@@ -572,6 +688,25 @@ namespace LetterStomach.Services
             }
         }
 
+        public async Task<List<Preceito>> GetPreceito()
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation get preceito \"SQLite\" service failed!");
+
+                List<Artigos> article = new List<Artigos>();
+                article = await this._artigoRepository.GetAll();
+                List<Preceito> preceitos = new List<Preceito>();
+                preceitos = await this._modelService.LoadArticle(article);
+                return preceitos;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
         public async Task LoadNumeral()
         {
             try
@@ -589,6 +724,25 @@ namespace LetterStomach.Services
             }
         }
 
+        public async Task<List<Algarismo>> GetAlgarismo()
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation get algarismo \"SQLite\" service failed!");
+
+                List<Numerais> numeral = new List<Numerais>();
+                numeral = await this._numeroRepository.GetAll();
+                List<Algarismo> algarismos = new List<Algarismo>();
+                algarismos = await this._modelService.LoadNumeral(numeral);
+                return algarismos;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
         public async Task LoadPreposition()
         {
             try
@@ -598,6 +752,25 @@ namespace LetterStomach.Services
                 List<Preposicoes> preposition = new List<Preposicoes>();
                 preposition = await this._preposicaoRepository.GetAll();
                 this.Juncao = await this._modelService.LoadPreposition(preposition);
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        public async Task<List<Juncao>> GetJuncao()
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation get juncao \"SQLite\" service failed!");
+
+                List<Preposicoes> preposition = new List<Preposicoes>();
+                preposition = await this._preposicaoRepository.GetAll();
+                List<Juncao> juncoes = new List<Juncao>();
+                juncoes = await this._modelService.LoadPreposition(preposition);
+                return juncoes;
             }
             catch (Exception ex)
             {
@@ -627,6 +800,29 @@ namespace LetterStomach.Services
             }
         }
 
+        public async Task<List<Materia>> GetMateria()
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation get materia \"SQLite\" service failed!");
+
+                List<Substantivo> noun = new List<Substantivo>();
+                noun = await this._substantivoRepository.GetAll();
+                List<Adjetivo> adjective = new List<Adjetivo>();
+                adjective = await this._adjetivoRepository.GetAll();
+                List<Model> model = new List<Model>();
+                model = await this._modelRepository.GetAll();
+                List<Materia> materias = new List<Materia>();
+                materias = await this._modelService.LoadMateria(noun, adjective, model);
+                return materias;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
         public async Task LoadVerb()
         {
             try
@@ -636,6 +832,25 @@ namespace LetterStomach.Services
                 List<Verbos> verb = new List<Verbos>();
                 verb = await this._verboRepository.GetAll();
                 this.Elocucao = await this._modelService.LoadElocucao(verb);
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        public async Task<List<Elocucao>> GetElocucao()
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation get elocucao \"SQLite\" service failed!");
+
+                List<Verbos> verb = new List<Verbos>();
+                verb = await this._verboRepository.GetAll();
+                List<Elocucao> elocucoes = new List<Elocucao>();
+                elocucoes = await this._modelService.LoadElocucao(verb);
+                return elocucoes;
             }
             catch (Exception ex)
             {
@@ -661,6 +876,25 @@ namespace LetterStomach.Services
             }
         }
 
+        public async Task<List<Sentenca>> GetSentenca()
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation get sentenca \"SQLite\" service failed!");
+
+                List<Sentencas> sentence = new List<Sentencas>();
+                sentence = await this._ditadoRepository.GetAll();
+                List<Sentenca> sentencas = new List<Sentenca>();
+                sentencas = await this._modelService.LoadSentenca(sentence);
+                return sentencas;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
         public async Task LoadConjunction()
         {
             try
@@ -677,7 +911,26 @@ namespace LetterStomach.Services
                 throw new InvalidOperationException(this.error_message);
             }
         }
-        
+
+        public async Task<List<Ligacao>> GetLigacao()
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation get ligacao \"SQLite\" service failed!");
+
+                List<Conjuncoes> conjunction = new List<Conjuncoes>();
+                conjunction = await this._conjuncaoRepository.GetAll();
+                List<Ligacao> ligacoes = new List<Ligacao>();
+                ligacoes = await this._modelService.LoadLigacao(conjunction);
+                return ligacoes;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
         public async Task LoadAuxiliary()
         {
             try

@@ -17,6 +17,7 @@ namespace LetterStomach.Services.Interfaces
 
         Task<int> Delete(int select_table, bool select_all);
         Task Create(int select_table, bool select_all);
+        Task Drop(int select_table, bool select_all);
         void Exist();
         Task<bool> ExistAsync();
         Task InsertAdverb();
@@ -32,14 +33,23 @@ namespace LetterStomach.Services.Interfaces
         Task InsertAuxiliary();
         Task InsertModel();
         Task LoadAdverb();
+        Task<List<Circunstancia>> GetCircunstancia();
         Task LoadPronoun();
+        Task<List<Estoutro>> GetEstoutro();
         Task LoadArticle();
+        Task<List<Preceito>> GetPreceito();
         Task LoadNumeral();
+        Task<List<Algarismo>> GetAlgarismo();
         Task LoadPreposition();
+        Task<List<Juncao>> GetJuncao();
         Task LoadLetter();
+        Task<List<Materia>> GetMateria();
         Task LoadVerb();
+        Task<List<Elocucao>> GetElocucao();
         Task LoadSentence();
+        Task<List<Sentenca>> GetSentenca();
         Task LoadConjunction();
+        Task<List<Ligacao>> GetLigacao();
         Task LoadAuxiliary();
     }
 }

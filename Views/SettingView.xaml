@@ -12,7 +12,9 @@
         <ToolbarItem 
             x:Name="tlbCheck"
             Text="Check"
-            IsEnabled="False"
+            x:DataType="viewmodels:SettingViewModel"
+            IsEnabled="{Binding IsCheckSetting}"
+            Clicked="OnCheckSetting"
             IconImageSource="check.png"
             Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:SettingViewModel}}, Path=CheckCommand}">
             <ToolbarItem.CommandParameter>
@@ -20,6 +22,7 @@
                     <MultiBinding.Bindings>
                         <Binding Path="IsToggled" Source="{x:Reference swiUpdateTable}" />
                         <Binding Path="IsToggled" Source="{x:Reference swiSQLite}"/>
+                        <Binding Path="IsToggled" Source="{x:Reference swiDrop}"/>
                         <Binding Path="SelectedItem" Source="{x:Reference pkrSelectTable}"/>
                         <Binding Path="Value" Source="{x:Reference sldPich}"/>
                         <Binding Path="Value" Source="{x:Reference sldVolume}"/>
@@ -54,7 +57,7 @@
                 <BoxView
                     Style="{StaticResource AdornerSettingBoxViewStyle}"/>
                 <Grid
-                    RowDefinitions="Auto, Auto, Auto, Auto, Auto">
+                    RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto">
                     <Grid
                         Grid.Row="0">
                         <Label Text="Select Table"
@@ -67,6 +70,7 @@
                             x:DataType="viewmodels:SettingViewModel"
                             ItemsSource="{Binding Items}"
                             ItemDisplayBinding="{Binding Name}"
+                            SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
                             SelectedIndexChanged="OnSelectedIndexChanged"
                             FontSize="20"
                             Margin="30, 80, 30, 0"/>
@@ -101,6 +105,20 @@
                     </Grid>
                     <Grid
                         Grid.Row="3">
+                        <Label Text="Drop SQLite"
+                            FontSize="20"
+                            HorizontalOptions="Start"
+                            Margin="20, 20, 0, 0"/>
+                        <Switch 
+                            x:Name="swiDrop"
+                            x:DataType="viewmodels:SettingViewModel"
+                            IsToggled="{Binding IsSQLiteDrop}"
+                            Toggled="OnDropToggled"
+                            Margin="150, 10, 0, 0"
+                            HorizontalOptions="Start"/>
+                    </Grid>
+                    <Grid
+                        Grid.Row="4">
                         <Label Text="Pitch"
                             FontSize="20"
                             HorizontalOptions="Start"
@@ -123,7 +141,7 @@
                             ValueChanged="OnSliderPitchChanged"/>
                     </Grid>
                     <Grid
-                        Grid.Row="4">
+                        Grid.Row="5">
                         <Label Text="Volume"
                             FontSize="20"
                             HorizontalOptions="Start"

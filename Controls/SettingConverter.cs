@@ -9,14 +9,15 @@ namespace LetterStomach.Controls
         {
             try
             {
-                if (values[0] != null && values[1] != null && values[3] != null && values[4] != null && values.Length == 5)
+                if (values[0] != null && values[1] != null && values[2] != null && values[4] != null && values[5] != null && values.Length == 6)
                 {
                     string update_database = values[0].ToString();
                     string sqlite_database = values[1].ToString();
+                    string drop_database = values[2].ToString();
                     string select_table = "";
-                    if (values[2] != null)
+                    if (values[3] != null)
                     {
-                        Hunks hunks = (Hunks)values[2];
+                        Hunks hunks = (Hunks)values[3];
                         select_table = hunks.Value.ToString();
                     }
                     else
@@ -24,10 +25,10 @@ namespace LetterStomach.Controls
                         Hunks hunks = new Hunks { Name = "Null", Value = (int)Hunk.Null };
                         select_table = hunks.Value.ToString();
                     }
-                    string pitch_speak = values[3].ToString().Contains(".") ? values[3].ToString().Split(".")[0] : values[3].ToString();
-                    string volume_speak = values[3].ToString().Contains(".")? values[4].ToString().Split(".")[0] : values[4].ToString();
+                    string pitch_speak = values[4].ToString().Contains(".") ? values[4].ToString().Split(".")[0] : values[4].ToString();
+                    string volume_speak = values[5].ToString().Contains(".")? values[5].ToString().Split(".")[0] : values[5].ToString();
 
-                    return new Setting { UpdateDatabase = update_database, SQLiteDatabase = sqlite_database, SelectTable = select_table, PitchSpeak = pitch_speak, VolumeSpeak = volume_speak};
+                    return new Setting { UpdateDatabase = update_database, SQLiteDatabase = sqlite_database, DropDatabase = drop_database, SelectTable = select_table, PitchSpeak = pitch_speak, VolumeSpeak = volume_speak};
                 }
                 return null;
             }

@@ -8,9 +8,9 @@ namespace LetterStomach.Services
         #region ERROR
         private bool _error_on = true;
         private bool _error_off = false;
-        private string _error_message;
+        private string? _error_message;
 
-        public string error_message
+        public string? error_message
         {
             get => this._error_message;
             set
@@ -19,33 +19,72 @@ namespace LetterStomach.Services
             }
         }
 
-        public event EventHandler<string> OnError;
+        public event EventHandler<string>? OnError;
         #endregion
 
         #region VARIABLE
-        private string VAR_SUBJECT = SettingService.Instance.Suject;
-        private string VAR_PREDICATE = SettingService.Instance.Predicate;
-        private string VAR_PRONOUN = SettingService.Instance.Pronoun;
-        private string VAR_NOUN = SettingService.Instance.Noun;
-        private string VAR_VERB = SettingService.Instance.Verb;
-        private string VAR_PERSONAL = SettingService.Instance.Personal;
-        private string VAR_ADJECTIVE = SettingService.Instance.Adjective;
-        private string VAR_ARTICLE = SettingService.Instance.Article;
-        private string VAR_NUMERAL = SettingService.Instance.Numeral;
-        private string VAR_PREPOSITION = SettingService.Instance.Preposition;
-        private string VAR_POSSESSIVE = SettingService.Instance.Possessive;
-        private string VAR_DEMONSTRATIVE = SettingService.Instance.Demostrtive;
-        private string VAR_ADVERB = SettingService.Instance.Adverb;
-        private string VAR_ADVERB_ADVERB = SettingService.Instance.Adverb_Adverb;
-        private string VAR_ADJECTIVE_NOUN = SettingService.Instance.Adjective_Noun;
-        private string VAR_ADJECTIVE_ADVERB = SettingService.Instance.Adjective_Adverb;
-        private string VAR_CONJUNCTION = SettingService.Instance.Conjunction;
-        private string VAR_SINGLE = SettingService.Instance.Single;
-        private string VAR_PLURAL = SettingService.Instance.Plural;
-        private string VAR_NUMERAL_NOUN = SettingService.Instance.Numeral_Noun;
-        private string VAR_INFINITIVE = SettingService.Instance.Infinitive;
+        private string _subject;
+        private string _predicate;
+        private string _pronoun;
+        private string _noun;
+        private string _verb;
+        private string _personal;
+        private string _adjective;
+        private string _article;
+        private string _numeral;
+        private string _preposition;
+        private string _possessive;
+        private string _demonstrative;
+        private string _adverb;
+        private string _adverb_adverb;
+        private string _adjective_noun;
+        private string _adjective_adverb;
+        private string _conjunction;
+        private string _single;
+        private string _plural;
+        private string _numeral_noun;
+        private string _infinitive;
 
-        private IWordEmbeddingService _wordEmbeddingService = new WordEmbeddingService();
+        private IWordEmbeddingService _wordEmbeddingService;
+        #endregion
+
+        #region CONSTRUCTOR
+        public MorphologyService()
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation constructor \"Morphology\" service failed!");
+
+                this._subject = SettingService.Instance.Suject;
+                this._predicate = SettingService.Instance.Predicate;
+                this._pronoun = SettingService.Instance.Pronoun;
+                this._noun = SettingService.Instance.Noun;
+                this._verb = SettingService.Instance.Verb;
+                this._personal = SettingService.Instance.Personal;
+                this._adjective = SettingService.Instance.Adjective;
+                this._article = SettingService.Instance.Article;
+                this._numeral = SettingService.Instance.Numeral;
+                this._preposition = SettingService.Instance.Preposition;
+                this._possessive = SettingService.Instance.Possessive;
+                this._demonstrative = SettingService.Instance.Demostrtive;
+                this._adverb = SettingService.Instance.Adverb;
+                this._adverb_adverb = SettingService.Instance.Adverb_Adverb;
+                this._adjective_noun = SettingService.Instance.Adjective_Noun;
+                this._adjective_adverb = SettingService.Instance.Adjective_Adverb;
+                this._conjunction = SettingService.Instance.Conjunction;
+                this._single = SettingService.Instance.Single;
+                this._plural = SettingService.Instance.Plural;
+                this._numeral_noun = SettingService.Instance.Numeral_Noun;
+                this._infinitive = SettingService.Instance.Infinitive;
+
+                this._wordEmbeddingService = new WordEmbeddingService();
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
         #endregion
 
         #region FILTER
@@ -347,7 +386,7 @@ namespace LetterStomach.Services
         #endregion
 
         #region WORD
-        private List<Word> Word(string term, string type, string sentence, string model)
+        private List<Word> Word(string term, string type, string? sentence, string? model)
         {
             try
             {
@@ -382,13 +421,13 @@ namespace LetterStomach.Services
 
                 List<Word> words = new List<Word>();
                 List<Word> terms = new List<Word>();
-                terms = Word(adverb, VAR_ADVERB, null, null);
+                terms = Word(adverb, this._adverb, null, null);
                 terms.ForEach(item =>
                 {
                     words.Add(item);
                 });
                 terms = new List<Word>();
-                terms = Word(adjective, VAR_ADJECTIVE, null, null);
+                terms = Word(adjective, this._adjective, null, null);
                 terms.ForEach(item =>
                 {
                     words.Add(item);
@@ -410,13 +449,13 @@ namespace LetterStomach.Services
 
                 List<Word> words = new List<Word>();
                 List<Word> terms = new List<Word>();
-                terms = Word(adverb, VAR_ADVERB_ADVERB, null, null);
+                terms = Word(adverb, this._adverb_adverb, null, null);
                 terms.ForEach(item =>
                 {
                     words.Add(item);
                 });
                 terms = new List<Word>();
-                terms = Word(adverb_main, VAR_ADVERB, null, null);
+                terms = Word(adverb_main, this._adverb, null, null);
                 terms.ForEach(item=>
                 {
                     words.Add(item);
@@ -438,7 +477,7 @@ namespace LetterStomach.Services
 
                 List<Word> words = new List<Word>();
                 List<Word> terms = new List<Word>();
-                terms = Word(adverb_adverb, VAR_ADVERB_ADVERB, null, null);
+                terms = Word(adverb_adverb, this._adverb_adverb, null, null);
                 terms.ForEach(item =>
                 {
                     words.Add(item);
@@ -467,13 +506,13 @@ namespace LetterStomach.Services
                 List<Word> words = new List<Word>();
                 List<Word> terms = new List<Word>();
                 terms = new List<Word>();
-                terms = Word(article, VAR_ARTICLE, null, null);
+                terms = Word(article, this._article, null, null);
                 terms.ForEach(item =>
                 {
                     words.Add(item);
                 });
                 terms = new List<Word>();
-                terms = Word(noun, VAR_NOUN, null, null);
+                terms = Word(noun, this._noun, null, null);
                 terms.ForEach(item =>
                 {
                     words.Add(item);
@@ -495,13 +534,13 @@ namespace LetterStomach.Services
 
                 List<Word> words = new List<Word>();
                 List<Word> terms = new List<Word>();
-                terms = Word(pronoun, VAR_PRONOUN, null, null);
+                terms = Word(pronoun, this._pronoun, null, null);
                 terms.ForEach(item =>
                 {
                     words.Add(item);
                 });
                 terms = new List<Word>();
-                terms = Word(noun, VAR_NOUN, null, null);
+                terms = Word(noun, this._noun, null, null);
                 terms.ForEach(item =>
                 {
                     words.Add(item);
@@ -524,13 +563,13 @@ namespace LetterStomach.Services
                 List<Word> words = new List<Word>();
                 List<Word> terms = new List<Word>();
                 terms = new List<Word>();
-                terms = Word(digit, VAR_NUMERAL, null, null);
+                terms = Word(digit, this._numeral, null, null);
                 terms.ForEach(item =>
                 {
                     words.Add(item);
                 });
                 terms= new List<Word>();
-                terms = Word(noun, VAR_NOUN, null, null);
+                terms = Word(noun, this._noun, null, null);
                 terms.ForEach(item =>
                 {
                     words.Add(item);
@@ -552,13 +591,13 @@ namespace LetterStomach.Services
 
                 List<Word> words = new List<Word>();
                 List<Word> terms = new List<Word>();
-                terms = Word(verb, VAR_VERB, null, null);
+                terms = Word(verb, this._verb, null, null);
                 terms.ForEach(item =>
                 {
                     words.Add(item);
                 });
                 terms = new List<Word>();
-                terms = Word(adverb, VAR_ADVERB, null, null);
+                terms = Word(adverb, this._adverb, null, null);
                 terms.ForEach(item =>
                 {
                     words.Add(item);
@@ -580,7 +619,7 @@ namespace LetterStomach.Services
 
                 List<Word> words = new List<Word>();
                 List<Word> terms = new List<Word>();
-                terms = Word(adverb_adverb, VAR_ADVERB_ADVERB, null, null);
+                terms = Word(adverb_adverb, this._adverb_adverb, null, null);
                 terms.ForEach(item =>
                 {
                     words.Add(item);
@@ -618,8 +657,8 @@ namespace LetterStomach.Services
                     string adverb_adverb = string.Empty;
                     word.lecture.ForEach(item =>
                     {
-                        if (item.kind == VAR_ADVERB) adverb = item.term;
-                        if (item.kind == VAR_ADVERB_ADVERB) adverb_adverb = item.term;
+                        if (item.kind == this._adverb) adverb = item.term;
+                        if (item.kind == this._adverb_adverb) adverb_adverb = item.term;
                         words.Add(item);
                     });
                     bool similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, adverb, adverb_adverb);
@@ -672,7 +711,7 @@ namespace LetterStomach.Services
         }
         #endregion
 
-        #region ADJECTIVE
+        #region ADJECTIVE ADVERBIAL ADJUNCT
         private List<Lesson> VerifyAdjective(List<Lesson> adjectives_adverbs, List<Sentenca> sentences)
         {
             try
@@ -689,8 +728,8 @@ namespace LetterStomach.Services
                     string last = string.Empty;
                     word.lecture.ForEach(item =>
                     {
-                        if (item.kind == VAR_ADJECTIVE) first = item.term;
-                        if (item.kind == VAR_ADVERB) last = item.term;
+                        if (item.kind == this._adjective) first = item.term;
+                        if (item.kind == this._adverb) last = item.term;
                         words.Add(item);
                     });
                     bool similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, first, last);
@@ -720,7 +759,7 @@ namespace LetterStomach.Services
                 adjectives.ForEach(item =>
                 {
                     Lesson lesson = new Lesson();
-                    lesson.lecture = Word(item, VAR_ADJECTIVE, null, null);
+                    lesson.lecture = Word(item, this._adjective, null, null);
                     lessons.Add(lesson);
                 });
                 adjectives_adverbs.ForEach(item =>
@@ -809,8 +848,8 @@ namespace LetterStomach.Services
                         string adverb_adverb = string.Empty;
                         circumstance.lecture.ForEach(item =>
                         {
-                            if (item.kind == VAR_ADVERB) adverb = item.term;
-                            if (item.kind == VAR_ADVERB_ADVERB) adverb_adverb = item.term;
+                            if (item.kind == this._adverb) adverb = item.term;
+                            if (item.kind == this._adverb_adverb) adverb_adverb = item.term;
                         });
                         words = WordAdjectiveAdverb(quality, adverb, adverb_adverb);
                         Lesson lesson = new Lesson();
@@ -837,7 +876,7 @@ namespace LetterStomach.Services
                 adjectives.ForEach(item =>
                 {
                     Lesson lesson = new Lesson();
-                    lesson.lecture = Word(item, VAR_ADJECTIVE, null, null);
+                    lesson.lecture = Word(item, this._adjective, null, null);
                     lessons.Add(lesson);
                 });
                 return lessons;
@@ -862,7 +901,7 @@ namespace LetterStomach.Services
                 mount_adjective.ForEach(item =>
                 {
                     Lesson lesson = new Lesson();
-                    lesson.team = VAR_ADJECTIVE;
+                    lesson.team = this._adjective;
                     lesson.lecture = item.lecture;
                     lessons.Add(lesson);
                 });
@@ -896,7 +935,7 @@ namespace LetterStomach.Services
                 union_adjective_adverb_adverb.ForEach(item =>
                 {
                     Lesson lesson = new Lesson();
-                    lesson.team = VAR_ADJECTIVE_ADVERB;
+                    lesson.team = this._adjective_adverb;
                     lesson.lecture = item.lecture;
                     lessons.Add(lesson);
                 });
@@ -943,9 +982,9 @@ namespace LetterStomach.Services
                 filter_article.ForEach(item =>
                 {
                     List<Word> words = new List<Word>();
-                    words = Word(item.nome, VAR_ARTICLE, null, null);
+                    words = Word(item.nome, this._article, null, null);
                     Lesson lesson = new Lesson();
-                    lesson.team = VAR_ARTICLE;
+                    lesson.team = this._article;
                     lesson.lecture = words;
                     lessons.Add(lesson);
                 });
@@ -959,7 +998,7 @@ namespace LetterStomach.Services
         }
         #endregion
 
-        #region NOUN
+        #region NOUN ADNOMINAL ADJUNCT
         private List<Lesson> VerifyNoun(List<Lesson> matters, List<Sentenca> sentences)
         {
             try
@@ -981,14 +1020,14 @@ namespace LetterStomach.Services
                     {
                         if (three)
                         {
-                            if (item.kind == VAR_ARTICLE) first = item.term;
-                            if ((item.kind != VAR_NOUN) && (item.kind != VAR_ARTICLE)) middle = item.term;
-                            if (item.kind == VAR_NOUN) last = item.term;
+                            if (item.kind == this._article) first = item.term;
+                            if ((item.kind != this._noun) && (item.kind != this._article)) middle = item.term;
+                            if (item.kind == this._noun) last = item.term;
                         }
                         else
                         {
-                            if (item.kind != VAR_NOUN) first = item.term;
-                            if (item.kind == VAR_NOUN) last = item.term;
+                            if (item.kind != this._noun) first = item.term;
+                            if (item.kind == this._noun) last = item.term;
                         }
                         words.Add(item);
                     });
@@ -1038,8 +1077,8 @@ namespace LetterStomach.Services
                     string noun = string.Empty;
                     instruction.lecture.ForEach(item =>
                     {
-                        if (item.kind == VAR_ADJECTIVE) adjective = item.term;
-                        if (item.kind == VAR_NOUN) noun = item.term;
+                        if (item.kind == this._adjective) adjective = item.term;
+                        if (item.kind == this._noun) noun = item.term;
                         words.Add(item);
                     });
                     bool similarity = false;
@@ -1077,9 +1116,9 @@ namespace LetterStomach.Services
                     string noun = string.Empty;
                     instruction.lecture.ForEach(item =>
                     {
-                        if (item.kind == VAR_ADJECTIVE) adjective = item.term;
-                        if (item.kind == VAR_NOUN) noun = item.term;
-                        if (item.kind == VAR_PREPOSITION) preposition = item.term;
+                        if (item.kind == this._adjective) adjective = item.term;
+                        if (item.kind == this._noun) noun = item.term;
+                        if (item.kind == this._preposition) preposition = item.term;
                         words.Add(item);
                     });
                     bool similarity = false;
@@ -1335,9 +1374,9 @@ namespace LetterStomach.Services
                     if (word.Count > 1)
                     {
                         if (Array.IndexOf(precepts.ToArray(), word.First()) != -1)
-                            words = Word(word.Last(), VAR_NOUN, null, null);
+                            words = Word(word.Last(), this._noun, null, null);
                     }
-                    else words = Word(substantive, VAR_NOUN, null, null);
+                    else words = Word(substantive, this._noun, null, null);
                     if (words.Count > 0)
                     {
                         Lesson lesson = new Lesson();
@@ -1370,7 +1409,7 @@ namespace LetterStomach.Services
                 union_adjective_preposition_noun.ForEach(item =>
                 {
                     Lesson lesson = new Lesson();
-                    lesson.team = VAR_ADJECTIVE_NOUN;
+                    lesson.team = this._adjective_noun;
                     lesson.lecture = item.lecture;
                     lessons.Add(lesson);
                 });
@@ -1394,9 +1433,9 @@ namespace LetterStomach.Services
                 List<Algarismo> filter_numeral = FilterNumeral(numerals, sentences);
 
                 List<string> type_adjective = new List<string>();
-                type_adjective.Add(VAR_ADJECTIVE);
+                type_adjective.Add(this._adjective);
                 List<string> type_demostrative = new List<string>();
-                type_demostrative.Add(VAR_DEMONSTRATIVE);
+                type_demostrative.Add(this._demonstrative);
                 List<Estoutro> list_pronoun_adjective = MountPronoun(type_adjective, pronouns);
                 List<Estoutro> list_pronoun_demostrative = MountPronoun(type_demostrative, pronouns);
                 List<Estoutro> filter_pronoun_adjective = FilterPronoun(list_pronoun_adjective, sentences);
@@ -1417,7 +1456,7 @@ namespace LetterStomach.Services
                 verify_noun.ForEach(item =>
                 {
                     Lesson lesson = new Lesson();
-                    lesson.team = VAR_NOUN;
+                    lesson.team = this._noun;
                     lesson.lecture = item.lecture;
                     lessons.Add(lesson);
                 });
@@ -1447,7 +1486,7 @@ namespace LetterStomach.Services
                 verify_noun.ForEach(item =>
                 {
                     Lesson lesson = new Lesson();
-                    lesson.team = VAR_NUMERAL_NOUN;
+                    lesson.team = this._numeral_noun;
                     lesson.lecture = item.lecture;
                     lessons.Add(lesson);
                 });
@@ -1477,7 +1516,7 @@ namespace LetterStomach.Services
                     List<Contento> contents = new List<Contento>();
                     item.contento.ForEach(contento =>
                     {
-                        if (contento.numero.Contains(VAR_SINGLE))
+                        if (contento.numero.Contains(_single))
                             contents.Add(contento);
                     });
                     Estoutro pronoun = new Estoutro();
@@ -1494,7 +1533,7 @@ namespace LetterStomach.Services
                     List<Contento> contents = new List<Contento>();
                     item.contento.ForEach(contento =>
                     {
-                        if (contento.numero.Contains(VAR_PLURAL))
+                        if (contento.numero.Contains(this._plural))
                             contents.Add(contento);
                     });
                     Estoutro pronoun = new Estoutro();
@@ -1526,13 +1565,13 @@ namespace LetterStomach.Services
                 if (this._error_off) throw new InvalidOperationException("Operation get pronoun \"Morphology\" service failed!");
 
                 List<string> type_personal = new List<string>();
-                type_personal.Add(VAR_PERSONAL);
+                type_personal.Add(this._personal);
                 List<Estoutro> mount_pronoun_personal = MountPronoun(type_personal, pronouns);
                 List<string> type_possessive = new List<string>();
-                type_possessive.Add(VAR_POSSESSIVE);
+                type_possessive.Add(this._possessive);
                 List<Estoutro> mount_pronoun_possessive = MountPronoun(type_possessive, pronouns);
                 List<string> type_demostrative = new List<string>();
-                type_demostrative.Add(VAR_DEMONSTRATIVE);
+                type_demostrative.Add(this._demonstrative);
                 List<Estoutro> mount_pronoun_demostrative = MountPronoun(type_demostrative, pronouns);
                 List<Estoutro> filter_pronoun_personal = FilterPronoun(mount_pronoun_personal, sentences);
                 List<Estoutro> filter_pronoun_possessive = FilterPronoun(mount_pronoun_possessive, sentences);
@@ -1542,27 +1581,27 @@ namespace LetterStomach.Services
                 filter_pronoun_personal.ForEach(item =>
                 {
                     List<Word> words = new List<Word>();
-                    words = Word(item.nome, VAR_PRONOUN, null, null);
+                    words = Word(item.nome, this._pronoun, null, null);
                     Lesson lesson = new Lesson();
-                    lesson.team = VAR_PERSONAL;
+                    lesson.team = this._personal;
                     lesson.lecture = words;
                     lessons.Add(lesson);
                 });
                 filter_pronoun_possessive.ForEach(item =>
                 {
                     List<Word> words = new List<Word>();
-                    words = Word(item.nome, VAR_PRONOUN, null, null);
+                    words = Word(item.nome, this._pronoun, null, null);
                     Lesson lesson = new Lesson();
-                    lesson.team = VAR_POSSESSIVE;
+                    lesson.team = this._possessive;
                     lesson.lecture = words;
                     lessons.Add(lesson);
                 });
                 filter_pronoun_demostrative.ForEach(item =>
                 {
                     List<Word> words = new List<Word>();
-                    words = Word(item.nome, VAR_PRONOUN, null, null);
+                    words = Word(item.nome, this._pronoun, null, null);
                     Lesson lesson = new Lesson();
-                    lesson.team = VAR_DEMONSTRATIVE;
+                    lesson.team = this._demonstrative;
                     lesson.lecture = words;
                     lessons.Add(lesson);
                 });
@@ -1576,7 +1615,7 @@ namespace LetterStomach.Services
         }
         #endregion
 
-        #region VERB
+        #region VERB ADVERBIAL ADJUNCT
         private List<Lesson> VerifyVerbAdverb(List<Lesson> verbs_adverbs, List<Sentenca> sentences)
         {
             try
@@ -1593,8 +1632,8 @@ namespace LetterStomach.Services
                     string last = string.Empty;
                     item.lecture.ForEach(word =>
                     {
-                        if (word.kind == VAR_VERB) first = word.term;
-                        if (word.kind == VAR_ADVERB) last = word.term;
+                        if (word.kind == this._verb) first = word.term;
+                        if (word.kind == this._adverb) last = word.term;
                         words.Add(word);
                     });
 
@@ -1625,7 +1664,7 @@ namespace LetterStomach.Services
                 verbs.ForEach(item =>
                 {
                     Lesson lesson = new Lesson();
-                    lesson.lecture = Word(item.nome, VAR_VERB, null, null);
+                    lesson.lecture = Word(item.nome, this._verb, null, null);
                     lessons.Add(lesson);
                 });
                 verbs_adverbs.ForEach(item =>
@@ -1741,8 +1780,8 @@ namespace LetterStomach.Services
                         string adverb_adverb = string.Empty;
                         circumstance.lecture.ForEach(item =>
                         {
-                            if (item.kind == VAR_ADVERB) adverb = item.term;
-                            if (item.kind == VAR_ADVERB_ADVERB) adverb_adverb = item.term;
+                            if (item.kind == this._adverb) adverb = item.term;
+                            if (item.kind == this._adverb_adverb) adverb_adverb = item.term;
                         });
                         words = WordVerbAdverb(verb.nome, adverb, adverb_adverb);
                         Lesson lesson = new Lesson();
@@ -1768,7 +1807,7 @@ namespace LetterStomach.Services
                 List<Elocucao> list_verb_model = MountVerb(models, verbs);
                 List<Elocucao> filter_verb = FilterVerb(list_verb_model, sentences);
                 List<string> kind = new List<string>();
-                kind.Add(VAR_INFINITIVE);
+                kind.Add(this._infinitive);
                 List<Elocucao> filter_infinitive = FilterReverseVerb(filter_verb, kind);
                 List<Circunstancia> filter_adverb = FilterAdverb(adverbs, sentences);
                 List<Lesson> mount_verb_adverb = MountVerbAdverb(filter_infinitive, filter_adverb);
@@ -1784,7 +1823,7 @@ namespace LetterStomach.Services
                 union_verb_adverb_adverb.ForEach(item =>
                 {
                     Lesson lesson = new Lesson();
-                    lesson.team = VAR_VERB;
+                    lesson.team = this._verb;
                     lesson.lecture = item.lecture;
                     lessons.Add(lesson);
                 });
@@ -1811,9 +1850,9 @@ namespace LetterStomach.Services
                 filter_numeral.ForEach(item =>
                 {
                     List<Word> words = new List<Word>();
-                    words = Word(item.nome, VAR_NUMERAL, null, null);
+                    words = Word(item.nome, this._numeral, null, null);
                     Lesson lesson = new Lesson();
-                    lesson.team = VAR_NUMERAL;
+                    lesson.team = this._numeral;
                     lesson.lecture = words;
                     lessons.Add(lesson);
                 });
@@ -1840,9 +1879,9 @@ namespace LetterStomach.Services
                 filter_conjunction.ForEach(item =>
                 {
                     List<Word> words = new List<Word>();
-                    words = Word(item.nome, VAR_CONJUNCTION, null, null);
+                    words = Word(item.nome, this._conjunction, null, null);
                     Lesson lesson = new Lesson();
-                    lesson.team = VAR_CONJUNCTION;
+                    lesson.team = this._conjunction;
                     lesson.lecture = words;
                     lessons.Add(lesson);
                 });
@@ -1869,9 +1908,9 @@ namespace LetterStomach.Services
                 filter_preposition.ForEach(item =>
                 {
                     List<Word> words = new List<Word>();
-                    words = Word(item.nome, VAR_PREPOSITION, null, null);
+                    words = Word(item.nome, this._preposition, null, null);
                     Lesson lesson = new Lesson();
-                    lesson.team = VAR_PREPOSITION;
+                    lesson.team = this._preposition;
                     lesson.lecture = words;
                     lessons.Add(lesson);
                 });
@@ -1989,31 +2028,31 @@ namespace LetterStomach.Services
 
                 List<Word> words = new List<Word>();
                 List<Word> terms = new List<Word>();
-                if (pronoun != null) terms = Word(pronoun, VAR_PRONOUN, VAR_SUBJECT, null);
+                if (pronoun != null) terms = Word(pronoun, this._pronoun, this._subject, null);
                 terms.ForEach(item =>
                 {
                     words.Add(item);
                 });
                 terms = new List<Word>();
-                if (noun != null) terms = Word(noun, VAR_NOUN, VAR_SUBJECT, null);
+                if (noun != null) terms = Word(noun, this._noun, this._subject, null);
                 terms.ForEach(item =>
                 {
                     words.Add(item);
                 });
                 terms = new List<Word>();
-                if (numeral != null) terms = Word(numeral, VAR_NUMERAL, VAR_SUBJECT, null);
+                if (numeral != null) terms = Word(numeral, this._numeral, this._subject, null);
                 terms.ForEach(item =>
                 {
                     words.Add(item);
                 });
                 terms = new List<Word>();
-                if (article != null) terms = Word(article, VAR_ARTICLE, VAR_SUBJECT, null);
+                if (article != null) terms = Word(article, this._article, this._subject, null);
                 terms.ForEach(item =>
                 {
                     words.Add(item);
                 });
                 terms = new List<Word>();
-                if (verb != null) terms = Word(verb, VAR_VERB, VAR_PREDICATE, model);
+                if (verb != null) terms = Word(verb, this._verb, this._predicate, model);
                 terms.ForEach(item =>
                 {
                     words.Add(item);
@@ -2035,31 +2074,31 @@ namespace LetterStomach.Services
 
                 List<Word> words = new List<Word>();
                 List<Word> terms = new List<Word>();
-                if (pronoun != null) terms = Word(pronoun, VAR_PRONOUN, VAR_PREDICATE, null);
+                if (pronoun != null) terms = Word(pronoun, this._pronoun, this._predicate, null);
                 terms.ForEach(index =>
                 {
                     words.Add(index);
                 });
                 terms = new List<Word>();
-                if (article != null) terms = Word(article, VAR_ARTICLE, VAR_PREDICATE, null);
+                if (article != null) terms = Word(article, this._article, this._predicate, null);
                 terms.ForEach(index =>
                 {
                     words.Add(index);
                 });
                 terms = new List<Word>();
-                if (numeral != null) terms = Word(numeral, VAR_NUMERAL, VAR_PREDICATE, null);
+                if (numeral != null) terms = Word(numeral, this._numeral, this._predicate, null);
                 terms.ForEach(index =>
                 {
                     words.Add(index);
                 });
                 terms = new List<Word>();
-                if (noun != null) terms = Word(noun, VAR_NOUN, VAR_PREDICATE, null);
+                if (noun != null) terms = Word(noun, this._noun, this._predicate, null);
                 terms.ForEach(index =>
                 {
                     words.Add(index);
                 });
                 terms = new List<Word>();
-                if (preposition != null) terms = Word(preposition, VAR_PREPOSITION, VAR_PREDICATE, null);
+                if (preposition != null) terms = Word(preposition, this._preposition, this._predicate, null);
                 terms.ForEach(index =>
                 {
                     words.Add(index);
