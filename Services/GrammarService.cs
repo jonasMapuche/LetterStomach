@@ -39,6 +39,12 @@ namespace LetterStomach.ViewModels
         private IMorphologyService _morphologyService;
         private IWordEmbeddingService _wordEmbeddingService;
 
+        private List<Tutorial>? _novel_english;
+        private List<Tutorial>? _novel_deutsch;
+        private List<Tutorial>? _novel_italiano;
+        private List<Tutorial>? _novel_francais;
+        private List<Tutorial>? _novel_espanol;
+
         private List<Lesson>? _book_english;
         private List<Lesson>? _book_deutsch;
         private List<Lesson>? _book_italiano;
@@ -409,7 +415,7 @@ namespace LetterStomach.ViewModels
         }
         #endregion
 
-        #region GET
+        #region GET DATABASE REPOSITORY
         private List<Circunstancia> GetAdverb(string language)
         {
             try
@@ -681,7 +687,7 @@ namespace LetterStomach.ViewModels
         }
         #endregion
 
-        #region SET
+        #region BOOK
         private void SetBook(string language, List<Lesson> lesson_word)
         {
             try
@@ -700,9 +706,7 @@ namespace LetterStomach.ViewModels
                 throw new InvalidOperationException(this.error_message);
             }
         }
-        #endregion
 
-        #region SELECT
         private List<Lesson>? SelectBook(string language)
         {
             try
@@ -722,7 +726,9 @@ namespace LetterStomach.ViewModels
                 throw new InvalidOperationException(this.error_message);
             }
         }
+        #endregion
 
+        #region SELECT VARIABLE DATABASE
         private List<Sentenca>? SelectSentence(string language)
         {
             try
@@ -884,7 +890,7 @@ namespace LetterStomach.ViewModels
         }
         #endregion
 
-        #region PERIOD
+        #region MOUNT LIST SYNTAX
         private List<Lesson> OrderLesson(List<Lesson> firsts)
         {
             try
@@ -985,6 +991,28 @@ namespace LetterStomach.ViewModels
             }
         }
 
+        private List<Tutorial> MountOrationSample(List<Tutorial> tutorials, Dictionary<(byte[], byte[]), int> word_2_vec)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation mount oration sample \"Grammar\" view model failed!");
+
+                List<Tutorial> words = new List<Tutorial>();
+                List<Tutorial> sampleSubjectVerb = new List<Tutorial>();
+                int order_sample = this._order_3;
+                int order_predicate = this._order_4;
+                sampleSubjectVerb = this._syntaxService.SampleSubjectVerb(tutorials, word_2_vec);
+                words = sampleSubjectVerb;
+                return words;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return new List<Tutorial>();
+            }
+        }
+
         private List<Lesson> MountOrationCompound(List<Sentenca> sentences, List<Lesson> terms)
         {
             try
@@ -1029,7 +1057,7 @@ namespace LetterStomach.ViewModels
         }
         #endregion
 
-        #region ORATION
+        #region MOUNT PERIOD
         private Word? SubjectBefore(string language, List<Word> words)
         {
             try
@@ -1503,10 +1531,9 @@ namespace LetterStomach.ViewModels
                 throw new InvalidOperationException(this.error_message);
             }
         }
-
         #endregion
 
-        #region SYNTAX
+        #region MOUNT LIST MORPHOLOGY
         private List<Lesson> Union(List<Lesson> fists, List<Lesson> lasts)
         {
             try
@@ -1529,6 +1556,40 @@ namespace LetterStomach.ViewModels
                     lessons.Add(lesson);
                 });
                 return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        public List<Word>? MountNovel(string language, List<Sentenca> sentences, List<Lesson> lessons)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation mount syntax \"Grammar\" service failed!");
+
+                HashSet<string> vocabulary = this._wordEmbeddingService.Vocabulary(sentences);
+                Dictionary<(byte[], byte[]), int> word_2_vec = this._wordEmbeddingService.Word2VecSHA256(sentences, vocabulary);
+                List<Tutorial> tutorials = new List<Tutorial>();
+                tutorials = this._wordEmbeddingService.EncodeLesson(lessons, vocabulary);
+
+                List<Tutorial> seminars = new List<Tutorial>();
+                seminars = MountOrationSample(tutorials, word_2_vec);
+
+                this._novel_english = seminars;
+
+                List<Lesson> guides = new List<Lesson>();
+                guides = this._wordEmbeddingService.DecodeLesson(seminars, vocabulary);
+
+                List<Word> words = new List<Word>();
+                foreach (Lesson guide in guides)
+                {
+                    words = MountOration(sentences, language, guide.lecture);
+                    if (words.Count() > 0) break;
+                }
+                return words;
             }
             catch (Exception ex)
             {
@@ -1578,6 +1639,8 @@ namespace LetterStomach.ViewModels
                 matters = Union(matters, mount_article);
                 matters = Union(matters, mount_conjunction);
                 matters = Union(matters, mount_numeral_noun);
+
+                MountNovel(language, sentence, matters);
 
                 List<Lesson> terms = new List<Lesson>();
                 terms = OrderLesson(MountOrationSample(sentence, matters));

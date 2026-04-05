@@ -121,28 +121,28 @@ namespace LetterStomach.Services
             Lesson = lesson_portugues
         };
 
-        public readonly string Suject = "sujeito";
-        public readonly string Predicate = "predicado";
+        public readonly string Suject = suject_portugues;
+        public readonly string Predicate = predicate_portugues;
 
-        public readonly string Pronoun = "pronome";
-        public readonly string Noun = "substantivo";
-        public readonly string Verb = "verbo";
-        public readonly string Adjective = "adjetivo";
-        public readonly string Article = "article";
-        public readonly string Numeral = "numeral";
-        public readonly string Adverb = "adverbio";
-        public readonly string Conjunction = "conjuncao";
+        public readonly string Pronoun = pronoun_portugues;
+        public readonly string Noun = noun_portugues;
+        public readonly string Verb = verb_portugues;
+        public readonly string Adjective = adjective_portugues;
+        public readonly string Article = article_portugues;
+        public readonly string Numeral = numeral_portugues;
+        public readonly string Adverb = adverb_portugues;
+        public readonly string Conjunction = conjunction_portugues;
+        public readonly string Preposition = preposition_portugues;
 
-        public readonly string Adverb_Adverb = "adverbio adverbio";
-        public readonly string Adjective_Noun = "adjetivo substantivo";
-        public readonly string Adjective_Adverb = "adjetivo adverbio";
-        public readonly string Conjunction_Noun = "conjuncao substantivo";
-        public readonly string Numeral_Noun = "numeral substantivo";
+        public readonly string Adverb_Adverb = adverb_adverb_portugues;
+        public readonly string Adjective_Noun = adjective_noun_portugues;
+        public readonly string Adjective_Adverb = adjective_adverb_portugues;
+        public readonly string Conjunction_Noun = conjunction_noun_portugues;
+        public readonly string Numeral_Noun = numeral_noun_portugues;
 
-        public readonly string Personal = "pessoal";
-        public readonly string Preposition = "preposição";
-        public readonly string Possessive = "possessivo";
-        public readonly string Demostrtive = "demonstrativo";
+        public readonly string Personal = personal_portugues;
+        public readonly string Possessive = possessive_portugues;
+        public readonly string Demostrtive = demostrtive_portugues;
         public readonly string Especial = "especial";
 
         public readonly string Single = "singular";
@@ -151,6 +151,29 @@ namespace LetterStomach.Services
         public readonly string Declarative = "declarativa";
 
         public readonly string Infinitive = "infinitivo";
+
+        private static readonly string suject_portugues = "sujeito";
+        private static readonly string predicate_portugues = "predicado";
+
+        private static readonly string noun_portugues = "substantivo";
+        private static readonly string pronoun_portugues = "pronome";
+        private static readonly string verb_portugues = "verbo";
+        private static readonly string adjective_portugues = "adjetivo";
+        private static readonly string article_portugues = "article";
+        private static readonly string numeral_portugues = "numeral";
+        private static readonly string adverb_portugues = "adverbio";
+        private static readonly string conjunction_portugues = "conjuncao";
+
+        private static readonly string adverb_adverb_portugues = "adverbio adverbio";
+        private static readonly string adjective_noun_portugues = "adjetivo substantivo";
+        private static readonly string adjective_adverb_portugues = "adjetivo adverbio";
+        private static readonly string numeral_noun_portugues = "numeral substantivo";
+        private static readonly string conjunction_noun_portugues = "conjuncao substantivo";
+
+        private static readonly string personal_portugues = "pessoal";
+        private static readonly string preposition_portugues = "preposição";
+        private static readonly string possessive_portugues = "possessivo";
+        private static readonly string demostrtive_portugues = "demonstrativo";
 
         private static readonly string load_english = "load";
         private static readonly string execute_english = "execute";
@@ -757,5 +780,28 @@ namespace LetterStomach.Services
             lesson_espanol
         };
 
+        public HashSet<string> Morphology = new HashSet<string>()
+        {
+            noun_portugues,
+            pronoun_portugues,
+            verb_portugues,
+            personal_portugues,
+            adjective_portugues,
+            article_portugues,
+            possessive_portugues,
+            demostrtive_portugues,
+            adverb_portugues,
+            adverb_adverb_portugues,
+            adjective_noun_portugues,
+            adjective_adverb_portugues,
+            conjunction_portugues,
+            numeral_noun_portugues
+        };
+
+        public HashSet<string> Syntax = new HashSet<string>
+        {
+            suject_portugues,
+            predicate_portugues
+        };
     }
 }

@@ -1,4 +1,5 @@
-﻿using LetterStomach.Models;
+﻿using AndroidX.Camera.Video;
+using LetterStomach.Models;
 using LetterStomach.Services.Interfaces;
 
 namespace LetterStomach.Services
@@ -42,6 +43,9 @@ namespace LetterStomach.Services
         private string _conjunction;
         private string _numeral_noun;
 
+        private HashSet<string> _morphology;
+        private HashSet<string> _syntax;
+
         private int _order_1 = 1;
         private int _order_2 = 2;
         private int _order_3 = 3;
@@ -75,6 +79,8 @@ namespace LetterStomach.Services
                 this._adjective_adverb = SettingService.Instance.Adjective_Adverb;
                 this._conjunction = SettingService.Instance.Conjunction;
                 this._numeral_noun = SettingService.Instance.Numeral_Noun;
+                this._morphology = SettingService.Instance.Morphology;
+                this._syntax = SettingService.Instance.Syntax;
 
                 this._wordEmbeddingService = new WordEmbeddingService();
             }
@@ -110,6 +116,30 @@ namespace LetterStomach.Services
                 throw new InvalidOperationException(this.error_message);
             }
         }
+
+        private List<Tutorial> FilterLesson(List<Tutorial> tutorials, List<byte[]> kinds)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation filter lesson \"Syntax\" view model failed!");
+
+                List<Tutorial> seminars = new List<Tutorial>();
+                for (int quantity = 0; quantity < tutorials.Count(); quantity++)
+                {
+                    foreach (byte[] item in kinds)
+                    {
+                        if (tutorials[quantity].team.AsSpan().SequenceEqual(item))
+                            seminars.Add(tutorials[quantity]);
+                    };
+                }
+                return seminars;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
         #endregion
 
         #region VERIFY
@@ -131,6 +161,40 @@ namespace LetterStomach.Services
                 });
                 bool similarity = false;
                 similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, noun, verb);
+                if (similarity) return true;
+                return false;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private bool VerifyVerbSampleSubject(List<Instruction> words, Dictionary<(byte[], byte[]), int> word_2_vec)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation verify verb sample subject \"Syntax\" service failed!");
+
+                byte[] syntax_subject = this._wordEmbeddingService.Encode(this._subject, this._syntax);
+                byte[] morphology_noun = this._wordEmbeddingService.Encode(this._noun, this._morphology);
+                byte[] morphology_pronoun = this._wordEmbeddingService.Encode(this._pronoun, this._morphology);
+                byte[] morphology_verb = this._wordEmbeddingService.Encode(this._verb, this._morphology);
+
+                byte[]? noun = null;
+                byte[]? verb = null;
+                foreach (Instruction item in words)
+                {
+                    if ((item.sentense.AsSpan().SequenceEqual(syntax_subject)) 
+                        && (item.team.AsSpan().SequenceEqual(morphology_noun))
+                        && (item.kind.AsSpan().SequenceEqual(morphology_noun))) noun = item.term;
+                    if ((item.sentense.AsSpan().SequenceEqual(syntax_subject))
+                        && (item.kind.AsSpan().SequenceEqual(morphology_pronoun))) noun = item.term;
+                    if (item.kind.AsSpan().SequenceEqual(morphology_verb)) verb = item.term;
+                };
+                bool similarity = false;
+                similarity = this._wordEmbeddingService.Similarity(word_2_vec, noun, verb);
                 if (similarity) return true;
                 return false;
             }
@@ -625,6 +689,27 @@ namespace LetterStomach.Services
             }
         }
 
+        private Instruction Lecture(byte[] term, byte[] kind, byte[] sentence, byte[] team, byte[] order)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation lecture \"Syntax\" view model failed!");
+
+                Instruction word = new Instruction();
+                word.term = term;
+                word.kind = kind;
+                word.sentense = sentence;
+                word.team = team;
+                word.order = order;
+                return word;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
         private List<Lesson> Union(List<Lesson> firsts, List<Lesson> lasts)
         {
             try
@@ -641,6 +726,24 @@ namespace LetterStomach.Services
                     lessons.Add(item);
                 });
                 return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private List<Tutorial> Union(List<Tutorial> firsts, List<Tutorial> lasts)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation union \"Syntax\" service failed!");
+
+                List<Tutorial> tutorials = new List<Tutorial>();
+                firsts.ForEach(item => tutorials.Add(item));
+                lasts.ForEach(item => tutorials.Add(item));
+                return tutorials;
             }
             catch (Exception ex)
             {
@@ -700,6 +803,59 @@ namespace LetterStomach.Services
             }
         }
 
+        private List<Tutorial> MountNounVerb(List<Tutorial> tutorials, Dictionary<(byte[], byte[]), int> word_2_vec)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation mount noun verb \"Syntax\" view model failed!");
+
+                List<Tutorial> seminars = new List<Tutorial>();
+
+                List<byte[]> kind_verb = new List<byte[]>();
+                kind_verb.Add(this._wordEmbeddingService.Encode(this._verb, this._morphology));
+                List<byte[]> kind_noun = new List<byte[]>();
+                kind_noun.Add(this._wordEmbeddingService.Encode(this._noun, this._morphology));
+                List<Tutorial> verbs = new List<Tutorial>();
+                verbs = FilterLesson(tutorials, kind_verb);
+                List<Tutorial> nouns = new List<Tutorial>();
+                nouns = FilterLesson(tutorials, kind_noun);
+
+                byte[] subject = this._wordEmbeddingService.Encode(this._subject, this._syntax);
+                byte[] predicate = this._wordEmbeddingService.Encode(this._predicate, this._syntax);
+                byte[] order_noun = this._wordEmbeddingService.HashSHA256(this._order_1);
+                byte[] order_verb = this._wordEmbeddingService.HashSHA256(this._order_2);
+                foreach (Tutorial verb in verbs)
+                {
+                    foreach (Tutorial noun in nouns)
+                    {
+                        List<Instruction> words = new List<Instruction>();
+                        foreach (Instruction item in verb.lecture)
+                        {
+                            Instruction word = new Instruction();
+                            word = Lecture(item.term, item.kind, predicate, verb.team, order_verb);
+                            words.Add(word);
+                        };
+                        foreach (Instruction item in noun.lecture)
+                        {
+                            Instruction word = new Instruction();
+                            word = Lecture(item.term, item.kind, subject, noun.team, order_noun);
+                            words.Add(word);
+                        };
+                        if (!VerifyVerbSampleSubject(words, word_2_vec)) continue;
+                        Tutorial seminar = new Tutorial();
+                        seminar.lecture = words;
+                        seminars.Add(seminar);
+                    }
+                }
+                return seminars;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
         private List<Lesson> MountPronounVerb(List<Sentenca> sentences, List<Lesson> matters)
         {
             try
@@ -742,6 +898,63 @@ namespace LetterStomach.Services
                     }
                 }
                 return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private List<Tutorial> MountPronounVerb(List<Tutorial> tutorials, Dictionary<(byte[], byte[]), int> word_2_vec)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation mount pronoun verb \"Syntax\" view model failed!");
+
+                List<Tutorial> seminars = new List<Tutorial>();
+
+                List<byte[]> kind_verb = new List<byte[]>();
+                byte[] ssh_verb = this._wordEmbeddingService.Encode(this._verb, this._morphology);
+                kind_verb.Add(ssh_verb);
+                List<byte[]> kind_pronoun = new List<byte[]>();
+                byte[] ssh_personal = this._wordEmbeddingService.Encode(this._personal, this._morphology);
+                kind_pronoun.Add(ssh_personal);
+                byte[] ssh_pronoun = this._wordEmbeddingService.Encode(this._demonstrative, this._morphology);
+                kind_pronoun.Add(ssh_pronoun);
+                List<Tutorial> verbs = new List<Tutorial>();
+                verbs = FilterLesson(tutorials, kind_verb);
+                List<Tutorial> pronouns = new List<Tutorial>();
+                pronouns = FilterLesson(tutorials, kind_pronoun);
+
+                byte[] subject = this._wordEmbeddingService.Encode(this._subject, this._syntax);
+                byte[] predicate = this._wordEmbeddingService.Encode(this._predicate, this._syntax);
+                byte[] order_pronoun = this._wordEmbeddingService.HashSHA256(this._order_1);
+                byte[] order_verb = this._wordEmbeddingService.HashSHA256(this._order_2);
+                foreach (Tutorial verb in verbs)
+                {
+                    foreach (Tutorial pronoun in pronouns)
+                    {
+                        List<Instruction> words = new List<Instruction>();
+                        foreach (Instruction item in verb.lecture)
+                        {
+                            Instruction word = new Instruction();
+                            word = Lecture(item.term, item.kind, predicate, verb.team, order_verb);
+                            words.Add(word);
+                        };
+                        foreach (Instruction item in pronoun.lecture)
+                        {
+                            Instruction word = new Instruction();
+                            word = Lecture(item.term, item.kind, subject, pronoun.team, order_pronoun);
+                            words.Add(word);
+                        };
+                        if (!VerifyVerbSampleSubject(words, word_2_vec)) continue;
+                        Tutorial seminar = new Tutorial();
+                        seminar.lecture = words;
+                        seminars.Add(seminar);
+                    }
+                }
+                return seminars;
             }
             catch (Exception ex)
             {
@@ -1544,6 +1757,24 @@ namespace LetterStomach.Services
                 lessons = MountNounVerb(sentences, matters);
                 lessons = Union(lessons, MountPronounVerb(sentences, matters));
                 return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        public List<Tutorial> SampleSubjectVerb(List<Tutorial> tutorials, Dictionary<(byte[], byte[]), int> word_2_vec)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation sample subject verb \"Syntax\" view model failed!");
+
+                List<Tutorial> seminars = new List<Tutorial>();
+                seminars = MountNounVerb(tutorials, word_2_vec);
+                seminars = Union(seminars, MountPronounVerb(tutorials, word_2_vec));
+                return seminars;
             }
             catch (Exception ex)
             {

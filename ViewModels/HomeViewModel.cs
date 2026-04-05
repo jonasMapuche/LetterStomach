@@ -506,10 +506,12 @@ namespace LetterStomach.ViewModels
                 if (this._error_off) throw new InvalidOperationException("Operation mount next \"Home\" view model failed!");
 
                 Next(this._book_english, this._lesson_english, this._language_english.Lowercase);
+                /*
                 Next(this._book_deutsch, this._lesson_deutsch, this._language_deutsch.Lowercase);
                 Next(this._book_italiano, this._lesson_italiano, this._language_italiano.Lowercase);
                 Next(this._book_francais, this._lesson_francais, this._language_francais.Lowercase);
                 Next(this._book_espanol, this._lesson_espanol, this._language_espanol.Lowercase);
+                */
             }
             catch (Exception ex)
             {
@@ -525,10 +527,12 @@ namespace LetterStomach.ViewModels
                 if (this._error_off) throw new InvalidOperationException("Operation mount previous \"Home\" view model failed!");
 
                 Previous(this._book_english, this._lesson_english, this._language_english.Lowercase);
+                /*
                 Previous(this._book_deutsch, this._lesson_deutsch, this._language_deutsch.Lowercase);
                 Previous(this._book_italiano, this._lesson_italiano, this._language_italiano.Lowercase);
                 Previous(this._book_francais, this._lesson_francais, this._language_francais.Lowercase);
                 Previous(this._book_espanol, this._lesson_espanol, this._language_espanol.Lowercase);
+                */
             }
             catch (Exception ex)
             {
