@@ -397,7 +397,7 @@ namespace LetterStomach.Services
                 term = this._wordEmbeddingService.RemoveAccent(term.ToLower());
                 word.term = term;
                 word.kind = type;
-                if (sentence != null) word.sentense = sentence;
+                if (sentence != null) word.sentence = sentence;
                 if (model != null)
                 {
                     model = this._wordEmbeddingService.RemoveAccent(model.ToLower());

@@ -1,5 +1,4 @@
-﻿using AndroidX.Camera.Video;
-using LetterStomach.Models;
+﻿using LetterStomach.Models;
 using LetterStomach.Services.Interfaces;
 
 namespace LetterStomach.Services
@@ -45,6 +44,7 @@ namespace LetterStomach.Services
 
         private HashSet<string> _morphology;
         private HashSet<string> _syntax;
+        private HashSet<int> _order;
 
         private int _order_1 = 1;
         private int _order_2 = 2;
@@ -81,6 +81,7 @@ namespace LetterStomach.Services
                 this._numeral_noun = SettingService.Instance.Numeral_Noun;
                 this._morphology = SettingService.Instance.Morphology;
                 this._syntax = SettingService.Instance.Syntax;
+                this._order = SettingService.Instance.Order;
 
                 this._wordEmbeddingService = new WordEmbeddingService();
             }
@@ -155,8 +156,8 @@ namespace LetterStomach.Services
                 string verb = string.Empty;
                 words.ForEach(item =>
                 {
-                    if ((item.sentense == this._subject) && (item.team == this._noun) && (item.kind == this._noun)) noun = item.term;
-                    if ((item.sentense == this._subject) && (item.kind == this._pronoun)) noun = item.term;
+                    if ((item.sentence == this._subject) && (item.team == this._noun) && (item.kind == this._noun)) noun = item.term;
+                    if ((item.sentence == this._subject) && (item.kind == this._pronoun)) noun = item.term;
                     if (item.kind == this._verb) verb = item.term;
                 });
                 bool similarity = false;
@@ -186,10 +187,10 @@ namespace LetterStomach.Services
                 byte[]? verb = null;
                 foreach (Instruction item in words)
                 {
-                    if ((item.sentense.AsSpan().SequenceEqual(syntax_subject)) 
+                    if ((item.sentence.AsSpan().SequenceEqual(syntax_subject)) 
                         && (item.team.AsSpan().SequenceEqual(morphology_noun))
                         && (item.kind.AsSpan().SequenceEqual(morphology_noun))) noun = item.term;
-                    if ((item.sentense.AsSpan().SequenceEqual(syntax_subject))
+                    if ((item.sentence.AsSpan().SequenceEqual(syntax_subject))
                         && (item.kind.AsSpan().SequenceEqual(morphology_pronoun))) noun = item.term;
                     if (item.kind.AsSpan().SequenceEqual(morphology_verb)) verb = item.term;
                 };
@@ -224,17 +225,17 @@ namespace LetterStomach.Services
                 {
                     if (item.order == order_first)
                     {
-                        if ((item.sentense == this._subject) && (item.team == this._noun) && (item.kind == this._noun)) noun = item.term;
-                        if ((item.sentense == this._subject) && (item.kind == this._pronoun)) noun = item.term;
+                        if ((item.sentence == this._subject) && (item.team == this._noun) && (item.kind == this._noun)) noun = item.term;
+                        if ((item.sentence == this._subject) && (item.kind == this._pronoun)) noun = item.term;
                     }
                     if (item.order == order_last)
                     {
-                        if ((item.sentense == this._subject) && (item.team == this._noun) && (item.kind == this._noun)) last = item.term;
-                        if ((item.sentense == this._subject) && (item.kind == this._pronoun)) last = item.term;
-                        if ((item.sentense == this._subject) && (item.kind == this._noun) && 
+                        if ((item.sentence == this._subject) && (item.team == this._noun) && (item.kind == this._noun)) last = item.term;
+                        if ((item.sentence == this._subject) && (item.kind == this._pronoun)) last = item.term;
+                        if ((item.sentence == this._subject) && (item.kind == this._noun) && 
                             (item.kind == this._numeral) || (item.kind == this._article) || (item.kind == this._pronoun)) adjunct = item.term;
                     }
-                    if ((item.sentense == this._subject) && (item.kind == this._conjunction)) conjunction = item.term;
+                    if ((item.sentence == this._subject) && (item.kind == this._conjunction)) conjunction = item.term;
                     if (item.kind == this._verb) verb = item.term;
                 });
                 bool similarity = false;
@@ -273,12 +274,12 @@ namespace LetterStomach.Services
                 string adjective_adverb_adverb = string.Empty;
                 words.ForEach(item =>
                 {
-                    if ((item.sentense == this._predicate) && (item.team == this._adjective) && (item.kind == this._adjective)) adjective = item.term;
-                    if ((item.sentense == this._predicate) && (item.team == this._adjective) && (item.kind == this._adverb)) adjective_adverb = item.term;
-                    if ((item.sentense == this._predicate) && (item.team == this._adjective) && (item.kind == _adverb_adverb)) adjective_adverb_adverb = item.term;
+                    if ((item.sentence == this._predicate) && (item.team == this._adjective) && (item.kind == this._adjective)) adjective = item.term;
+                    if ((item.sentence == this._predicate) && (item.team == this._adjective) && (item.kind == this._adverb)) adjective_adverb = item.term;
+                    if ((item.sentence == this._predicate) && (item.team == this._adjective) && (item.kind == this._adverb_adverb)) adjective_adverb_adverb = item.term;
                     if (item.kind == this._verb) verb = item.term;
-                    if ((item.sentense == this._predicate) && (item.team == this._verb) && (item.kind == this._adverb)) verb_adverb = item.term;
-                    if ((item.sentense == this._predicate) && (item.team == this._verb) && (item.kind == _adverb_adverb)) verb_adverb_adverb = item.term;
+                    if ((item.sentence == this._predicate) && (item.team == this._verb) && (item.kind == this._adverb)) verb_adverb = item.term;
+                    if ((item.sentence == this._predicate) && (item.team == this._verb) && (item.kind == this._adverb_adverb)) verb_adverb_adverb = item.term;
                 });
                 if (verb_adverb_adverb != string.Empty) word_verb = verb_adverb_adverb;
                 else
@@ -310,6 +311,73 @@ namespace LetterStomach.Services
             }
         }
 
+        private bool VerifyVerbPredicative(List<Instruction> words, Dictionary<(byte[], byte[]), int> word_2_vec)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation verify verb predicative \"Syntax\" service failed!");
+
+                byte[] syntax_predicate = this._wordEmbeddingService.Encode(this._predicate, this._syntax);
+                byte[] morphology_adjective = this._wordEmbeddingService.Encode(this._adjective, this._morphology);
+                byte[] morphology_adverb = this._wordEmbeddingService.Encode(this._adverb, this._morphology);
+                byte[] morphology_adverb_adverb = this._wordEmbeddingService.Encode(this._adverb_adverb, this._morphology);
+                byte[] morphology_verb = this._wordEmbeddingService.Encode(this._verb, this._morphology);
+
+                byte[]? adjective = null;
+                byte[]? adjective_adverb = null;
+                byte[]? adjective_adverb_adverb = null;
+                byte[]? verb = null;
+                byte[]? verb_adverb = null;
+                byte[]? verb_adverb_adverb = null;
+
+                byte[]? predicative = null;
+                byte[]? adjunct = null;
+
+                foreach (Instruction item in words)
+                {
+                    if ((item.sentence.AsSpan().SequenceEqual(syntax_predicate))
+                        && (item.team.AsSpan().SequenceEqual(morphology_adjective))
+                        && (item.kind.AsSpan().SequenceEqual(morphology_adjective))) adjective = item.term;
+                    if ((item.sentence.AsSpan().SequenceEqual(syntax_predicate))
+                        && (item.team.AsSpan().SequenceEqual(morphology_adjective))
+                        && (item.kind.AsSpan().SequenceEqual(morphology_adverb))) adjective_adverb = item.term;
+                    if ((item.sentence.AsSpan().SequenceEqual(syntax_predicate))
+                        && (item.team.AsSpan().SequenceEqual(morphology_adjective))
+                        && (item.kind.AsSpan().SequenceEqual(morphology_adverb_adverb))) adjective_adverb_adverb = item.term;
+                    if (item.kind.AsSpan().SequenceEqual(morphology_verb)) verb = item.term;
+                    if ((item.sentence.AsSpan().SequenceEqual(syntax_predicate))
+                        && (item.team.AsSpan().SequenceEqual(morphology_verb))
+                        && (item.kind.AsSpan().SequenceEqual(morphology_adverb))) verb_adverb = item.term;
+                    if ((item.sentence.AsSpan().SequenceEqual(syntax_predicate))
+                        && (item.team.AsSpan().SequenceEqual(morphology_verb))
+                        && (item.kind.AsSpan().SequenceEqual(morphology_adverb_adverb))) verb_adverb_adverb = item.term;
+                }
+                if (verb != null)
+                    adjunct = verb;
+                if ((verb_adverb != null) && (verb != null))
+                    adjunct = verb_adverb;
+                if ((verb_adverb_adverb != null) && (verb_adverb != null) && (verb != null))
+                    adjunct = verb_adverb_adverb;
+                
+                if (adjective != null)
+                    predicative = adjective;
+                if ((adjective_adverb != null) && (adjective != null))
+                    predicative = adjective;
+                if ((adjective_adverb_adverb != null) && (adjective_adverb != null) && (adjective != null))
+                    predicative = adjective;
+
+                bool similarity = false;
+                similarity = this._wordEmbeddingService.Similarity(word_2_vec, adjunct, predicative);
+                if (similarity) return true;
+                return false;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
         private bool VerifyVerbAdjectiveNoun(List<Word> words, List<Sentenca> sentences)
         {
             try
@@ -328,13 +396,13 @@ namespace LetterStomach.Services
                 string adverb_adverb = string.Empty;
                 words.ForEach(item =>
                 {
-                    if ((item.sentense == this._predicate) && (item.team == this._adjective_noun) && (item.kind == this._noun)) noun = item.term;
-                    if ((item.sentense == this._predicate) && (item.team == this._adjective_noun) 
+                    if ((item.sentence == this._predicate) && (item.team == this._adjective_noun) && (item.kind == this._noun)) noun = item.term;
+                    if ((item.sentence == this._predicate) && (item.team == this._adjective_noun) 
                         && ((item.kind == this._article) || (item.kind == this._numeral) || (item.kind == this._pronoun))) adjunct = item.term;
-                    if ((item.sentense == this._predicate) && (item.team == this._adjective_noun) && (item.kind == this._adjective)) adjective = item.term;
+                    if ((item.sentence == this._predicate) && (item.team == this._adjective_noun) && (item.kind == this._adjective)) adjective = item.term;
                     if (item.kind == this._verb) verb = item.term;
-                    if ((item.sentense == this._predicate) && (item.team == this._verb) && (item.kind == this._adverb)) adverb = item.term;
-                    if ((item.sentense == this._predicate) && (item.team == this._verb) && (item.kind == _adverb_adverb)) adverb_adverb = item.term;
+                    if ((item.sentence == this._predicate) && (item.team == this._verb) && (item.kind == this._adverb)) adverb = item.term;
+                    if ((item.sentence == this._predicate) && (item.team == this._verb) && (item.kind == _adverb_adverb)) adverb_adverb = item.term;
                 });
                 if (adjunct != string.Empty) word_noun = adjunct;
                 else
@@ -377,13 +445,13 @@ namespace LetterStomach.Services
                 string adverb_adverb = string.Empty;
                 words.ForEach(item =>
                 {
-                    if ((item.sentense == this._predicate) && (item.team == this._noun) && (item.kind == this._noun)) noun = item.term;
-                    if ((item.sentense == this._predicate) && (item.team == this._noun) && 
+                    if ((item.sentence == this._predicate) && (item.team == this._noun) && (item.kind == this._noun)) noun = item.term;
+                    if ((item.sentence == this._predicate) && (item.team == this._noun) && 
                         ((item.kind == this._numeral) || (item.kind == this._article) || (item.kind == this._pronoun))) adjunct = item.term;
-                    if ((item.sentense == this._predicate) && (item.kind == this._pronoun)) noun = item.term;
+                    if ((item.sentence == this._predicate) && (item.kind == this._pronoun)) noun = item.term;
                     if (item.kind == this._verb) verb = item.term;
-                    if ((item.sentense == this._predicate) && (item.team == this._verb) && (item.kind == this._adverb)) adverb = item.term;
-                    if ((item.sentense == this._predicate) && (item.team == this._verb) && (item.kind == _adverb_adverb)) adverb_adverb = item.term;
+                    if ((item.sentence == this._predicate) && (item.team == this._verb) && (item.kind == this._adverb)) adverb = item.term;
+                    if ((item.sentence == this._predicate) && (item.team == this._verb) && (item.kind == _adverb_adverb)) adverb_adverb = item.term;
                 });
                 if (adjunct != string.Empty) 
                     word_noun = adjunct;
@@ -426,11 +494,11 @@ namespace LetterStomach.Services
                 string adverb_adverb = string.Empty;
                 words.ForEach(item =>
                 {
-                    if ((item.sentense == this._predicate) && (item.kind == this._preposition)) word_preposition = item.term;
+                    if ((item.sentence == this._predicate) && (item.kind == this._preposition)) word_preposition = item.term;
                     if (item.kind == this._verb) verb = item.term;
-                    if ((item.sentense == this._predicate) && (item.team == this._verb) && (item.kind == this._adverb)) adverb = item.term;
-                    if ((item.sentense == this._predicate) && (item.team == this._verb) && (item.kind == _adverb_adverb)) adverb_adverb = item.term;
-                    if ((item.sentense == this._predicate) && (item.team == this._noun)) word_noun = item.term;
+                    if ((item.sentence == this._predicate) && (item.team == this._verb) && (item.kind == this._adverb)) adverb = item.term;
+                    if ((item.sentence == this._predicate) && (item.team == this._verb) && (item.kind == _adverb_adverb)) adverb_adverb = item.term;
+                    if ((item.sentence == this._predicate) && (item.team == this._noun)) word_noun = item.term;
                 });
                 if ((adverb_adverb != string.Empty) && (adverb != string.Empty) && (verb != string.Empty)) word_verb = adverb_adverb;
                 if ((adverb_adverb == string.Empty) && (adverb != string.Empty) && (verb != string.Empty)) word_verb = adverb;
@@ -462,10 +530,10 @@ namespace LetterStomach.Services
                 string preposition = string.Empty;
                 words.ForEach(item =>
                 {
-                    if ((item.sentense == this._predicate) && (item.team == this._conjunction) && (item.kind == this._conjunction) && (item.order == order_conjunction)) conjunction = item.term;
-                    if ((item.sentense == this._predicate) && (item.team == this._numeral) && (item.kind == this._numeral) && (item.order == order_conjunction)) numeral = item.term;
-                    if ((item.sentense == this._predicate) && (item.team == this._numeral_noun) && (item.kind == this._numeral) && (item.order == order_conjunction)) noun = item.term;
-                    if ((item.sentense == this._predicate) && (item.kind == this._preposition) && (item.order == order_conjunction)) preposition = item.term; 
+                    if ((item.sentence == this._predicate) && (item.team == this._conjunction) && (item.kind == this._conjunction) && (item.order == order_conjunction)) conjunction = item.term;
+                    if ((item.sentence == this._predicate) && (item.team == this._numeral) && (item.kind == this._numeral) && (item.order == order_conjunction)) numeral = item.term;
+                    if ((item.sentence == this._predicate) && (item.team == this._numeral_noun) && (item.kind == this._numeral) && (item.order == order_conjunction)) noun = item.term;
+                    if ((item.sentence == this._predicate) && (item.kind == this._preposition) && (item.order == order_conjunction)) preposition = item.term; 
                 });
                 bool similarity = false;
                 similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, numeral, conjunction);
@@ -495,10 +563,10 @@ namespace LetterStomach.Services
                 string preposition = string.Empty;
                 words.ForEach(item =>
                 {
-                    if ((item.sentense == this._predicate) && (item.team == this._conjunction) && (item.kind == this._conjunction) && (item.order == order_conjunction)) conjunction = item.term;
-                    if ((item.sentense == this._predicate) && (item.team == this._adjective) && (item.kind == this._adjective) && (item.order == order_conjunction)) adjective = item.term;
-                    if ((item.sentense == this._predicate) && (item.team == this._adjective_noun) && (item.kind == this._adjective) && (item.order == order_conjunction)) noun = item.term;
-                    if ((item.sentense == this._predicate) && (item.kind == this._preposition) && (item.order == order_conjunction)) preposition = item.term;
+                    if ((item.sentence == this._predicate) && (item.team == this._conjunction) && (item.kind == this._conjunction) && (item.order == order_conjunction)) conjunction = item.term;
+                    if ((item.sentence == this._predicate) && (item.team == this._adjective) && (item.kind == this._adjective) && (item.order == order_conjunction)) adjective = item.term;
+                    if ((item.sentence == this._predicate) && (item.team == this._adjective_noun) && (item.kind == this._adjective) && (item.order == order_conjunction)) noun = item.term;
+                    if ((item.sentence == this._predicate) && (item.kind == this._preposition) && (item.order == order_conjunction)) preposition = item.term;
                 });
                 bool similarity = false;
                 similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, adjective, conjunction);
@@ -526,8 +594,8 @@ namespace LetterStomach.Services
                 string noun = string.Empty;
                 words.ForEach(item =>
                 {
-                    if ((item.sentense == this._predicate) && (item.team == this._noun) && (item.order == order_direct_object)) noun = item.term;
-                    if ((item.sentense == this._predicate) && (item.team == this._preposition)) preposition = item.term;
+                    if ((item.sentence == this._predicate) && (item.team == this._noun) && (item.order == order_direct_object)) noun = item.term;
+                    if ((item.sentence == this._predicate) && (item.team == this._preposition)) preposition = item.term;
                 });
                 bool similarity = false;
                 similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, noun, preposition);
@@ -554,11 +622,11 @@ namespace LetterStomach.Services
                 string adjunct = string.Empty;
                 words.ForEach(item =>
                 {
-                    if ((item.sentense == this._predicate) && (item.team == this._noun) && (item.kind == this._noun) && (item.order == order_indirect_object)) noun = item.term;
-                    if ((item.sentense == this._predicate) && (item.kind == this._pronoun) && (item.order == order_indirect_object)) noun = item.term;
-                    if ((item.sentense == this._predicate) && (item.team == this._noun) && (item.order == order_indirect_object)
+                    if ((item.sentence == this._predicate) && (item.team == this._noun) && (item.kind == this._noun) && (item.order == order_indirect_object)) noun = item.term;
+                    if ((item.sentence == this._predicate) && (item.kind == this._pronoun) && (item.order == order_indirect_object)) noun = item.term;
+                    if ((item.sentence == this._predicate) && (item.team == this._noun) && (item.order == order_indirect_object)
                         && ((item.kind == this._numeral) || (item.kind == this._article) || (item.kind == this._pronoun))) adjunct = item.term;
-                    if ((item.sentense == this._predicate) && (item.team == this._preposition) && (item.order == order_indirect_object)) preposition = item.term;
+                    if ((item.sentence == this._predicate) && (item.team == this._preposition) && (item.order == order_indirect_object)) preposition = item.term;
                 });
                 bool similarity = false;
                 if (adjunct != string.Empty) similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, preposition, adjunct);
@@ -586,10 +654,10 @@ namespace LetterStomach.Services
                 string preposition = string.Empty;
                 words.ForEach(item =>
                 {
-                    if ((item.sentense == this._predicate) && (item.team == this._preposition) && (item.order == order_indirect_object)) preposition = item.term;
-                    if ((item.sentense == this._predicate) && (item.team == this._adjective_noun) && (item.order == order_indirect_object)
+                    if ((item.sentence == this._predicate) && (item.team == this._preposition) && (item.order == order_indirect_object)) preposition = item.term;
+                    if ((item.sentence == this._predicate) && (item.team == this._adjective_noun) && (item.order == order_indirect_object)
                         && ((item.kind == this._article) || (item.kind == this._numeral) || (item.kind == this._pronoun))) adjunct = item.term;
-                    if ((item.sentense == this._predicate) && (item.team == this._adjective_noun) && (item.kind == this._adjective) && (item.order == order_indirect_object)) adjective = item.term;
+                    if ((item.sentence == this._predicate) && (item.team == this._adjective_noun) && (item.kind == this._adjective) && (item.order == order_indirect_object)) adjective = item.term;
                 });
                 bool similarity = false;
                 if (adjunct != string.Empty) similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, preposition, adjunct);
@@ -618,9 +686,9 @@ namespace LetterStomach.Services
                 int order_object_direct = order_predicative - 1;
                 words.ForEach(item =>
                 {
-                    if ((item.sentense == this._predicate) && (item.team == this._adjective_adverb) && (item.kind == this._adjective) && (item.order == order_predicative)) adjective = item.term;
-                    if ((item.sentense == this._predicate) && (item.team == this._noun) && (item.kind == this._noun) && (item.order == order_object_direct)) noun = item.term;
-                    if ((item.sentense == this._predicate) && (item.kind == this._pronoun) && (item.order == order_object_direct)) pronoun = item.term;
+                    if ((item.sentence == this._predicate) && (item.team == this._adjective_adverb) && (item.kind == this._adjective) && (item.order == order_predicative)) adjective = item.term;
+                    if ((item.sentence == this._predicate) && (item.team == this._noun) && (item.kind == this._noun) && (item.order == order_object_direct)) noun = item.term;
+                    if ((item.sentence == this._predicate) && (item.kind == this._pronoun) && (item.order == order_object_direct)) pronoun = item.term;
                 });
                 bool similarity = false;
                 if (pronoun != string.Empty) similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, pronoun, adjective);
@@ -649,9 +717,9 @@ namespace LetterStomach.Services
                 int order_predicative = order_preposicao - 1;
                 words.ForEach(item =>
                 {
-                    if ((item.sentense == this._predicate) && (item.team == this._adjective_adverb) && (item.kind == this._adjective) && (item.order == order_predicative)) adjective = item.term;
-                    if ((item.sentense == this._predicate) && (item.team == this._adjective_adverb) && (item.kind == this._adverb) && (item.order == order_predicative)) adverb = item.term;
-                    if ((item.sentense == this._predicate) && (item.team == this._preposition) && (item.order == order_preposicao)) preposition = item.term;
+                    if ((item.sentence == this._predicate) && (item.team == this._adjective_adverb) && (item.kind == this._adjective) && (item.order == order_predicative)) adjective = item.term;
+                    if ((item.sentence == this._predicate) && (item.team == this._adjective_adverb) && (item.kind == this._adverb) && (item.order == order_predicative)) adverb = item.term;
+                    if ((item.sentence == this._predicate) && (item.team == this._preposition) && (item.order == order_preposicao)) preposition = item.term;
                 });
                 bool similarity = false;
                 if (adverb != string.Empty) similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, adverb, preposition);
@@ -677,7 +745,7 @@ namespace LetterStomach.Services
                 Word word = new Word();
                 word.term = term;
                 word.kind = kind;
-                word.sentense = sentence;
+                word.sentence = sentence;
                 word.team = team;
                 word.order = order;
                 return word;
@@ -698,7 +766,7 @@ namespace LetterStomach.Services
                 Instruction word = new Instruction();
                 word.term = term;
                 word.kind = kind;
-                word.sentense = sentence;
+                word.sentence = sentence;
                 word.team = team;
                 word.order = order;
                 return word;
@@ -822,8 +890,8 @@ namespace LetterStomach.Services
 
                 byte[] subject = this._wordEmbeddingService.Encode(this._subject, this._syntax);
                 byte[] predicate = this._wordEmbeddingService.Encode(this._predicate, this._syntax);
-                byte[] order_noun = this._wordEmbeddingService.HashSHA256(this._order_1);
-                byte[] order_verb = this._wordEmbeddingService.HashSHA256(this._order_2);
+                byte[] order_noun = this._wordEmbeddingService.Encode(this._order_1, this._order);
+                byte[] order_verb = this._wordEmbeddingService.Encode(this._order_2, this._order);
                 foreach (Tutorial verb in verbs)
                 {
                     foreach (Tutorial noun in nouns)
@@ -929,8 +997,8 @@ namespace LetterStomach.Services
 
                 byte[] subject = this._wordEmbeddingService.Encode(this._subject, this._syntax);
                 byte[] predicate = this._wordEmbeddingService.Encode(this._predicate, this._syntax);
-                byte[] order_pronoun = this._wordEmbeddingService.HashSHA256(this._order_1);
-                byte[] order_verb = this._wordEmbeddingService.HashSHA256(this._order_2);
+                byte[] order_pronoun = this._wordEmbeddingService.Encode(this._order_1, this._order);
+                byte[] order_verb = this._wordEmbeddingService.Encode(this._order_2, this._order);
                 foreach (Tutorial verb in verbs)
                 {
                     foreach (Tutorial pronoun in pronouns)
@@ -1077,6 +1145,53 @@ namespace LetterStomach.Services
                     }
                 }
                 return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private List<Tutorial> MountVerbNoun(List<Tutorial> tutorials, Dictionary<(byte[], byte[]), int> word_2_vec, List<Tutorial> sources, int order_noun)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation mount verb noun \"Syntax\" service failed!");
+               
+                List<Tutorial> seminars = new List<Tutorial>();
+
+                /*
+                List<string> kind = new List<string>();
+                kind.Add(this._noun);
+                List<Lesson> nouns = new List<Lesson>();
+                nouns = FilterLesson(matters, kind);
+                if (nouns.Count == 0) return lessons;
+                foreach (Lesson source in sources)
+                {
+                    List<Word> words = source.lecture;
+                    foreach (Lesson noun in nouns)
+                    {
+                        List<Word> words1 = new List<Word>();
+                        words.ForEach(item =>
+                        {
+                            words1.Add(item);
+                        });
+                        noun.lecture.ForEach(item =>
+                        {
+                            Word word = new Word();
+                            word = Lecture(item.term, item.kind, this._predicate, noun.team, order_noun);
+                            words1.Add(word);
+                        });
+                        if (!VerifyVerbDirectObject(words1, sentences)) continue;
+                        Lesson lesson = new Lesson();
+                        lesson.lecture = words1;
+                        lessons.Add(lesson);
+                    }
+                }
+                */
+
+                return tutorials;
             }
             catch (Exception ex)
             {
@@ -1250,6 +1365,55 @@ namespace LetterStomach.Services
                     }
                 }
                 return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private List<Tutorial> MountVerbAdjective(List<Tutorial> tutorials, Dictionary<(byte[], byte[]), int> word_2_vec, List<Tutorial> sources, int order)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation mount verb adjective \"Syntax\" service failed!");
+
+                List<Tutorial> seminars = new List<Tutorial>();
+
+                List<byte[]> kind_adjective_adverb = new List<byte[]>();
+                byte[] ssh_adjective_adverb = this._wordEmbeddingService.Encode(this._adjective_adverb, this._morphology);
+                kind_adjective_adverb.Add(ssh_adjective_adverb);
+
+                List<Tutorial> adjectives = new List<Tutorial>();
+                adjectives = FilterLesson(tutorials, kind_adjective_adverb);
+
+                byte[] subject = this._wordEmbeddingService.Encode(this._subject, this._syntax);
+                byte[] predicate = this._wordEmbeddingService.Encode(this._predicate, this._syntax);
+                byte[] order_adjective = this._wordEmbeddingService.Encode(order, this._order);
+
+                if (adjectives.Count == 0) return seminars;
+
+                foreach (Tutorial source in tutorials)
+                {
+                    List<Instruction> words = source.lecture;
+                    foreach (Tutorial adjective in adjectives)
+                    {
+                        List<Instruction> words1 = new List<Instruction>();
+                        words.ForEach(item => words1.Add(item));
+                        foreach (Instruction item in adjective.lecture)
+                        {
+                            Instruction word = new Instruction();
+                            word = Lecture(item.term, item.kind, predicate, adjective.team, order_adjective);
+                            words1.Add(word);
+                        };
+                        if (!VerifyVerbPredicative(words1, word_2_vec)) continue;
+                        Tutorial tutorial = new Tutorial();
+                        tutorial.lecture = words1;
+                        tutorials.Add(tutorial);
+                    }
+                }
+                return tutorials;
             }
             catch (Exception ex)
             {
@@ -1821,6 +1985,28 @@ namespace LetterStomach.Services
             }
         }
 
+        public List<Tutorial> PredicateDirectObject(List<Tutorial> tutorials, Dictionary<(byte[], byte[]), int> word_2_vec, List<Tutorial> sources, int order_init)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation predicate direct object \"Syntax\" service failed!");
+
+                List<Tutorial> seminars = new List<Tutorial>();
+                //seminars = MountVerbNoun(tutorials, word_2_vec, sources, order_init);
+                //seminars = Union(seminars, MountVerbPronoun(tutorials, word_2_vec, sources, order_init));
+                //seminars = Union(seminars, MountVerbAdjectiveNoun(tutorials, word_2_vec, sources, order_init));
+                //seminars = Union(seminars, MountVerbNumeralConjunctionNoun(tutorials, word_2_vec, sources, order_init));
+                //seminars = Union(seminars, MountVerbAdjectiveConjunctionNoun(tutorials, word_2_vec, sources, order_init));
+
+                return seminars;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
         public List<Lesson> PredicatePredicative(List<Sentenca> sentences, List<Lesson> matters, List<Lesson> sources, int order_init)
         {
             try
@@ -1830,6 +2016,23 @@ namespace LetterStomach.Services
                 List<Lesson> lessons = new List<Lesson>();
                 lessons = MountVerbAdjective(sentences, matters, sources, order_init);
                 return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        public List<Tutorial> PredicatePredicative(List<Tutorial> tutorials, Dictionary<(byte[], byte[]), int> word_2_vec, List<Tutorial> sources, int order_init)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation predicate predicative \"Syntax\" service failed!");
+
+                List<Tutorial> seminars = new List<Tutorial>();
+                seminars = MountVerbAdjective(tutorials, word_2_vec, sources, order_init);
+                return seminars;
             }
             catch (Exception ex)
             {

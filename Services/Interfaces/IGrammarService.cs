@@ -7,6 +7,7 @@ namespace LetterStomach.Services.Interfaces
         event EventHandler<string> OnError;
         void Init();
         Task InitAsync();
+        Task InitAsync(string language);
         void MongoDB();
         void SQLite(ISQLiteService sQLiteService);
         Task SQLiteAsync(ISQLiteService sQLiteService);

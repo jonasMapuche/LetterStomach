@@ -2,6 +2,7 @@
 using LetterStomach.Repositories;
 using LetterStomach.Services;
 using LetterStomach.Services.Interfaces;
+using System.Runtime.ExceptionServices;
 
 namespace LetterStomach.ViewModels
 {
@@ -123,6 +124,7 @@ namespace LetterStomach.ViewModels
         private string _conjunction;
         private string _numeral_noun;
         private string _adjective_adverb;
+        private string _sentence;
 
         private int _order_3 = 3;
         private int _order_4 = 4;
@@ -213,6 +215,7 @@ namespace LetterStomach.ViewModels
                 this._conjunction = SettingService.Instance.Conjunction;
                 this._numeral_noun = SettingService.Instance.Numeral_Noun;
                 this._adjective_adverb = SettingService.Instance.Adjective_Adverb;
+                this._sentence = SettingService.Instance.Sentence;
             }
             catch (Exception ex)
             {
@@ -337,6 +340,75 @@ namespace LetterStomach.ViewModels
                 this._sentence_italiano = await GetSentenceAsync(this._language_italiano.Lowercase);
                 this._sentence_francais = await GetSentenceAsync(this._language_francais.Lowercase);
                 this._sentence_espanol = await GetSentenceAsync(this._language_espanol.Lowercase);
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        public async Task InitAsync(string language)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation init async \"Grammar\" service failed!");
+
+                if ((this._language_english.Lowercase != null) && (this._language_english.Lowercase == language)) 
+                {
+                    this._adverb_english = await GetAdverbAsync(this._language_english.Lowercase);
+                    this._pronoun_english = await GetPronounAsync(this._language_english.Lowercase);
+                    this._article_english = await GetArticleAsync(this._language_english.Lowercase);
+                    this._numeral_english = await GetNumeralAsync(this._language_english.Lowercase);
+                    this._preposition_english = await GetPrepositionAsync(this._language_english.Lowercase);
+                    this._conjunction_english = await GetConjunctionAsync(this._language_english.Lowercase);
+                    this._verb_english = await GetVerbAsync(this._language_english.Lowercase);
+                    this._sentence_english = await GetSentenceAsync(this._language_english.Lowercase);
+                }
+                if ((this._language_deutsch.Lowercase != null) && (this._language_deutsch.Lowercase == language))
+                {
+                    this._adverb_deutsch = await GetAdverbAsync(this._language_deutsch.Lowercase);
+                    this._pronoun_deutsch = await GetPronounAsync(this._language_deutsch.Lowercase);
+                    this._article_deutsch = await GetArticleAsync(this._language_deutsch.Lowercase);
+                    this._numeral_deutsch = await GetNumeralAsync(this._language_deutsch.Lowercase);
+                    this._preposition_deutsch = await GetPrepositionAsync(this._language_deutsch.Lowercase);
+                    this._conjunction_deutsch = await GetConjunctionAsync(this._language_deutsch.Lowercase);
+                    this._verb_deutsch = await GetVerbAsync(this._language_deutsch.Lowercase);
+                    this._sentence_deutsch = await GetSentenceAsync(this._language_deutsch.Lowercase);
+                }
+                if ((this._language_italiano.Lowercase != null) && (this._language_italiano.Lowercase == language))
+                {
+                    this._adverb_italiano = await GetAdverbAsync(this._language_italiano.Lowercase);
+                    this._pronoun_italiano = await GetPronounAsync(this._language_italiano.Lowercase);
+                    this._article_italiano = await GetArticleAsync(this._language_italiano.Lowercase);
+                    this._numeral_italiano = await GetNumeralAsync(this._language_italiano.Lowercase);
+                    this._preposition_italiano = await GetPrepositionAsync(this._language_italiano.Lowercase);
+                    this._conjunction_italiano = await GetConjunctionAsync(this._language_italiano.Lowercase);
+                    this._verb_italiano = await GetVerbAsync(this._language_italiano.Lowercase);
+                    this._sentence_italiano = await GetSentenceAsync(this._language_italiano.Lowercase);
+                }
+                if ((this._language_francais.Lowercase != null) && (this._language_francais.Lowercase == language))
+                {
+                    this._adverb_francais = await GetAdverbAsync(this._language_francais.Lowercase);
+                    this._pronoun_francais = await GetPronounAsync(this._language_francais.Lowercase);
+                    this._article_francais = await GetArticleAsync(this._language_francais.Lowercase);
+                    this._numeral_francais = await GetNumeralAsync(this._language_francais.Lowercase);
+                    this._preposition_francais = await GetPrepositionAsync(this._language_francais.Lowercase);
+                    this._conjunction_francais = await GetConjunctionAsync(this._language_francais.Lowercase);
+                    this._verb_francais = await GetVerbAsync(this._language_francais.Lowercase);
+                    this._sentence_francais = await GetSentenceAsync(this._language_francais.Lowercase);
+                }
+                if ((this._language_espanol.Lowercase != null) && (this._language_espanol.Lowercase == language))
+                {
+                    this._adverb_espanol = await GetAdverbAsync(this._language_espanol.Lowercase);
+                    this._pronoun_espanol = await GetPronounAsync(this._language_espanol.Lowercase);
+                    this._article_espanol = await GetArticleAsync(this._language_espanol.Lowercase);
+                    this._numeral_espanol = await GetNumeralAsync(this._language_espanol.Lowercase);
+                    this._preposition_espanol = await GetPrepositionAsync(this._language_espanol.Lowercase);
+                    this._conjunction_espanol = await GetConjunctionAsync(this._language_espanol.Lowercase);
+                    this._verb_espanol = await GetVerbAsync(this._language_espanol.Lowercase);
+                    this._sentence_espanol = await GetSentenceAsync(this._language_espanol.Lowercase);
+                }
             }
             catch (Exception ex)
             {
@@ -999,10 +1071,19 @@ namespace LetterStomach.ViewModels
 
                 List<Tutorial> words = new List<Tutorial>();
                 List<Tutorial> sampleSubjectVerb = new List<Tutorial>();
+                List<Tutorial> predicatePredicative = new List<Tutorial>();
+                List<Tutorial> predicateDirectObject = new List<Tutorial>();
+                List<Tutorial> predicateIndirectObject = new List<Tutorial>();
+
                 int order_sample = this._order_3;
                 int order_predicate = this._order_4;
                 sampleSubjectVerb = this._syntaxService.SampleSubjectVerb(tutorials, word_2_vec);
                 words = sampleSubjectVerb;
+                predicatePredicative = this._syntaxService.PredicatePredicative(tutorials, word_2_vec, sampleSubjectVerb, order_sample);
+                words = Union(words, predicatePredicative);
+                predicateDirectObject = this._syntaxService.PredicateDirectObject(tutorials, word_2_vec, sampleSubjectVerb, order_sample);
+                words = Union(words, predicateDirectObject);
+
                 return words;
             }
             catch (Exception ex)
@@ -1091,7 +1172,7 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation predicate before \"Grammar\" service failed!");
 
-                string team = words.Find(index => index.team != this._preposition).team;
+                string? team = words.Find(index => index.team != this._preposition).team;
                 Word? noun = words.Find(index => index.kind == this._noun);
                 Word? pronoun = words.Find(index => index.kind == this._pronoun);
                 Word? conjunction = words.Find(index => index.kind == this._conjunction);
@@ -1186,12 +1267,13 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation predicate current \"Grammar\" service failed!");
 
+                string? team = string.Empty;
                 Word? team_preposition = words.Find(index => index.team == this._preposition);
                 Word? team_different = words.Find(index => index.team != this._preposition);
-                string? team = string.Empty;
                 if ((team_preposition != null) && (team_different == null)) team = team_preposition.team;
                 if ((team_preposition == null) && (team_different != null)) team = team_different.team;
                 if ((team_preposition != null) && (team_different != null)) team = team_different.team;
+                
                 Word? noun = words.Find(index => index.kind == this._noun);
                 Word? conjunction = words.Find(index => index.kind == this._conjunction);
                 Word? article = words.Find(index => index.kind == this._article);
@@ -1247,7 +1329,7 @@ namespace LetterStomach.ViewModels
                 Dictionary<(string, string), int> word_2_vec = this._wordEmbeddingService.Word2Vec(sentences);
                 HashSet<string> vocabulary = this._wordEmbeddingService.Vocabulary(sentences);
                 List<Word> filter_matters = new List<Word>();
-                filter_matters = matters.FindAll(index => index.sentense == this._subject).ToList();
+                filter_matters = matters.FindAll(index => index.sentence == this._subject).ToList();
                 List<Word> words = new List<Word>();
                 Word? word = new Word();
                 List<Word> befores = new List<Word>();
@@ -1294,6 +1376,63 @@ namespace LetterStomach.ViewModels
             }
         }
 
+        private List<Word> MountSubject(string language, HashSet<string> vocabulary, Dictionary<(string, string), int> word_2_vec, List<Word> matters)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation mount subject \"Grammar\" service failed!");
+
+                List<Word> lessons = new List<Word>();
+
+                List<Word> filter_matters = new List<Word>();
+                filter_matters = matters.FindAll(index => index.sentence == this._subject).ToList();
+                List<Word> words = new List<Word>();
+                Word? word = new Word();
+                List<Word> befores = new List<Word>();
+                Word? before = new Word();
+
+                bool last = false;
+                int order = filter_matters.OrderBy(index => index.order).Last().order;
+                for (int quantity = 1; quantity <= order; quantity++)
+                {
+                    last = false;
+                    words = filter_matters.FindAll(index => index.order == quantity);
+                    if (befores.Count == 0)
+                    {
+                        befores = words;
+                        last = true;
+                        continue;
+                    }
+                    word = new Word();
+                    word = SubjectCurrent(language, words);
+                    before = new Word();
+                    before = SubjectBefore(language, befores);
+                    bool similarity = false;
+                    similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, before.term, word.term);
+                    if (!similarity) break;
+                    foreach (Word item in words)
+                    {
+                        lessons.Add(item);
+                    }
+                    befores = words;
+                    last = true;
+                }
+                if (last)
+                {
+                    foreach (Word item in befores) 
+                    {
+                        lessons.Add(item);
+                    }
+                }
+                return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
         private List<Word> MountPredicate(List<Sentenca> sentences, string language, List<Word> matters)
         {
             try
@@ -1304,11 +1443,69 @@ namespace LetterStomach.ViewModels
                 Dictionary<(string, string), int> word_2_vec = this._wordEmbeddingService.Word2Vec(sentences);
                 HashSet<string> vocabulary = this._wordEmbeddingService.Vocabulary(sentences);
                 List<Word> filter_matters = new List<Word>();
-                filter_matters = matters.FindAll(index => index.sentense == this._predicate).ToList();
+                filter_matters = matters.FindAll(index => index.sentence == this._predicate).ToList();
                 List<Word> words = new List<Word>();
                 Word? word = new Word();
                 List<Word> befores = new List<Word>();
                 Word? before = new Word();
+                bool last = false;
+                int first = filter_matters.OrderBy(index => index.order).First().order;
+                int order = filter_matters.OrderBy(index => index.order).Last().order;
+                for (int quantity = first; quantity <= order; quantity++)
+                {
+                    last = false;
+                    words = filter_matters.FindAll(index => index.order == quantity);
+                    if (befores.Count == 0)
+                    {
+                        befores = words;
+                        last = true;
+                        continue;
+                    }
+                    word = new Word();
+                    word = PredicateCurrent(language, words);
+                    before = new Word();
+                    before = PredicateBefore(language, befores);
+                    bool similarity = false;
+                    similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, before.term, word.term);
+                    if (!similarity) break;
+                    foreach (Word item in befores)
+                    {
+                        lessons.Add(item);
+                    }
+                    befores = words;
+                    last = true;
+                }
+                if (last)
+                {
+                    foreach (Word item in befores)
+                    {
+                        lessons.Add(item);
+                    }
+                }
+                return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private List<Word> MountPredicate(string language, HashSet<string> vocabulary, Dictionary<(string, string), int> word_2_vec, List<Word> matters)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation mount predicate \"Grammar\" service failed!");
+
+                List<Word> lessons = new List<Word>();
+
+                List<Word> filter_matters = new List<Word>();
+                filter_matters = matters.FindAll(index => index.sentence == this._predicate).ToList();
+                List<Word> words = new List<Word>();
+                Word? word = new Word();
+                List<Word> befores = new List<Word>();
+                Word? before = new Word();
+
                 bool last = false;
                 int first = filter_matters.OrderBy(index => index.order).First().order;
                 int order = filter_matters.OrderBy(index => index.order).Last().order;
@@ -1358,12 +1555,13 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation mount expression \"Grammar\" service failed!");
 
+                string? team = string.Empty;
                 Word? team_preposition = words.Find(index => index.team == this._preposition);
                 Word? team_different = words.Find(index => index.team != this._preposition);
-                string? team = string.Empty;
                 if ((team_preposition != null) && (team_different == null)) team = team_preposition.team;
                 if ((team_preposition == null) && (team_different != null)) team = team_different.team;
                 if ((team_preposition != null) && (team_different != null)) team = team_different.team;
+
                 Word? noun = words.Find(index => index.kind == this._noun);
                 Word? conjunction = words.Find(index => index.kind == this._conjunction);
                 Word? article = words.Find(index => index.kind == this._article);
@@ -1373,74 +1571,104 @@ namespace LetterStomach.ViewModels
                 Word? adverb = words.Find(index => index.kind == this._adverb);
                 Word? adverb_adverb = words.Find(index => index.kind == this._adverb_adverb);
                 Word? verb = words.Find(index => index.kind == this._verb);
-                List<Word> preposition = words.FindAll(index => index.kind == this._preposition);
-                string word = string.Empty;
+                List<Word>? preposition = words.FindAll(index => index.kind == this._preposition);
+                string? word = string.Empty;
                 if (team == this._conjunction)
                 {
-                    word = conjunction.term;
+                    if (conjunction != null) 
+                        word = conjunction.term;
                 }
-                if (preposition.Count == 1)
+                if (preposition != null)
                 {
-                    if (team == this._preposition)
+                    if (preposition.Count == 1)
                     {
-                        if (word != string.Empty) word += " ";
-                        word += preposition.First().term;
+                        if (team == this._preposition)
+                        {
+                            if (word != string.Empty) 
+                                word += " ";
+                            word += preposition.First().term;
+                        }
                     }
-                }
-                else
-                {
-                    if (preposition.Count > 1)
+                    else
                     {
-                        if (word != string.Empty) word += " ";
-                        word += team_preposition.term;
+                        if (preposition.Count > 1)
+                        {
+                            if (word != string.Empty) 
+                                word += " ";
+                            if (team_preposition != null) 
+                                word += team_preposition.term;
+                        }
                     }
                 }
                 if (team == this._adjective_noun)
                 {
-                    List<Word> term = preposition.FindAll(index => index.team == team);
-                    if (word != string.Empty) word += " ";
-                    if (term.Count > 0)
+                    List<Word>? term = null;
+                    if (preposition != null) 
+                        term = preposition.FindAll(index => index.team == team);
+                    if (word != string.Empty) 
+                        word += " ";
+
+                    string term_adjective = string.Empty;
+                    string term_adverb = string.Empty;
+                    string term_noun = string.Empty;
+                    if (adjective != null) 
+                        term_adjective = adjective.term;
+                    if (adverb != null) 
+                        term_adverb = adverb.term;
+                    if (noun != null) 
+                        term_noun = noun.term;
+                    if ((term != null) && (term.Count > 0))
                     {
                         if (adverb_adverb != null)
-                            word += adjective.term + " " + adverb.term + " " + adverb_adverb.term + " " + term[0].term + " " + noun.term;
+                            word += term_adjective + " " + term_adverb + " " + adverb_adverb.term + " " + term[0].term + " " + term_noun;
                         else
                         {
                             if (adverb != null)
-                                word += adjective.term + " " + adverb.term + " " + term[0].term + " " + noun.term;
+                                word += term_adjective + " " + term_adverb + " " + term[0].term + " " + term_noun;
                             else
-                                word += adjective.term + " " + term[0].term + " " + noun.term;
+                                word += term_adjective + " " + term[0].term + " " + term_noun;
                         }
                     }
                     else
                     {
                         if (adverb_adverb != null)
-                            word += adjective.term + " " + adverb.term + " " + adverb_adverb.term + " " + noun.term;
+                            word += term_adjective + " " + term_adverb + " " + adverb_adverb.term + " " + term_noun;
                         else
                         {
                             if (adverb != null)
-                                word += adjective.term + " " + adverb.term + " " + noun.term;
+                                word += term_adverb + " " + term_adverb + " " + term_noun;
                             else
-                                word += adjective.term + " " + noun.term;
+                                word += term_adjective + " " + term_noun;
                         }
                     }
                 }
                 if (team == this._adjective_adverb)
                 {
-                    if (word != string.Empty) word += " ";
+                    if (word != string.Empty) 
+                        word += " ";
+                    
+                    string term_adjective = string.Empty;
+                    string term_adverb = string.Empty;
+                    if (adjective != null) 
+                        term_adjective = adjective.term;
+                    if (adverb != null) 
+                        term_adverb = adverb.term;
                     if (adverb_adverb != null)
-                        word += adjective.term + " " + adverb.term + " " + adverb_adverb.term;
+                        word += term_adjective + " " + term_adverb + " " + adverb_adverb.term;
                     else
                     {
                         if (adverb != null)
-                            word += adjective.term + " " + adverb.term;
+                            word += term_adjective + " " + adverb.term;
                         else
-                            word += adjective.term;
+                            word += term_adjective;
                     }
                 }
                 if ((team == this._demostrative) || (team == this._possessive) || (team == this._personal))
                 {
-                    if (word != string.Empty) word += " ";
-                    word += pronoun.term;
+                    if (word != string.Empty) 
+                        word += " ";
+                    if (pronoun != null) 
+                        word += pronoun.term;
                 }
                 if ((team == this._noun) || (team == this._numeral_noun))
                 {
@@ -1454,20 +1682,30 @@ namespace LetterStomach.ViewModels
                 }
                 if ((team == this._noun) || (team == this._numeral_noun))
                 {
-                    if (word != string.Empty) word += " ";
-                    word += noun.term;
+                    if (word != string.Empty) 
+                        word += " ";
+                    if (noun != null) 
+                        word += noun.term;
                 }
                 if (team == this._verb)
                 {
-                    if (word != string.Empty) word += " ";
+                    if (word != string.Empty) 
+                        word += " ";
+
+                    string term_verb = string.Empty;
+                    string term_adverb = string.Empty;
+                    if (verb != null)
+                        term_verb = verb.term;
+                    if (adverb != null)
+                        term_adverb = adverb.term;
                     if (adverb_adverb != null)
-                        word += adjective.term + " " + adverb.term + " " + adverb_adverb.term;
+                        word += term_adverb + " " + adverb_adverb.term + " " + term_verb;
                     else
                     {
                         if (adverb != null)
-                            word += adjective.term + " " + adverb.term;
+                            word += adverb.term + " " + term_verb;
                         else
-                            word += verb.term;
+                            word += term_verb;
                     }
                 }
                 return word;
@@ -1531,17 +1769,45 @@ namespace LetterStomach.ViewModels
                 throw new InvalidOperationException(this.error_message);
             }
         }
+
+        private List<Word> MountOration(string language, HashSet<string> vocabulary, Dictionary<(string, string), int> word_2_vec, List<Word> lessons)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation mount oration \"Grammar\" service failed!");
+
+                List<Word> words = new List<Word>();
+                List<Word> subjects = new List<Word>();
+                List<Word> predicates = new List<Word>();
+                subjects = MountSubject(language, vocabulary, word_2_vec, lessons);
+                foreach (Word subject in subjects)
+                {
+                    words.Add(subject);
+                }
+                predicates = MountPredicate(language, vocabulary, word_2_vec, lessons);
+                foreach (Word predicate in predicates)
+                {
+                    words.Add(predicate);
+                }
+                return words;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
         #endregion
 
         #region MOUNT LIST MORPHOLOGY
-        private List<Lesson> Union(List<Lesson> fists, List<Lesson> lasts)
+        private List<Lesson> Union(List<Lesson> first, List<Lesson> lasts)
         {
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation union \"Grammar\" service failed!");
 
                 List<Lesson> lessons = new List<Lesson>();
-                fists.ForEach(item =>
+                first.ForEach(item =>
                 {
                     Lesson lesson = new Lesson();
                     lesson.lecture = item.lecture;
@@ -1564,29 +1830,50 @@ namespace LetterStomach.ViewModels
             }
         }
 
-        public List<Word>? MountNovel(string language, List<Sentenca> sentences, List<Lesson> lessons)
+        private List<Tutorial> Union(List<Tutorial> firsts, List<Tutorial> lasts)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation union \"Grammar\" service failed!");
+
+                List<Tutorial> tutorials = new List<Tutorial>();
+                firsts.ForEach(first => tutorials.Add(first));
+                lasts.ForEach(last => tutorials.Add(last));
+                return tutorials;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        public List<Word>? MountNovelSHA256(string language, List<Sentenca> sentences, List<Lesson> lessons)
         {
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation mount syntax \"Grammar\" service failed!");
 
                 HashSet<string> vocabulary = this._wordEmbeddingService.Vocabulary(sentences);
-                Dictionary<(byte[], byte[]), int> word_2_vec = this._wordEmbeddingService.Word2VecSHA256(sentences, vocabulary);
+                Dictionary<(string, string), int> word_2_vec = this._wordEmbeddingService.Word2Vec(sentences);
+                Dictionary<(byte[], byte[]), int> word_2_vec_sha256 = this._wordEmbeddingService.Word2VecSHA256(sentences, vocabulary);
                 List<Tutorial> tutorials = new List<Tutorial>();
                 tutorials = this._wordEmbeddingService.EncodeLesson(lessons, vocabulary);
 
                 List<Tutorial> seminars = new List<Tutorial>();
-                seminars = MountOrationSample(tutorials, word_2_vec);
+                seminars = MountOrationSample(tutorials, word_2_vec_sha256);
 
                 this._novel_english = seminars;
 
                 List<Lesson> guides = new List<Lesson>();
                 guides = this._wordEmbeddingService.DecodeLesson(seminars, vocabulary);
 
+                SetBook(language, guides);
+
                 List<Word> words = new List<Word>();
                 foreach (Lesson guide in guides)
                 {
-                    words = MountOration(sentences, language, guide.lecture);
+                    words = MountOration(language, vocabulary, word_2_vec, guide.lecture);
                     if (words.Count() > 0) break;
                 }
                 return words;
@@ -1598,7 +1885,34 @@ namespace LetterStomach.ViewModels
             }
         }
 
-        public List<Word> MountSyntax(string language, Materia lesson, List<Materia> book)
+        public List<Word>? MountNovel(string language, List<Sentenca> sentences, List<Lesson> lessons)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation mount syntax \"Grammar\" service failed!");
+
+                List<Lesson> terms = new List<Lesson>();
+                terms = OrderLesson(MountOrationSample(sentences, lessons));
+                //terms = OrderLesson(terms, MountOrationCompound(sentence, matters));
+
+                SetBook(language, terms);
+                List<Word> words = new List<Word>();
+
+                foreach (Lesson phrase in terms)
+                {
+                    words = MountOration(sentences, language, phrase.lecture);
+                    if (words.Count() > 0) break;
+                }
+                return words;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        public List<Word>? MountSyntax(string language, Materia lesson, List<Materia> book)
         {
             try
             {
@@ -1640,20 +1954,11 @@ namespace LetterStomach.ViewModels
                 matters = Union(matters, mount_conjunction);
                 matters = Union(matters, mount_numeral_noun);
 
-                MountNovel(language, sentence, matters);
+                List<Word>? words = new List<Word>();
 
-                List<Lesson> terms = new List<Lesson>();
-                terms = OrderLesson(MountOrationSample(sentence, matters));
-                //terms = OrderLesson(terms, MountOrationCompound(sentence, matters));
-
-                SetBook(language, terms);
-                List<Word> words = new List<Word>();
-
-                foreach (Lesson phrase in terms)
-                {
-                    words = MountOration(sentence, language, phrase.lecture);
-                    if (words.Count() > 0) break;
-                }
+                words = MountNovelSHA256(language, sentence, matters);
+                
+                //words = MountNovel(language, sentence, matters);
                 return words;
             }
             catch (Exception ex)

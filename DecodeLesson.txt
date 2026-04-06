@@ -1,0 +1,52 @@
+        public List<Lesson> DecodeLesson(List<Tutorial> tutorials, HashSet<string> vocabulary)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation decode lesson \"Word Embedding\" service failed!");
+                
+                List<Lesson> lessons = new List<Lesson>();
+
+                //HashSet<string> morphology = this._morphology;
+                HashSet<byte[]> inquiry = EncodeSeries(this._morphology);
+                List<byte[]> etiology = inquiry.ToList();
+
+                HashSet<byte[]> sha256 = VocabularySHA256(vocabulary);
+                List<byte[]> glossaries = sha256.ToList();
+
+                foreach (Tutorial tutorial in tutorials)
+                {
+                    Lesson lesson = new Lesson();
+                    /*
+                    int index_team = etiology.FindIndex(index => index.SequenceEqual(tutorial.team));
+                    lesson.team = this._morphology.ElementAt(index_team);
+                    for (int quantity = 0; quantity < morphology.Count; quantity++)
+                    {
+                        byte[] team = HashSHA256(quantity);
+                        if (tutorial.team.AsSpan().SequenceEqual(team))
+                        {
+                            lesson.team = morphology.ElementAt(quantity);
+                            break;
+                        }
+                    }
+                    */
+                    List<Word> words = new List<Word>();
+                    foreach (Instruction instruction in tutorial.lecture)
+                    {
+                        byte[] term = instruction.term;
+                        //int term = Array.IndexOf(vocabulary_sha_256.ToArray(), term_instruction);
+                        int index_term = glossaries.FindIndex(index => index.SequenceEqual(term));
+                        Word word = new Word();
+                        word.term = vocabulary.ElementAt(index_term);
+                        words.Add(word);
+                    }
+                    lesson.lecture = words;
+                    lessons.Add(lesson);
+                }
+                return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }

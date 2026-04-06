@@ -133,6 +133,7 @@ namespace LetterStomach.Services
         public readonly string Adverb = adverb_portugues;
         public readonly string Conjunction = conjunction_portugues;
         public readonly string Preposition = preposition_portugues;
+        public readonly string Sentence = sentence_portugues;
 
         public readonly string Adverb_Adverb = adverb_adverb_portugues;
         public readonly string Adjective_Noun = adjective_noun_portugues;
@@ -163,6 +164,7 @@ namespace LetterStomach.Services
         private static readonly string numeral_portugues = "numeral";
         private static readonly string adverb_portugues = "adverbio";
         private static readonly string conjunction_portugues = "conjuncao";
+        private static readonly string sentence_portugues = "sentenca";
 
         private static readonly string adverb_adverb_portugues = "adverbio adverbio";
         private static readonly string adjective_noun_portugues = "adjetivo substantivo";
@@ -250,6 +252,17 @@ namespace LetterStomach.Services
         private static readonly string to_english = "to";
 
         private static readonly string through_english = "through";
+
+        private static readonly int order_1 = 1;
+        private static readonly int order_2 = 2;
+        private static readonly int order_3 = 3;
+        private static readonly int order_4 = 4;
+        private static readonly int order_5 = 5;
+        private static readonly int order_6 = 6;
+        private static readonly int order_7 = 7;
+        private static readonly int order_8 = 8;
+        private static readonly int order_9 = 9;
+        private static readonly int order_10 = 10;
 
         public Dictionary<string, string> Execute = new Dictionary<string, string>()
         {
@@ -802,6 +815,20 @@ namespace LetterStomach.Services
         {
             suject_portugues,
             predicate_portugues
+        };
+
+        public HashSet<int> Order = new HashSet<int>
+        {
+            order_1,
+            order_2,
+            order_3,
+            order_4,
+            order_5,
+            order_6,
+            order_7,
+            order_8,
+            order_9,
+            order_10
         };
     }
 }

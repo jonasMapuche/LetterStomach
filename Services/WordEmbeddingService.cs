@@ -1,15 +1,9 @@
-﻿using Android.Content;
-using AndroidX.Camera.Video;
-using CommunityToolkit.Mvvm.ComponentModel;
-using Google.Android.Material.Color.Utilities;
-using GoogleGson;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using LetterStomach.Models;
 using LetterStomach.Services.Interfaces;
 using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
-using Xamarin.Google.Crypto.Tink.Proto;
-using static Android.Provider.UserDictionary;
 
 namespace LetterStomach.Services
 {
@@ -35,6 +29,7 @@ namespace LetterStomach.Services
         #region VARIABLE
         private HashSet<string> _morphology;
         private HashSet<string> _syntax;
+        private HashSet<int> _order;
 
         private SettingService _settingService;
         #endregion
@@ -49,6 +44,7 @@ namespace LetterStomach.Services
                 this._settingService = SettingService.Instance;
                 this._morphology = this._settingService.Morphology;
                 this._syntax = this._settingService.Syntax;
+                this._order = this._settingService.Order;
             }
             catch (Exception ex)
             {
@@ -162,7 +158,7 @@ namespace LetterStomach.Services
         #endregion
 
         #region SIMILARITY
-        public bool Similarity(Dictionary<(string, string), int> word_2_vec, HashSet<string> vocabulary, string target, string target1)
+        public bool Similarity(Dictionary<(string, string), int> word_2_vec, HashSet<string> vocabulary, string? target, string? target1)
         {
             try
             {
@@ -190,7 +186,7 @@ namespace LetterStomach.Services
             }
         }
 
-        public bool Similarity(Dictionary<(byte[], byte[]), int> word_2_vec, byte[] target, byte[] target2)
+        public bool Similarity(Dictionary<(byte[], byte[]), int> word_2_vec, byte[]? target, byte[]? target2)
         {
             try
             {
@@ -253,13 +249,34 @@ namespace LetterStomach.Services
             }
         }
 
-        private HashSet<byte[]> VocabularySHA256(HashSet<string> vocabulary)
+        private List<byte[]> VocabularySHA256(HashSet<string> vocabulary)
         {
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation vocabulary sha256 \"Word Embedding\" service failed!");
 
-                HashSet<byte[]> sha_256 = new HashSet<byte[]>();
+                List<byte[]> sha_256 = new List<byte[]>();
+                for (int quantity = 0; quantity < vocabulary.Count; quantity++)
+                {
+                    byte[] value = HashSHA256(quantity);
+                    sha_256.Add(value);
+                }
+                return sha_256;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private List<byte[]> VocabularySHA256(HashSet<int> vocabulary)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation vocabulary sha256 \"Word Embedding\" service failed!");
+
+                List<byte[]> sha_256 = new List<byte[]>();
                 for (int quantity = 0; quantity < vocabulary.Count; quantity++)
                 {
                     byte[] value = HashSHA256(quantity);
@@ -458,6 +475,24 @@ namespace LetterStomach.Services
                 throw new InvalidOperationException(this.error_message);
             }
         }
+
+        public byte[] Encode(int kind, HashSet<int> briefs)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation encode morphology \"Word Embedding\" service failed!");
+
+                HashSet<int> vocalularies = new HashSet<int>(briefs);
+                int term = Array.IndexOf(vocalularies.ToArray(), kind);
+                byte[] sha_256 = HashSHA256(term);
+                return sha_256;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
         #endregion
 
         #region DECODE SHA256
@@ -469,37 +504,38 @@ namespace LetterStomach.Services
                 
                 List<Lesson> lessons = new List<Lesson>();
 
-                //HashSet<string> morphology = this._morphology;
-                HashSet<byte[]> inquiry = EncodeSeries(this._morphology);
-                List<byte[]> etiology = inquiry.ToList();
-
-                HashSet<byte[]> sha256 = VocabularySHA256(vocabulary);
-                List<byte[]> glossaries = sha256.ToList();
+                List<byte[]> glossaries = VocabularySHA256(vocabulary);
+                List<byte[]> morphologies = VocabularySHA256(this._morphology);
+                List<byte[]> syntaxes = VocabularySHA256(this._syntax);
+                List<byte[]> orders = VocabularySHA256(this._order);
 
                 foreach (Tutorial tutorial in tutorials)
                 {
                     Lesson lesson = new Lesson();
-                    int index_team = etiology.FindIndex(index => index.SequenceEqual(tutorial.team));
-                    lesson.team = this._morphology.ElementAt(index_team);
-                    /*
-                    for (int quantity = 0; quantity < morphology.Count; quantity++)
-                    {
-                        byte[] team = HashSHA256(quantity);
-                        if (tutorial.team.AsSpan().SequenceEqual(team))
-                        {
-                            lesson.team = morphology.ElementAt(quantity);
-                            break;
-                        }
-                    }
-                    */
                     List<Word> words = new List<Word>();
                     foreach (Instruction instruction in tutorial.lecture)
                     {
                         byte[] term = instruction.term;
-                        //int term = Array.IndexOf(vocabulary_sha_256.ToArray(), term_instruction);
                         int index_term = glossaries.FindIndex(index => index.SequenceEqual(term));
+
+                        byte[] kind = instruction.kind;
+                        int index_kind = morphologies.FindIndex(index => index.SequenceEqual(kind));
+
+                        byte[] sentence = instruction.sentence;
+                        int index_sentence = syntaxes.FindIndex(index => index.SequenceEqual(sentence));
+
+                        byte[] team = instruction.team;
+                        int index_team = morphologies.FindIndex(index => index.SequenceEqual(team));
+
+                        byte[] order = instruction.order;
+                        int index_order = orders.FindIndex(index => index.SequenceEqual(order));
+
                         Word word = new Word();
                         word.term = vocabulary.ElementAt(index_term);
+                        word.kind = this._morphology.ElementAt(index_kind);
+                        word.sentence = this._syntax.ElementAt(index_sentence);
+                        word.team = this._morphology.ElementAt(index_team);
+                        word.order = this._order.ElementAt(index_order);
                         words.Add(word);
                     }
                     lesson.lecture = words;

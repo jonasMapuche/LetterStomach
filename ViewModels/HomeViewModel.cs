@@ -61,11 +61,11 @@ namespace LetterStomach.ViewModels
         private List<Word> _word_francais;
         private List<Word> _word_espanol;
 
-        private Language? _language_english;
-        private Language? _language_deutsch;
-        private Language? _language_italiano;
-        private Language? _language_francais;
-        private Language? _language_espanol;
+        private Language _language_english;
+        private Language _language_deutsch;
+        private Language _language_italiano;
+        private Language _language_francais;
+        private Language _language_espanol;
 
         private HashSet<string> _language_lesson;
 
@@ -120,11 +120,19 @@ namespace LetterStomach.ViewModels
                 {
                     if (direction == SwipeDirection.Left)
                     {
-                        MountPrevious();
+                        MountPrevious(this._language_english.Lowercase);
+                        //MountPrevious(this._language_deutsch.Lowercase);
+                        //MountPrevious(this._language_italiano.Lowercase);
+                        //MountPrevious(this._language_francais.Lowercase);
+                        //MountPrevious(this._language_espanol.Lowercase);
                     }
                     else if (direction == SwipeDirection.Right)
                     {
-                        MountNext();
+                        MountNext(this._language_english.Lowercase);
+                        //MountNext(this._language_deutsch.Lowercase);
+                        //MountNext(this._language_italiano.Lowercase);
+                        //MountNext(this._language_francais.Lowercase);
+                        //MountNext(this._language_espanol.Lowercase);
                     }
                     else if (direction == SwipeDirection.Up)
                     {
@@ -322,8 +330,13 @@ namespace LetterStomach.ViewModels
                 if (this._error_off) throw new InvalidOperationException("Operation init async \"Home\" view model failed!");
 
                 await ConnectAsync(sqlite);
-                await GrammarAsync();
-                MountNext();
+                //await GrammarAsync();
+                if (this._language_english != null) await GrammarAsync(this._language_english.Lowercase);
+                //if (this._language_deutsch != null) await GrammarAsync(this._language_deutsch.Lowercase);
+                //if (this._language_italiano != null) await GrammarAsync(this._language_italiano.Lowercase);
+                //if (this._language_francais != null) await GrammarAsync(this._language_francais.Lowercase);
+                //if (this._language_espanol != null) await GrammarAsync(this._language_espanol.Lowercase);
+                //MountNext();
             }
             catch (Exception ex)
             {
@@ -410,6 +423,55 @@ namespace LetterStomach.ViewModels
                 this._word_italiano = new List<Word>();
                 this._word_francais = new List<Word>();
                 this._word_espanol = new List<Word>();
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private async Task GrammarAsync(string? language)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation grammar async \"Home\" view model failed!");
+                
+                if ((this._language_english != null) && (language == this._language_english.Lowercase))
+                {
+                    this._book_english = await this._grammarService.GetLetterAsync(this._language_english.Lowercase);
+                    await this._grammarService.InitAsync(this._language_english.Lowercase);
+                    this._word_english = new List<Word>();
+                    MountNext(this._language_english.Lowercase);
+                }
+                if ((this._language_deutsch != null) && (language == this._language_deutsch.Lowercase))
+                {
+                    this._book_deutsch = await this._grammarService.GetLetterAsync(this._language_deutsch.Lowercase);
+                    await this._grammarService.InitAsync(this._language_deutsch.Lowercase);
+                    this._word_deutsch = new List<Word>();
+                    MountNext(this._language_deutsch.Lowercase);
+                }
+                if ((this._language_italiano != null) && (language == this._language_italiano.Lowercase))
+                {
+                    this._book_italiano = await this._grammarService.GetLetterAsync(this._language_italiano.Lowercase);
+                    await this._grammarService.InitAsync(this._language_italiano.Lowercase);
+                    this._word_italiano = new List<Word>();
+                    MountNext(this._language_italiano.Lowercase);
+                }
+                if ((this._language_francais != null) && (language == this._language_francais.Lowercase))
+                {
+                    this._book_francais = await this._grammarService.GetLetterAsync(this._language_francais.Lowercase);
+                    await this._grammarService.InitAsync(this._language_francais.Lowercase);
+                    this._word_francais = new List<Word>();
+                    MountNext(this._language_francais.Lowercase);
+                }
+                if ((this._language_espanol != null) && (language == this._language_espanol.Lowercase))
+                {
+                    this._book_espanol = await this._grammarService.GetLetterAsync(this._language_espanol.Lowercase);
+                    await this._grammarService.InitAsync(this._language_espanol.Lowercase);
+                    this._word_espanol = new List<Word>();
+                    MountNext(this._language_espanol.Lowercase);
+                }
             }
             catch (Exception ex)
             {
@@ -506,12 +568,34 @@ namespace LetterStomach.ViewModels
                 if (this._error_off) throw new InvalidOperationException("Operation mount next \"Home\" view model failed!");
 
                 Next(this._book_english, this._lesson_english, this._language_english.Lowercase);
-                /*
                 Next(this._book_deutsch, this._lesson_deutsch, this._language_deutsch.Lowercase);
                 Next(this._book_italiano, this._lesson_italiano, this._language_italiano.Lowercase);
                 Next(this._book_francais, this._lesson_francais, this._language_francais.Lowercase);
                 Next(this._book_espanol, this._lesson_espanol, this._language_espanol.Lowercase);
-                */
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private void MountNext(string language)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation mount next \"Home\" view model failed!");
+
+                if ((this._language_english != null) && (this._language_english.Lowercase == language)) 
+                    Next(this._book_english, this._lesson_english, this._language_english.Lowercase);
+                if ((this._language_deutsch != null) && (this._language_deutsch.Lowercase == language))
+                    Next(this._book_deutsch, this._lesson_deutsch, this._language_deutsch.Lowercase);
+                if ((this._language_italiano != null) && (this._language_italiano.Lowercase == language))
+                    Next(this._book_italiano, this._lesson_italiano, this._language_italiano.Lowercase);
+                if ((this._language_francais != null) && (this._language_francais.Lowercase == language))
+                    Next(this._book_francais, this._lesson_francais, this._language_francais.Lowercase);
+                if ((this._language_espanol != null) && (this._language_espanol.Lowercase == language))
+                    Next(this._book_espanol, this._lesson_espanol, this._language_espanol.Lowercase);
             }
             catch (Exception ex)
             {
@@ -527,12 +611,34 @@ namespace LetterStomach.ViewModels
                 if (this._error_off) throw new InvalidOperationException("Operation mount previous \"Home\" view model failed!");
 
                 Previous(this._book_english, this._lesson_english, this._language_english.Lowercase);
-                /*
                 Previous(this._book_deutsch, this._lesson_deutsch, this._language_deutsch.Lowercase);
                 Previous(this._book_italiano, this._lesson_italiano, this._language_italiano.Lowercase);
                 Previous(this._book_francais, this._lesson_francais, this._language_francais.Lowercase);
                 Previous(this._book_espanol, this._lesson_espanol, this._language_espanol.Lowercase);
-                */
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private void MountPrevious(string language)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation mount previous \"Home\" view model failed!");
+
+                if ((this._language_english != null) && (this._language_english.Lowercase == language))
+                    Previous(this._book_english, this._lesson_english, this._language_english.Lowercase);
+                if ((this._language_deutsch != null) && (this._language_deutsch.Lowercase == language))
+                    Previous(this._book_deutsch, this._lesson_deutsch, this._language_deutsch.Lowercase);
+                if ((this._language_italiano != null) && (this._language_italiano.Lowercase == language))
+                    Previous(this._book_italiano, this._lesson_italiano, this._language_italiano.Lowercase);
+                if ((this._language_francais != null) && (this._language_francais.Lowercase == language))
+                    Previous(this._book_francais, this._lesson_francais, this._language_francais.Lowercase);
+                if ((this._language_espanol != null) && (this._language_espanol.Lowercase == language))
+                    Previous(this._book_espanol, this._lesson_espanol, this._language_espanol.Lowercase);
             }
             catch (Exception ex)
             {

@@ -4,7 +4,7 @@
     {
         public string term { get; set; }
         public string kind { get; set; }
-        public string sentense { get; set; }
+        public string sentence { get; set; }
         public string model { get; set; }
         public string team { get; set; }
         public int order { get; set; }
