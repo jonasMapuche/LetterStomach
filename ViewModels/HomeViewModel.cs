@@ -330,13 +330,11 @@ namespace LetterStomach.ViewModels
                 if (this._error_off) throw new InvalidOperationException("Operation init async \"Home\" view model failed!");
 
                 await ConnectAsync(sqlite);
-                //await GrammarAsync();
                 if (this._language_english != null) await GrammarAsync(this._language_english.Lowercase);
-                //if (this._language_deutsch != null) await GrammarAsync(this._language_deutsch.Lowercase);
-                //if (this._language_italiano != null) await GrammarAsync(this._language_italiano.Lowercase);
-                //if (this._language_francais != null) await GrammarAsync(this._language_francais.Lowercase);
-                //if (this._language_espanol != null) await GrammarAsync(this._language_espanol.Lowercase);
-                //MountNext();
+                if (this._language_deutsch != null) await GrammarAsync(this._language_deutsch.Lowercase);
+                if (this._language_italiano != null) await GrammarAsync(this._language_italiano.Lowercase);
+                if (this._language_francais != null) await GrammarAsync(this._language_francais.Lowercase);
+                if (this._language_espanol != null) await GrammarAsync(this._language_espanol.Lowercase);
             }
             catch (Exception ex)
             {
@@ -801,9 +799,9 @@ namespace LetterStomach.ViewModels
                 List<Materia> editions = new List<Materia>();
                 editions = BookLesson(books);
 
-                List<Word> words = this._grammarService.MountSyntax(language, lesson, editions);
+                List<Word> words = this._grammarService.Syntax(language, lesson, editions);
                 Oration(words, language);
-                string oration = this._grammarService.MountOration(language, words);
+                string oration = this._grammarService.Oration(words);
                 Message(MessageService.Instance, true, language, oration);
             }
             catch (Exception ex)
@@ -813,15 +811,15 @@ namespace LetterStomach.ViewModels
             }
         }
 
-        public void Move(string language, List<Word> words, bool reverse)
+        private void Move(string language, List<Word> words, bool reverse)
         {
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation move \"Home\" view model failed!");
 
-                List<Word> terms = this._grammarService.MountSyntax(language, words, reverse);
+                List<Word> terms = this._grammarService.Syntax(language, words, reverse);
                 Oration(terms, language);
-                string oration = this._grammarService.MountOration(language, terms);
+                string oration = this._grammarService.Oration(terms);
                 Message(MessageService.Instance, true, language, oration);
             }
             catch (Exception ex)

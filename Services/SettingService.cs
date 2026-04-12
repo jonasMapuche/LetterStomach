@@ -141,6 +141,10 @@ namespace LetterStomach.Services
         public readonly string Conjunction_Noun = conjunction_noun_portugues;
         public readonly string Numeral_Noun = numeral_noun_portugues;
 
+        public readonly string Adnominal_Adjunct = adnominal_adjunct_portugues;
+        public readonly string Adverbial_Verb = adverbial_verb_portugues;
+        public readonly string Adverbial_Adjective = adverbial_adjective_portugues;
+
         public readonly string Personal = personal_portugues;
         public readonly string Possessive = possessive_portugues;
         public readonly string Demostrtive = demostrtive_portugues;
@@ -165,6 +169,9 @@ namespace LetterStomach.Services
         private static readonly string adverb_portugues = "adverbio";
         private static readonly string conjunction_portugues = "conjuncao";
         private static readonly string sentence_portugues = "sentenca";
+        private static readonly string adnominal_adjunct_portugues = "adjunto adnominal";
+        private static readonly string adverbial_verb_portugues = "adverbial verb";
+        private static readonly string adverbial_adjective_portugues = "adverbial adjective";
 
         private static readonly string adverb_adverb_portugues = "adverbio adverbio";
         private static readonly string adjective_noun_portugues = "adjetivo substantivo";
@@ -798,17 +805,18 @@ namespace LetterStomach.Services
             noun_portugues,
             pronoun_portugues,
             verb_portugues,
-            personal_portugues,
-            adjective_portugues,
             article_portugues,
-            possessive_portugues,
-            demostrtive_portugues,
+            adjective_portugues,
+            conjunction_portugues,
+            numeral_portugues,
             adverb_portugues,
             adverb_adverb_portugues,
-            adjective_noun_portugues,
-            adjective_adverb_portugues,
-            conjunction_portugues,
-            numeral_noun_portugues
+            personal_portugues,
+            possessive_portugues,
+            demostrtive_portugues,
+            adnominal_adjunct_portugues,
+            adverbial_verb_portugues,
+            adverbial_adjective_portugues
         };
 
         public HashSet<string> Syntax = new HashSet<string>

@@ -1,0 +1,780 @@
+
+        #region MOUNT PERIOD 2
+        private Word? SubjectBefore(string language, List<Word> words)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation subject before \"Grammar\" service failed!");
+
+                string team = words.First().team;
+                Word? noun = words.Find(index => index.kind == this._noun);
+                Word? pronoun = words.Find(index => index.kind == this._pronoun);
+                Word? conjunction = words.Find(index => index.kind == this._conjunction);
+                if (team == this._conjunction)
+                {
+                    return conjunction;
+                }
+                if (team == this._personal)
+                {
+                    return pronoun;
+                }
+                return noun;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private Word? PredicateBefore(string language, List<Word> words)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation predicate before \"Grammar\" service failed!");
+
+                string? team = words.Find(index => index.team != this._preposition).team;
+                Word? noun = words.Find(index => index.kind == this._noun);
+                Word? pronoun = words.Find(index => index.kind == this._pronoun);
+                Word? conjunction = words.Find(index => index.kind == this._conjunction);
+                Word? adjective = words.Find(index => index.kind == this._adjective);
+                Word? verb = words.Find(index => index.kind == this._verb);
+                Word? adverb = words.Find(index => index.kind == this._adverb);
+                Word? adverb_adverb = words.Find(index => index.kind == this._adverb_adverb);
+                if (team == this._conjunction)
+                {
+                    return conjunction;
+                }
+                if ((team == this._possessive) || (team == this._demostrative))
+                {
+                    return pronoun;
+                }
+                if (team == this._adjective_adverb)
+                {
+                    if (adverb_adverb !=  null) 
+                        return adverb_adverb;
+                    else
+                    {
+                        if (adverb != null)
+                            return adverb;
+                        else
+                            return adjective;
+                    }
+                }
+                if (team == this._verb)
+                {
+                    if (adverb_adverb != null)
+                        return adverb_adverb;
+                    else
+                    {
+                        if (adverb != null)
+                            return adverb;
+                        else
+                            return verb;
+                    }
+                }
+                return noun;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private Word? SubjectCurrent(string language, List<Word> words)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation subject current \"Grammar\" service failed!");
+
+                string team = words.First().team;
+                Word? noun = words.Find(index => index.kind == this._noun);
+                Word? conjunction = words.Find(index => index.kind == this._conjunction);
+                Word? article = words.Find(index => index.kind == this._article);
+                Word? numeral = words.Find(index => index.kind == this._numeral);
+                Word? pronoun = words.Find(index => index.kind == this._pronoun);
+                Word? adjective = words.Find(index => index.kind == this._adjective_noun);
+                if (team == this._conjunction)
+                {
+                    return conjunction;
+                }
+                if (team == this._adjective_noun)
+                {
+                    return adjective;
+                }
+                if (team == this._personal) 
+                {
+                    return pronoun;
+                }
+                if ((team == this._noun) || (team == this._numeral_noun))
+                {
+                    if (article != null) return article;
+                    if (numeral != null) return numeral;
+                    if (pronoun != null) return pronoun;
+                }
+                return noun;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private Word? PredicateCurrent(string language, List<Word> words)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation predicate current \"Grammar\" service failed!");
+
+                string? team = string.Empty;
+                Word? team_preposition = words.Find(index => index.team == this._preposition);
+                Word? team_different = words.Find(index => index.team != this._preposition);
+                if ((team_preposition != null) && (team_different == null)) team = team_preposition.team;
+                if ((team_preposition == null) && (team_different != null)) team = team_different.team;
+                if ((team_preposition != null) && (team_different != null)) team = team_different.team;
+                
+                Word? noun = words.Find(index => index.kind == this._noun);
+                Word? conjunction = words.Find(index => index.kind == this._conjunction);
+                Word? article = words.Find(index => index.kind == this._article);
+                Word? numeral = words.Find(index => index.kind == this._numeral);
+                Word? pronoun = words.Find(index => index.kind == this._pronoun);
+                Word? adjective_noun = words.Find(index => index.kind == this._adjective_noun);
+                Word? adjective = words.Find(index => index.kind == this._adjective);
+                Word? verb = words.Find(index => index.kind == this._verb);
+                List<Word> preposition = words.FindAll(index => index.kind == this._preposition);
+                if (team == this._conjunction)
+                {
+                    return conjunction;
+                }
+                if (team == this._preposition)
+                {
+                    Word? term = preposition.Find(index => index.team == this._preposition);
+                    return term;
+                }
+                if ((team == this._demostrative) || (team == this._possessive))
+                {
+                    return pronoun;
+                }
+                if ((team == this._adjective_noun) || (team == this._adjective_adverb))
+                {
+                    return adjective;
+                }
+                if ((team == this._noun) || (team == this._numeral_noun))
+                {
+                    if (article != null) return article;
+                    if (numeral != null) return numeral;
+                    if (pronoun != null) return pronoun;
+                }
+                if (team == this._verb)
+                {
+                    return verb;
+                }
+                return noun;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private List<Word> MountSubject(List<Sentenca> sentences, string language, List<Word> matters)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation mount subject \"Grammar\" service failed!");
+
+                List<Word> lessons = new List<Word>();
+                Dictionary<(string, string), int> word_2_vec = this._wordEmbeddingService.Word2Vec(sentences);
+                HashSet<string> vocabulary = this._wordEmbeddingService.Vocabulary(sentences);
+                List<Word> filter_matters = new List<Word>();
+                filter_matters = matters.FindAll(index => index.sentence == this._subject).ToList();
+                List<Word> words = new List<Word>();
+                Word? word = new Word();
+                List<Word> befores = new List<Word>();
+                Word? before = new Word();
+                bool last = false;
+                int order = filter_matters.OrderBy(index => index.order).Last().order;
+                for (int quantity = 1; quantity <= order; quantity++)
+                {
+                    last = false;
+                    words = filter_matters.FindAll(index => index.order == quantity);
+                    if (befores.Count == 0)
+                    {
+                        befores = words;
+                        last = true;
+                        continue;
+                    }
+                    word = new Word();
+                    word = SubjectCurrent(language, words);
+                    before = new Word();
+                    before = SubjectBefore(language, befores);
+                    bool similarity = false;
+                    similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, before.term, word.term);
+                    if (!similarity) break;
+                    foreach (Word item in words)
+                    {
+                        lessons.Add(item);
+                    }
+                    befores = words;
+                    last = true;
+                }
+                if (last)
+                {
+                    foreach (Word item in befores)
+                    {
+                        lessons.Add(item);
+                    }
+                }
+                return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private List<Word> MountSubject(string language, HashSet<string> vocabulary, Dictionary<(string, string), int> word_2_vec, List<Word> matters)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation mount subject \"Grammar\" service failed!");
+
+                List<Word> lessons = new List<Word>();
+
+                List<Word> filter_matters = new List<Word>();
+                filter_matters = matters.FindAll(index => index.sentence == this._subject).ToList();
+                List<Word> words = new List<Word>();
+                Word? word = new Word();
+                List<Word> befores = new List<Word>();
+                Word? before = new Word();
+
+                bool last = false;
+                int order = filter_matters.OrderBy(index => index.order).Last().order;
+                for (int quantity = 1; quantity <= order; quantity++)
+                {
+                    last = false;
+                    words = filter_matters.FindAll(index => index.order == quantity);
+                    if (befores.Count == 0)
+                    {
+                        befores = words;
+                        last = true;
+                        continue;
+                    }
+                    word = new Word();
+                    word = SubjectCurrent(language, words);
+                    before = new Word();
+                    before = SubjectBefore(language, befores);
+                    bool similarity = false;
+                    similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, before.term, word.term);
+                    if (!similarity) break;
+                    foreach (Word item in words)
+                    {
+                        lessons.Add(item);
+                    }
+                    befores = words;
+                    last = true;
+                }
+                if (last)
+                {
+                    foreach (Word item in befores) 
+                    {
+                        lessons.Add(item);
+                    }
+                }
+                return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private List<Word> MountPredicate(List<Sentenca> sentences, string language, List<Word> matters)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation mount predicate \"Grammar\" service failed!");
+
+                List<Word> lessons = new List<Word>();
+                Dictionary<(string, string), int> word_2_vec = this._wordEmbeddingService.Word2Vec(sentences);
+                HashSet<string> vocabulary = this._wordEmbeddingService.Vocabulary(sentences);
+                List<Word> filter_matters = new List<Word>();
+                filter_matters = matters.FindAll(index => index.sentence == this._predicate).ToList();
+                List<Word> words = new List<Word>();
+                Word? word = new Word();
+                List<Word> befores = new List<Word>();
+                Word? before = new Word();
+                bool last = false;
+                int first = filter_matters.OrderBy(index => index.order).First().order;
+                int order = filter_matters.OrderBy(index => index.order).Last().order;
+                for (int quantity = first; quantity <= order; quantity++)
+                {
+                    last = false;
+                    words = filter_matters.FindAll(index => index.order == quantity);
+                    if (befores.Count == 0)
+                    {
+                        befores = words;
+                        last = true;
+                        continue;
+                    }
+                    word = new Word();
+                    word = PredicateCurrent(language, words);
+                    before = new Word();
+                    before = PredicateBefore(language, befores);
+                    bool similarity = false;
+                    similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, before.term, word.term);
+                    if (!similarity) break;
+                    foreach (Word item in befores)
+                    {
+                        lessons.Add(item);
+                    }
+                    befores = words;
+                    last = true;
+                }
+                if (last)
+                {
+                    foreach (Word item in befores)
+                    {
+                        lessons.Add(item);
+                    }
+                }
+                return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private List<Word> MountPredicate(string language, HashSet<string> vocabulary, Dictionary<(string, string), int> word_2_vec, List<Word> matters)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation mount predicate \"Grammar\" service failed!");
+
+                List<Word> lessons = new List<Word>();
+
+                List<Word> filter_matters = new List<Word>();
+                filter_matters = matters.FindAll(index => index.sentence == this._predicate).ToList();
+                List<Word> words = new List<Word>();
+                Word? word = new Word();
+                List<Word> befores = new List<Word>();
+                Word? before = new Word();
+
+                bool last = false;
+                int first = filter_matters.OrderBy(index => index.order).First().order;
+                int order = filter_matters.OrderBy(index => index.order).Last().order;
+                for (int quantity = first; quantity <= order; quantity++)
+                {
+                    last = false;
+                    words = filter_matters.FindAll(index => index.order == quantity);
+                    if (befores.Count == 0)
+                    {
+                        befores = words;
+                        last = true;
+                        continue;
+                    }
+                    word = new Word();
+                    word = PredicateCurrent(language, words);
+                    before = new Word();
+                    before = PredicateBefore(language, befores);
+                    bool similarity = false;
+                    similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, before.term, word.term);
+                    if (!similarity) break;
+                    foreach (Word item in befores)
+                    {
+                        lessons.Add(item);
+                    }
+                    befores = words;
+                    last = true;
+                }
+                if (last)
+                {
+                    foreach (Word item in befores)
+                    {
+                        lessons.Add(item);
+                    }
+                }
+                return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private string? MountExpression(string language, List<Word> words)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation mount expression \"Grammar\" service failed!");
+
+                string? team = string.Empty;
+                Word? team_preposition = words.Find(index => index.team == this._preposition);
+                Word? team_different = words.Find(index => index.team != this._preposition);
+                if ((team_preposition != null) && (team_different == null)) team = team_preposition.team;
+                if ((team_preposition == null) && (team_different != null)) team = team_different.team;
+                if ((team_preposition != null) && (team_different != null)) team = team_different.team;
+
+                Word? noun = words.Find(index => index.kind == this._noun);
+                Word? conjunction = words.Find(index => index.kind == this._conjunction);
+                Word? article = words.Find(index => index.kind == this._article);
+                Word? numeral = words.Find(index => index.kind == this._numeral);
+                Word? pronoun = words.Find(index => index.kind == this._pronoun);
+                Word? adjective = words.Find(index => index.kind == this._adjective);
+                Word? adverb = words.Find(index => index.kind == this._adverb);
+                Word? adverb_adverb = words.Find(index => index.kind == this._adverb_adverb);
+                Word? verb = words.Find(index => index.kind == this._verb);
+                List<Word>? preposition = words.FindAll(index => index.kind == this._preposition);
+                string? word = string.Empty;
+                if (team == this._conjunction)
+                {
+                    if (conjunction != null) 
+                        word = conjunction.term;
+                }
+                if (preposition != null)
+                {
+                    if (preposition.Count == 1)
+                    {
+                        if (team == this._preposition)
+                        {
+                            if (word != string.Empty) 
+                                word += " ";
+                            word += preposition.First().term;
+                        }
+                    }
+                    else
+                    {
+                        if (preposition.Count > 1)
+                        {
+                            if (word != string.Empty) 
+                                word += " ";
+                            if (team_preposition != null) 
+                                word += team_preposition.term;
+                        }
+                    }
+                }
+                if (team == this._adjective_noun)
+                {
+                    List<Word>? term = null;
+                    if (preposition != null) 
+                        term = preposition.FindAll(index => index.team == team);
+                    if (word != string.Empty) 
+                        word += " ";
+
+                    string term_adjective = string.Empty;
+                    string term_adverb = string.Empty;
+                    string term_noun = string.Empty;
+                    if (adjective != null) 
+                        term_adjective = adjective.term;
+                    if (adverb != null) 
+                        term_adverb = adverb.term;
+                    if (noun != null) 
+                        term_noun = noun.term;
+                    if ((term != null) && (term.Count > 0))
+                    {
+                        if (adverb_adverb != null)
+                            word += term_adjective + " " + term_adverb + " " + adverb_adverb.term + " " + term[0].term + " " + term_noun;
+                        else
+                        {
+                            if (adverb != null)
+                                word += term_adjective + " " + term_adverb + " " + term[0].term + " " + term_noun;
+                            else
+                                word += term_adjective + " " + term[0].term + " " + term_noun;
+                        }
+                    }
+                    else
+                    {
+                        if (adverb_adverb != null)
+                            word += term_adjective + " " + term_adverb + " " + adverb_adverb.term + " " + term_noun;
+                        else
+                        {
+                            if (adverb != null)
+                                word += term_adverb + " " + term_adverb + " " + term_noun;
+                            else
+                                word += term_adjective + " " + term_noun;
+                        }
+                    }
+                }
+                if (team == this._adjective_adverb)
+                {
+                    if (word != string.Empty) 
+                        word += " ";
+                    
+                    string term_adjective = string.Empty;
+                    string term_adverb = string.Empty;
+                    if (adjective != null) 
+                        term_adjective = adjective.term;
+                    if (adverb != null) 
+                        term_adverb = adverb.term;
+                    if (adverb_adverb != null)
+                        word += term_adjective + " " + term_adverb + " " + adverb_adverb.term;
+                    else
+                    {
+                        if (adverb != null)
+                            word += term_adjective + " " + adverb.term;
+                        else
+                            word += term_adjective;
+                    }
+                }
+                if ((team == this._demostrative) || (team == this._possessive) || (team == this._personal))
+                {
+                    if (word != string.Empty) 
+                        word += " ";
+                    if (pronoun != null) 
+                        word += pronoun.term;
+                }
+                if ((team == this._noun) || (team == this._numeral_noun))
+                {
+                    if (word != string.Empty) word += " ";
+                    if (article != null)
+                        word += article.term;
+                    if (numeral != null)
+                        word += numeral.term;
+                    if (pronoun != null)
+                        word += pronoun.term;
+                }
+                if ((team == this._noun) || (team == this._numeral_noun))
+                {
+                    if (word != string.Empty) 
+                        word += " ";
+                    if (noun != null) 
+                        word += noun.term;
+                }
+                if (team == this._verb)
+                {
+                    if (word != string.Empty) 
+                        word += " ";
+
+                    string term_verb = string.Empty;
+                    string term_adverb = string.Empty;
+                    if (verb != null)
+                        term_verb = verb.term;
+                    if (adverb != null)
+                        term_adverb = adverb.term;
+                    if (adverb_adverb != null)
+                        word += term_adverb + " " + adverb_adverb.term + " " + term_verb;
+                    else
+                    {
+                        if (adverb != null)
+                            word += adverb.term + " " + term_verb;
+                        else
+                            word += term_verb;
+                    }
+                }
+                return word;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        public string MountOration(string language, List<Word> words)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation mount oration \"Grammar\" service failed!");
+
+                string word = string.Empty;
+                if (words.Count == 0) return word;
+                int order = words.OrderBy(index => index.order).Last().order;
+                for (int quantity = 1; quantity <= order; quantity++)
+                {
+                    List<Word> terms = new List<Word>();
+                    terms = words.FindAll(index => index.order == quantity);
+                    word += MountExpression(language, terms);
+                    if (quantity < order)
+                        word += " ";
+                }
+                return word;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private List<Word> MountOration(List<Sentenca> sentences, string language, List<Word> lessons)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation mount oration \"Grammar\" service failed!");
+
+                List<Word> words = new List<Word>();
+                List<Word> terms = new List<Word>();
+                terms = MountSubject(sentences, language, lessons);
+                foreach (Word item in terms) 
+                {
+                    words.Add(item);
+                }
+                terms = MountPredicate(sentences, language, lessons);
+                foreach (Word item in terms)
+                {
+                    words.Add(item);
+                }
+                return words;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private List<Word> MountOration(string language, HashSet<string> vocabulary, Dictionary<(string, string), int> word_2_vec, List<Word> lessons)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation mount oration \"Grammar\" service failed!");
+
+                List<Word> words = new List<Word>();
+                List<Word> subjects = new List<Word>();
+                List<Word> predicates = new List<Word>();
+                subjects = MountSubject(language, vocabulary, word_2_vec, lessons);
+                foreach (Word subject in subjects)
+                {
+                    words.Add(subject);
+                }
+                predicates = MountPredicate(language, vocabulary, word_2_vec, lessons);
+                foreach (Word predicate in predicates)
+                {
+                    words.Add(predicate);
+                }
+                return words;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+        #endregion
+
+        #region MOUNT LIST MORPHOLOGY
+        public List<Word>? MountNovelSHA256(string language, List<Sentenca> sentences, List<Lesson> lessons)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation mount syntax \"Grammar\" service failed!");
+
+                HashSet<string> vocabulary = this._wordEmbeddingService.Vocabulary(sentences);
+                Dictionary<(string, string), int> word_2_vec = this._wordEmbeddingService.Word2Vec(sentences);
+                Dictionary<(byte[], byte[]), int> word_2_vec_sha256 = this._wordEmbeddingService.Word2VecSHA256(sentences, vocabulary);
+                List<Tutorial> tutorials = new List<Tutorial>();
+                tutorials = this._wordEmbeddingService.EncodeLesson(lessons, vocabulary);
+
+                List<Tutorial> seminars = new List<Tutorial>();
+                seminars = MountOrationSample(tutorials, word_2_vec_sha256);
+
+                this._novel_english = seminars;
+
+                List<Lesson> guides = new List<Lesson>();
+                guides = this._wordEmbeddingService.DecodeLesson(seminars, vocabulary);
+
+                SetBook(language, guides);
+
+                List<Word> words = new List<Word>();
+                foreach (Lesson guide in guides)
+                {
+                    words = Oration(word_2_vec, guide.lecture);
+                    if (words.Count() > 0) break;
+                }
+                return words;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        public List<Word>? MountNovel(string language, List<Sentenca> sentences, List<Lesson> lessons)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation mount syntax \"Grammar\" service failed!");
+
+                List<Lesson> terms = new List<Lesson>();
+                terms = OrderLesson(MountOrationSample(sentences, lessons));
+                //terms = OrderLesson(terms, MountOrationCompound(sentence, matters));
+
+                SetBook(language, terms);
+                List<Word> words = new List<Word>();
+
+                foreach (Lesson phrase in terms)
+                {
+                    words = MountOration(sentences, language, phrase.lecture);
+                    if (words.Count() > 0) break;
+                }
+                return words;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        public List<Word> MountSyntax(string language, Materia lesson, List<Materia> book)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation mount syntax \"Grammar\" service failed!");
+
+                List<Sentenca> sentence = SelectSentence(language).Distinct().ToList();
+                HashSet<string> vocabulary = this._wordEmbeddingService.Vocabulary(sentence);
+                Dictionary<(string, string), int> word_2_vec = this._wordEmbeddingService.Word2Vec(sentence);
+
+                List<string> list_noun = this._morphologyService.GetLessonNoun(lesson, book);
+                List<string> list_adjective = this._morphologyService.GetLessonAdjective(lesson, book);
+                List<string> list_model = this._morphologyService.GetLessonVerb(lesson);
+
+                List<Juncao> list_preposition = SelectPreposition(language).OrderBy(index => index.nome).ToList();
+                List<Preceito> list_article = SelectArticle(language).OrderBy(index => index.nome).ToList();
+                List<Algarismo> list_numeral = SelectNumeral(language).OrderBy(index => index.sigla).ToList();
+                List<Circunstancia> list_adverb = SelectAdverb(language).OrderBy(index => index.nome).ToList();
+                List<Elocucao> list_verb = SelectVerb(language).OrderBy(index => index.nome).ToList();
+                List<Estoutro> list_pronoun = SelectPronoun(language).OrderBy(index => index.nome).ToList();
+                List<Ligacao> list_conjunction = SelectConjunction(language).OrderBy(index => index.nome).ToList();
+
+                List<Lesson> mount_pronoun = this._morphologyService.GetPronoun(sentence, list_pronoun);
+                List<Lesson> mount_conjunction = this._morphologyService.GetConjunction(sentence, list_conjunction);
+                List<Lesson> mount_numeral = this._morphologyService.GetNumeral(sentence, list_numeral);
+                List<Lesson> mount_article = this._morphologyService.GetArticle(sentence, list_article);
+                List<Lesson> mount_preposition = this._morphologyService.GetPreposition(sentence, list_preposition);
+
+                List<Lesson> adnominal_adjunct = this._morphologyService.GetAdnominalAdjunct(word_2_vec, vocabulary, list_noun, list_pronoun, list_article, list_numeral, list_adjective, list_adverb);
+                List<Lesson> adverbial_adjunct_verb = this._morphologyService.GetAdverbialAdjunct(word_2_vec, vocabulary, list_model, list_verb, list_adverb);
+                List<Lesson> adverbial_adjunct_adjective = this._morphologyService.GetAdverbialAdjunct(word_2_vec, vocabulary, list_adjective, list_adverb);
+
+                List<Lesson> matters = Union(adnominal_adjunct, adverbial_adjunct_verb);
+                matters = Union(matters, adverbial_adjunct_adjective);
+                matters = Union(matters, mount_pronoun);
+                matters = Union(matters, mount_conjunction);
+                matters = Union(matters, mount_numeral);
+                matters = Union(matters, mount_article);
+                matters = Union(matters, mount_preposition);
+
+                List<Word>? words = new List<Word>();
+
+                words = MountNovelSHA256(language, sentence, matters);
+
+                return words;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+        #endregion

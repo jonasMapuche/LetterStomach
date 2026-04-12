@@ -1713,154 +1713,44 @@ namespace LetterStomach.Services
             }
         }
 
-        private bool VerifyDirectObjectPreposition(List<Instruction> words, Dictionary<(byte[], byte[]), int> word_2_vec, byte[] order_direct_object, byte[] order_preposition)
+        private bool VerifyDirectObjectPreposition(List<Instruction> words, Dictionary<(byte[], byte[]), int> word_2_vec, byte[] order)
         {
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation verify direct object preposition \"Syntax\" service failed!");
 
                 byte[] syntax_predicate = this._wordEmbeddingService.Encode(this._predicate, this._syntax);
+                byte[] morphology_adnominal_adjunct = this._wordEmbeddingService.Encode(this._adnominal_adjunct, this._morphology);
+                byte[] morphology_noun = this._wordEmbeddingService.Encode(this._noun, this._morphology);
+                byte[] morphology_pronoun = this._wordEmbeddingService.Encode(this._pronoun, this._morphology);
                 byte[] morphology_preposition = this._wordEmbeddingService.Encode(this._preposition, this._morphology);
 
+                byte[]? noun = null;
                 byte[]? preposition = null;
 
                 foreach (Instruction item in words)
                 {
-                    if (!item.order.AsSpan().SequenceEqual(order_preposition)) continue;
+                    if ((item.sentence.AsSpan().SequenceEqual(syntax_predicate))
+                        && (item.team.AsSpan().SequenceEqual(morphology_adnominal_adjunct))
+                        && (item.kind.AsSpan().SequenceEqual(morphology_noun))) noun = item.term;
 
                     if ((item.sentence.AsSpan().SequenceEqual(syntax_predicate))
-                        && (item.team.AsSpan().SequenceEqual(morphology_preposition))
+                        && (!item.team.AsSpan().SequenceEqual(morphology_adnominal_adjunct))
+                        && (item.kind.AsSpan().SequenceEqual(morphology_pronoun))) noun = item.term;
+
+                    if ((item.sentence.AsSpan().SequenceEqual(syntax_predicate))
                         && (item.kind.AsSpan().SequenceEqual(morphology_preposition))) preposition = item.term;
                 }
-
-                byte[] morphology_predicate = this._wordEmbeddingService.Encode(this._predicate, this._syntax);
-                byte[] morphology_adnominal_adjunct = this._wordEmbeddingService.Encode(this._adnominal_adjunct, this._morphology);
-                byte[] morphology_adverbial_adjective = this._wordEmbeddingService.Encode(this._adverbial_adjective, this._morphology);
-                byte[] morphology_pronoun = this._wordEmbeddingService.Encode(this._pronoun, this._morphology);
-                byte[] morphology_numeral = this._wordEmbeddingService.Encode(this._numeral, this._morphology);
-                byte[] morphology_conjunction = this._wordEmbeddingService.Encode(this._conjunction, this._morphology);
-                byte[] morphology_noun = this._wordEmbeddingService.Encode(this._noun, this._morphology);
-
-                List<Instruction> compound_conjunction = words.FindAll(index => index.team.SequenceEqual(morphology_conjunction)
-                    && index.sentence.SequenceEqual(morphology_predicate));
-                List<Instruction> compound_adnominal = words.FindAll(index => index.team.SequenceEqual(morphology_adnominal_adjunct)
-                    && index.sentence.SequenceEqual(morphology_predicate));
-                List<Instruction> compound_numeral = words.FindAll(index => index.team.SequenceEqual(morphology_numeral)
-                    && index.sentence.SequenceEqual(morphology_predicate));
-                List<Instruction> compound_adjective = words.FindAll(index => index.team.SequenceEqual(morphology_adverbial_adjective)
-                    && index.sentence.SequenceEqual(morphology_predicate));
-                List<Instruction> compound_pronoun = words.FindAll(index => (!index.team.SequenceEqual(morphology_pronoun))
-                    && (index.kind.SequenceEqual(morphology_pronoun))
-                    && index.sentence.SequenceEqual(morphology_predicate));
-
-                byte[]? noun = null;
-                byte[]? noun2 = null;
-                byte[]? pronoun = null;
-                byte[]? pronoun2 = null;
-
+                /*
+                words.ForEach(item =>
+                {
+                    if ((item.sentence == this._predicate) && (item.team == this._noun) && (item.order == order_direct_object)) noun = item.term;
+                    if ((item.sentence == this._predicate) && (item.team == this._preposition)) preposition = item.term;
+                });
+                */
                 bool similarity = false;
-                if (((compound_conjunction.Count > 0) && (compound_numeral.Count > 0))
-                    || ((compound_conjunction.Count > 0) && (compound_adjective.Count > 0)))
-                {
-                    foreach (Instruction item in words)
-                    {
-                        if (!item.order.AsSpan().SequenceEqual(order_direct_object)) continue;
-
-                        if ((item.sentence.AsSpan().SequenceEqual(syntax_predicate))
-                            && (item.team.AsSpan().SequenceEqual(morphology_adnominal_adjunct))
-                            && (item.kind.AsSpan().SequenceEqual(morphology_noun))) noun = item.term;
-                    }
-                    similarity = this._wordEmbeddingService.Similarity(word_2_vec, noun, preposition);
-                    if (similarity) 
-                        return true;
-                }
-                if ((compound_conjunction.Count > 0) && (compound_pronoun.Count > 1))
-                {
-                    int index = 0;
-                    foreach (Instruction item in words)
-                    {
-                        if (!item.order.AsSpan().SequenceEqual(order_direct_object)) continue;
-
-                        if ((item.sentence.AsSpan().SequenceEqual(syntax_predicate))
-                            && (!item.team.AsSpan().SequenceEqual(morphology_adnominal_adjunct))
-                            && (item.kind.AsSpan().SequenceEqual(morphology_pronoun)))
-                        {
-                            if (index == 0) pronoun = item.term;
-                            if (index == 1) pronoun2 = item.term;
-                        }
-                        index++;
-                    }
-                    similarity = this._wordEmbeddingService.Similarity(word_2_vec, pronoun, preposition);
-                    if (similarity) 
-                        return true;
-                    similarity = this._wordEmbeddingService.Similarity(word_2_vec, pronoun2, preposition);
-                    if (similarity) 
-                        return true;
-                }
-                if ((compound_conjunction.Count > 0) && (compound_adnominal.Count > 1))
-                {
-                    int index = 0;
-                    foreach (Instruction item in words)
-                    {
-                        if (!item.order.AsSpan().SequenceEqual(order_direct_object)) continue;
-
-                        if ((item.sentence.AsSpan().SequenceEqual(syntax_predicate))
-                            && (item.team.AsSpan().SequenceEqual(morphology_adnominal_adjunct))
-                            && (item.kind.AsSpan().SequenceEqual(morphology_noun)))
-                        {
-                            if (index == 0) noun = item.term;
-                            if (index == 1) noun2 = item.term;
-                        }
-                        index++;
-                    }
-                    similarity = this._wordEmbeddingService.Similarity(word_2_vec, noun, preposition);
-                    if (similarity) 
-                        return true;
-                    similarity = this._wordEmbeddingService.Similarity(word_2_vec, noun2, preposition);
-                    if (similarity) 
-                        return true;
-                }
-                if ((compound_conjunction.Count > 0) 
-                    && (compound_adnominal.Count > 0) 
-                    && (compound_pronoun.Count > 0))
-                {
-                    foreach (Instruction item in words)
-                    {
-                        if (!item.order.AsSpan().SequenceEqual(order_direct_object)) continue;
-
-                        if ((item.sentence.AsSpan().SequenceEqual(syntax_predicate))
-                            && (item.team.AsSpan().SequenceEqual(morphology_adnominal_adjunct))
-                            && (item.kind.AsSpan().SequenceEqual(morphology_noun))) noun = item.term;
-
-                        if ((item.sentence.AsSpan().SequenceEqual(syntax_predicate))
-                            && (!item.team.AsSpan().SequenceEqual(morphology_adnominal_adjunct))
-                            && (item.kind.AsSpan().SequenceEqual(morphology_pronoun))) pronoun = item.term;
-                    }
-                    similarity = this._wordEmbeddingService.Similarity(word_2_vec, noun, preposition);
-                    if (similarity) 
-                        return true;
-                    similarity = this._wordEmbeddingService.Similarity(word_2_vec, pronoun, preposition);
-                    if (similarity) 
-                        return true;
-                }
-                if (compound_conjunction.Count == 0)
-                {
-                    foreach (Instruction item in words)
-                    {
-                        if (!item.order.AsSpan().SequenceEqual(order_direct_object)) continue;
-
-                        if ((item.sentence.AsSpan().SequenceEqual(syntax_predicate))
-                            && (item.team.AsSpan().SequenceEqual(morphology_adnominal_adjunct))
-                            && (item.kind.AsSpan().SequenceEqual(morphology_noun))) noun = item.term;
-
-                        if ((item.sentence.AsSpan().SequenceEqual(syntax_predicate))
-                            && (!item.team.AsSpan().SequenceEqual(morphology_adnominal_adjunct))
-                            && (item.kind.AsSpan().SequenceEqual(morphology_pronoun))) noun = item.term;
-                    }
-                    similarity = this._wordEmbeddingService.Similarity(word_2_vec, noun, preposition);
-                    if (similarity) 
-                        return true;
-                }
+                similarity = this._wordEmbeddingService.Similarity(word_2_vec, noun, preposition);
+                if (similarity) return true;
                 return false;
             }
             catch (Exception ex)
@@ -1929,8 +1819,6 @@ namespace LetterStomach.Services
 
                 foreach (Instruction item in words)
                 {
-                    if (!item.order.AsSpan().SequenceEqual(order)) continue;
-
                     if ((item.sentence.AsSpan().SequenceEqual(syntax_predicate))
                         && (item.team.AsSpan().SequenceEqual(morphology_adnominal_adjunct))
                         && (item.kind.AsSpan().SequenceEqual(morphology_adjective))) adjective = item.term;
@@ -2077,8 +1965,7 @@ namespace LetterStomach.Services
                     && index.sentence.SequenceEqual(morphology_predicate));
                 List<Instruction> compound_adjective = words.FindAll(index => index.team.SequenceEqual(morphology_adverbial_adjective)
                     && index.sentence.SequenceEqual(morphology_predicate));
-                List<Instruction> compound_pronoun = words.FindAll(index => (!index.team.SequenceEqual(morphology_pronoun))
-                    && (index.kind.SequenceEqual(morphology_pronoun))
+                List<Instruction> compound_pronoun = words.FindAll(index => index.team.SequenceEqual(morphology_pronoun)
                     && index.sentence.SequenceEqual(morphology_predicate));
 
                 byte[]? noun = null;
@@ -2137,7 +2024,7 @@ namespace LetterStomach.Services
                             if (index == 1) noun2 = item.term;
                         }
                         index++;
-                    } 
+                    }
                     similarity = this._wordEmbeddingService.Similarity(word_2_vec, noun, adjective);
                     if (similarity) return true;
                     similarity = this._wordEmbeddingService.Similarity(word_2_vec, noun2, adjective);
@@ -2467,6 +2354,65 @@ namespace LetterStomach.Services
             }
         }
 
+        private List<Tutorial> MountPronounVerb(List<Tutorial> tutorials, Dictionary<(byte[], byte[]), int> word_2_vec)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation mount pronoun verb \"Syntax\" view model failed!");
+
+                List<Tutorial> seminars = new List<Tutorial>();
+
+                List<byte[]> kind_adverbial_verb = new List<byte[]>();
+                byte[] sha_adverbial_verb = this._wordEmbeddingService.Encode(this._adverbial_verb, this._morphology);
+                kind_adverbial_verb.Add(sha_adverbial_verb);
+                List<Tutorial> adverbials_verbs = new List<Tutorial>();
+                adverbials_verbs = FilterLesson(tutorials, kind_adverbial_verb);
+
+                List<byte[]> kind_pronoun = new List<byte[]>();
+                byte[] sha_personal = this._wordEmbeddingService.Encode(this._personal, this._morphology);
+                kind_pronoun.Add(sha_personal);
+                byte[] sha_pronoun = this._wordEmbeddingService.Encode(this._demonstrative, this._morphology);
+                kind_pronoun.Add(sha_pronoun);
+                List<Tutorial> pronouns = new List<Tutorial>();
+                pronouns = FilterLesson(tutorials, kind_pronoun);
+
+                byte[] subject = this._wordEmbeddingService.Encode(this._subject, this._syntax);
+                byte[] predicate = this._wordEmbeddingService.Encode(this._predicate, this._syntax);
+                byte[] order_pronoun = this._wordEmbeddingService.Encode(this._order_1, this._order);
+                byte[] order_verb = this._wordEmbeddingService.Encode(this._order_2, this._order);
+
+                foreach (Tutorial adverbial_verb in adverbials_verbs)
+                {
+                    foreach (Tutorial pronoun in pronouns)
+                    {
+                        List<Instruction> words = new List<Instruction>();
+                        foreach (Instruction item in adverbial_verb.lecture)
+                        {
+                            Instruction word = new Instruction();
+                            word = Lecture(item.term, item.kind, predicate, adverbial_verb.team, order_verb);
+                            words.Add(word);
+                        };
+                        foreach (Instruction item in pronoun.lecture)
+                        {
+                            Instruction word = new Instruction();
+                            word = Lecture(item.term, item.kind, subject, pronoun.team, order_pronoun);
+                            words.Add(word);
+                        };
+                        if (!VerifyVerbSampleSubject(words, word_2_vec)) continue;
+                        Tutorial seminar = new Tutorial();
+                        seminar.lecture = words;
+                        seminars.Add(seminar);
+                    }
+                }
+                return seminars;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
         private List<Lesson> MountCompoundVerb(List<Sentenca> sentences, List<Lesson> matters)
         {
             try
@@ -2555,10 +2501,8 @@ namespace LetterStomach.Services
                 List<byte[]> kind_adnominal_adjunct = new List<byte[]>();
                 byte[] sha_adnominal_adjunct = this._wordEmbeddingService.Encode(this._adnominal_adjunct, this._morphology);
                 kind_adnominal_adjunct.Add(sha_adnominal_adjunct);
-                byte[] sha_personal = this._wordEmbeddingService.Encode(this._personal, this._morphology);
-                kind_adnominal_adjunct.Add(sha_personal);
-                byte[] sha_demonstrative = this._wordEmbeddingService.Encode(this._demonstrative, this._morphology);
-                kind_adnominal_adjunct.Add(sha_demonstrative);
+                byte[] sha_pronoun = this._wordEmbeddingService.Encode(this._personal, this._morphology);
+                kind_adnominal_adjunct.Add(sha_pronoun);
                 List<Tutorial> adnominals_firsts = new List<Tutorial>();
                 adnominals_firsts = FilterLesson(tutorials, kind_adnominal_adjunct);
 
@@ -2693,10 +2637,6 @@ namespace LetterStomach.Services
                 List<byte[]> kind_adnominal_adjunct = new List<byte[]>();
                 byte[] sha_adnominal_adjunct = this._wordEmbeddingService.Encode(this._adnominal_adjunct, this._morphology);
                 kind_adnominal_adjunct.Add(sha_adnominal_adjunct);
-                byte[] sha_possessive = this._wordEmbeddingService.Encode(this._possessive, this._morphology);
-                kind_adnominal_adjunct.Add(sha_possessive);
-                byte[] sha_pessoal = this._wordEmbeddingService.Encode(this._personal, this._morphology);
-                kind_adnominal_adjunct.Add(sha_pessoal);
                 List<Tutorial> adnominals_adjunts = new List<Tutorial>();
                 adnominals_adjunts = FilterLesson(tutorials, kind_adnominal_adjunct);
 
@@ -2767,6 +2707,54 @@ namespace LetterStomach.Services
                     }
                 }
                 return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private List<Tutorial> MountVerbPronoun(List<Tutorial> tutorials, Dictionary<(byte[], byte[]), int> word_2_vec, List<Tutorial> sources, int order)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation mount verb pronoun \"Syntax\" service failed!");
+
+                List<Tutorial> seminars = new List<Tutorial>();
+
+                List<byte[]> kind_pronoun = new List<byte[]>();
+                byte[] ssh_possessive = this._wordEmbeddingService.Encode(this._possessive, this._morphology);
+                kind_pronoun.Add(ssh_possessive);
+                byte[] ssh_pessoal = this._wordEmbeddingService.Encode(this._personal, this._morphology);
+                kind_pronoun.Add(ssh_pessoal);
+                List<Tutorial> pronouns = new List<Tutorial>();
+                pronouns = FilterLesson(tutorials, kind_pronoun);
+
+                byte[] predicate = this._wordEmbeddingService.Encode(this._predicate, this._syntax);
+                byte[] order_pronoun = this._wordEmbeddingService.Encode(order, this._order);
+
+                if (pronouns.Count == 0) return seminars;
+                foreach (Tutorial source in sources)
+                {
+                    List<Instruction> words = source.lecture;
+                    foreach (Tutorial pronoun in pronouns)
+                    {
+                        List<Instruction> words1 = new List<Instruction>();
+                        words.ForEach(item => words1.Add(item));
+                        foreach (Instruction item in pronoun.lecture)
+                        {
+                            Instruction word = new Instruction();
+                            word = Lecture(item.term, item.kind, predicate, pronoun.team, order_pronoun);
+                            words1.Add(word);
+                        };
+                        if (!VerifyVerbDirectObject(words1, word_2_vec)) continue;
+                        Tutorial seminar = new Tutorial();
+                        seminar.lecture = words1;
+                        seminars.Add(seminar);
+                    }
+                }
+                return seminars;
             }
             catch (Exception ex)
             {
@@ -3135,7 +3123,7 @@ namespace LetterStomach.Services
         #endregion
 
         #region INDIRECT OBJECT
-        private List<Lesson> MountDirectObjectPreposition(List<Sentenca> sentences, List<Lesson> matters, List<Lesson> sources, int order_preposition)
+        private List<Lesson> MountPrepositionIndirectObject(List<Sentenca> sentences, List<Lesson> matters, List<Lesson> sources, int order_preposition)
         {
             try
             {
@@ -3179,7 +3167,7 @@ namespace LetterStomach.Services
             }
         }
 
-        private List<Tutorial> MountDirectObjectPreposition(List<Tutorial> tutorials, Dictionary<(byte[], byte[]), int> word_2_vec, List<Tutorial> sources, int order_direct_object, int order_indirect_object)
+        private List<Tutorial> MountPrepositionIndirectObject(List<Tutorial> tutorials, Dictionary<(byte[], byte[]), int> word_2_vec, List<Tutorial> sources, int order)
         {
             try
             {
@@ -3194,8 +3182,7 @@ namespace LetterStomach.Services
                 prepositions = FilterLesson(tutorials, kind_preposition);
 
                 byte[] predicate = this._wordEmbeddingService.Encode(this._predicate, this._syntax);
-                byte[] order = this._wordEmbeddingService.Encode(order_direct_object, this._order);
-                byte[] order_preposition = this._wordEmbeddingService.Encode(order_indirect_object, this._order);
+                byte[] order_preposition = this._wordEmbeddingService.Encode(order, this._order);
 
                 if (prepositions.Count == 0) return seminars;
                 foreach (Tutorial source in sources)
@@ -3211,7 +3198,7 @@ namespace LetterStomach.Services
                             word = Lecture(item.term, item.kind, predicate, preposition.team, order_preposition);
                             words1.Add(word);
                         };
-                        if (!VerifyDirectObjectPreposition(words1, word_2_vec, order, order_preposition)) continue;
+                        if (!VerifyDirectObjectPreposition(words1, word_2_vec, order_preposition)) continue;
                         Tutorial seminar = new Tutorial();
                         seminar.lecture = words1;
                         seminars.Add(seminar);
@@ -3369,15 +3356,14 @@ namespace LetterStomach.Services
                 List<byte[]> kind_adnominal_adjunct = new List<byte[]>();
                 byte[] sha_adnominal_adjunct = this._wordEmbeddingService.Encode(this._adnominal_adjunct, this._morphology);
                 kind_adnominal_adjunct.Add(sha_adnominal_adjunct);
-                byte[] sha_possessive = this._wordEmbeddingService.Encode(this._possessive, this._morphology);
-                kind_adnominal_adjunct.Add(sha_possessive);
-                byte[] sha_pessoal = this._wordEmbeddingService.Encode(this._personal, this._morphology);
-                kind_adnominal_adjunct.Add(sha_pessoal);
+                byte[] sha_pronoun = this._wordEmbeddingService.Encode(this._possessive, this._morphology);
+                kind_adnominal_adjunct.Add(sha_pronoun);
+
                 List<Tutorial> adnominals_adjuncts = new List<Tutorial>();
                 adnominals_adjuncts = FilterLesson(tutorials, kind_adnominal_adjunct);
 
                 byte[] predicate = this._wordEmbeddingService.Encode(this._predicate, this._syntax);
-                byte[] order_indirect_object = this._wordEmbeddingService.Encode(order, this._order);
+                byte[] order_adnominal_adjunct = this._wordEmbeddingService.Encode(order, this._order);
 
                 if (adnominals_adjuncts.Count == 0) return seminars;
                 foreach (Tutorial source in sources)
@@ -3391,10 +3377,10 @@ namespace LetterStomach.Services
                         foreach (Instruction item in adnominal_adjunct.lecture)
                         {
                             Instruction word = new Instruction();
-                            word = Lecture(item.term, item.kind, predicate, adnominal_adjunct.team, order_indirect_object);
+                            word = Lecture(item.term, item.kind, predicate, adnominal_adjunct.team, order_adnominal_adjunct);
                             words1.Add(word);
                         };
-                        if (!VerifyIndirectObject(words1, word_2_vec, order_indirect_object)) continue;
+                        if (!VerifyIndirectObject(words1, word_2_vec, order_adnominal_adjunct)) continue;
                         Tutorial seminar = new Tutorial();
                         seminar.lecture = words1;
                         seminars.Add(seminar);
@@ -3738,12 +3724,14 @@ namespace LetterStomach.Services
                                     word = Lecture(item.term, item.kind, predicate, numeral.team, order_compound);
                                     words1.Add(word);
                                 }
+                                ;
                                 foreach (Instruction item in conjunction.lecture)
                                 {
                                     Instruction word = new Instruction();
                                     word = Lecture(item.term, item.kind, predicate, conjunction.team, order_compound);
                                     words1.Add(word);
                                 }
+                                ;
                                 if (!VerifyPrepositionNumeralConjunctionNoun(words1, word_2_vec, order_compound)) continue;
                                 Tutorial seminar = new Tutorial();
                                 seminar.lecture = words1;
@@ -3989,17 +3977,13 @@ namespace LetterStomach.Services
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation mount verb noun conjunction noun \"Syntax\" service failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation mount verb adjective conjunction noun \"Syntax\" service failed!");
 
                 List<Tutorial> seminars = new List<Tutorial>();
 
                 List<byte[]> kind_adnominal_adjunct = new List<byte[]>();
                 byte[] sha_adnominal_adjunct = this._wordEmbeddingService.Encode(this._adnominal_adjunct, this._morphology);
                 kind_adnominal_adjunct.Add(sha_adnominal_adjunct);
-                byte[] sha_possessive = this._wordEmbeddingService.Encode(this._possessive, this._morphology);
-                kind_adnominal_adjunct.Add(sha_possessive);
-                byte[] sha_pessoal = this._wordEmbeddingService.Encode(this._personal, this._morphology);
-                kind_adnominal_adjunct.Add(sha_pessoal);
                 List<Tutorial> adnominals_firsts = new List<Tutorial>();
                 adnominals_firsts = FilterLesson(tutorials, kind_adnominal_adjunct);
 
@@ -4070,17 +4054,13 @@ namespace LetterStomach.Services
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation mount verb noun conjunction noun \"Syntax\" service failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation mount verb adjective conjunction noun \"Syntax\" service failed!");
 
                 List<Tutorial> seminars = new List<Tutorial>();
 
                 List<byte[]> kind_adnominal_adjunct = new List<byte[]>();
                 byte[] sha_adnominal_adjunct = this._wordEmbeddingService.Encode(this._adnominal_adjunct, this._morphology);
                 kind_adnominal_adjunct.Add(sha_adnominal_adjunct);
-                byte[] sha_possessive = this._wordEmbeddingService.Encode(this._possessive, this._morphology);
-                kind_adnominal_adjunct.Add(sha_possessive);
-                byte[] sha_pessoal = this._wordEmbeddingService.Encode(this._personal, this._morphology);
-                kind_adnominal_adjunct.Add(sha_pessoal);
                 List<Tutorial> adnominals_firsts = new List<Tutorial>();
                 adnominals_firsts = FilterLesson(tutorials, kind_adnominal_adjunct);
 
@@ -4117,18 +4097,20 @@ namespace LetterStomach.Services
                                     words1.Add(word);
                                     firsts.Add(word);
                                 }
+                                ;
                                 foreach (Instruction item in adnominal_last.lecture)
                                 {
                                     Instruction word = new Instruction();
                                     word = Lecture(item.term, item.kind, predicate, adnominal_last.team, order_compound);
                                     words1.Add(word);
-                                    lasts.Add(word);
                                 }
+                                ;
                                 foreach (Instruction item in conjunction.lecture)
                                 {
                                     Instruction word = new Instruction();
                                     word = Lecture(item.term, item.kind, predicate, conjunction.team, order_compound);
                                     words1.Add(word);
+                                    lasts.Add(word);
                                 }
                                 ;
                                 if (!VerifyPrepositionNounConjunctionNoun(words1, firsts, lasts, word_2_vec, order_compound)) continue;
@@ -4176,6 +4158,7 @@ namespace LetterStomach.Services
 
                 List<Tutorial> seminars = new List<Tutorial>();
                 seminars = MountNounVerb(tutorials, word_2_vec);
+                seminars = Union(seminars, MountPronounVerb(tutorials, word_2_vec));
                 return seminars;
             }
             catch (Exception ex)
@@ -4248,6 +4231,7 @@ namespace LetterStomach.Services
 
                 List<Tutorial> seminars = new List<Tutorial>();
                 seminars = MountVerbNoun(tutorials, word_2_vec, sources, order_init);
+                seminars = Union(seminars, MountVerbPronoun(tutorials, word_2_vec, sources, order_init));
                 seminars = Union(seminars, MountVerbNumeralConjunctionNoun(tutorials, word_2_vec, sources, order_init));
                 seminars = Union(seminars, MountVerbAdjectiveConjunctionNoun(tutorials, word_2_vec, sources, order_init));
                 seminars = Union(seminars, MountVerbNounConjunctionNoun(tutorials, word_2_vec, sources, order_init));
@@ -4320,10 +4304,10 @@ namespace LetterStomach.Services
 
                 List<Tutorial> seminars = new List<Tutorial>();
                 seminars = MountVerbIndirectObject(tutorials, word_2_vec, sources, order_init);
-                seminars = Union(seminars, MountVerbNoun(tutorials, word_2_vec, seminars, order_init));
-                seminars = Union(seminars, MountVerbNumeralConjunctionNoun(tutorials, word_2_vec, seminars, order_init));
-                seminars = Union(seminars, MountVerbAdjectiveConjunctionNoun(tutorials, word_2_vec, seminars, order_init));
-                seminars = Union(seminars, MountVerbNounConjunctionNoun(tutorials, word_2_vec, seminars, order_init));
+                seminars = Union(seminars, MountVerbNoun(tutorials, word_2_vec, sources, order_init));
+                seminars = Union(seminars, MountVerbNumeralConjunctionNoun(tutorials, word_2_vec, sources, order_init));
+                seminars = Union(seminars, MountVerbAdjectiveConjunctionNoun(tutorials, word_2_vec, sources, order_init));
+                seminars = Union(seminars, MountVerbNounConjunctionNoun(tutorials, word_2_vec, sources, order_init));
                 return seminars;
             }
             catch (Exception ex)
@@ -4342,7 +4326,7 @@ namespace LetterStomach.Services
                 List<Lesson> lessons = new List<Lesson>();
 
                 List<Lesson> prepositions = new List<Lesson>();
-                prepositions = MountDirectObjectPreposition(sentences, matters, sources, order_init);
+                prepositions = MountPrepositionIndirectObject(sentences, matters, sources, order_init);
                 List<Lesson> nouns = new List<Lesson>();
                 nouns = MountIndirectObjectNoun(sentences, matters, prepositions, order_init);
                 List<Lesson> pronouns = new List<Lesson>();
@@ -4368,7 +4352,7 @@ namespace LetterStomach.Services
             }
         }
 
-        public List<Tutorial> PredicateDirectObjectIndirectObject(List<Tutorial> tutorials, Dictionary<(byte[], byte[]), int> word_2_vec, List<Tutorial> sources, int order_direct_object, int order_indirect_object)
+        public List<Tutorial> PredicateDirectObjectIndirectObject(List<Tutorial> tutorials, Dictionary<(byte[], byte[]), int> word_2_vec, List<Tutorial> sources, int order_init)
         {
             try
             {
@@ -4377,19 +4361,19 @@ namespace LetterStomach.Services
                 List<Tutorial> seminars = new List<Tutorial>();
 
                 List<Tutorial> prepositions = new List<Tutorial>();
-                prepositions = MountDirectObjectPreposition(tutorials, word_2_vec, sources, order_direct_object, order_indirect_object);
+                prepositions = MountPrepositionIndirectObject(tutorials, word_2_vec, sources, order_init);
 
                 List<Tutorial> adnominals_adjunts = new List<Tutorial>();
-                adnominals_adjunts = MountDirectObjectIndirectObject(tutorials, word_2_vec, prepositions, order_indirect_object);
+                adnominals_adjunts = MountDirectObjectIndirectObject(tutorials, word_2_vec, prepositions, order_init);
 
                 List<Tutorial> numerals_nouns = new List<Tutorial>();
-                numerals_nouns = MountPrepositionNumeralConjunctionNoun(tutorials, word_2_vec, prepositions, order_indirect_object);
+                numerals_nouns = MountPrepositionNumeralConjunctionNoun(tutorials, word_2_vec, prepositions, order_init);
 
                 List<Tutorial> adjectives_nouns = new List<Tutorial>();
-                adjectives_nouns = MountPrepositionAdjectiveConjunctionNoun(tutorials, word_2_vec, prepositions, order_indirect_object);
+                adjectives_nouns = MountPrepositionAdjectiveConjunctionNoun(tutorials, word_2_vec, prepositions, order_init);
 
                 List<Tutorial> nouns_nouns = new List<Tutorial>();
-                nouns_nouns = MountPrepositionNounConjunctionNoun(tutorials, word_2_vec, prepositions, order_indirect_object);
+                nouns_nouns = MountPrepositionNounConjunctionNoun(tutorials, word_2_vec, prepositions, order_init);
 
                 seminars = Union(adnominals_adjunts, numerals_nouns);
                 seminars = Union(seminars, adjectives_nouns);
@@ -4437,7 +4421,7 @@ namespace LetterStomach.Services
                 this.error_message = ex.Message;
                 throw new InvalidOperationException(this.error_message);
             }
-        } 
+        }
 
         public List<Lesson> PredicateIndirectObjectPredicative(List<Sentenca> sentences, List<Lesson> matters, List<Lesson> sources, int order_init)
         {
@@ -4572,7 +4556,7 @@ namespace LetterStomach.Services
                 adjectives_nouns = MountVerbAdjectiveNoun(sentences, matters, substantives, order_last);
                 List<Lesson> conjunctions_nouns = new List<Lesson>();
                 conjunctions_nouns = Union(nouns, adjectives_nouns);
-                conjunctions_nouns = MountDirectObjectPreposition(sentences, matters, conjunctions_nouns, order_last);
+                conjunctions_nouns = MountPrepositionIndirectObject(sentences, matters, conjunctions_nouns, order_last);
                 conjunctions_nouns = MountConjunction(sentences, matters, conjunctions_nouns, order_init);
 
                 List<string> kind_pronoun = new List<string>();
@@ -4583,7 +4567,7 @@ namespace LetterStomach.Services
                 List<Lesson> pronouns = new List<Lesson>();
                 pronouns = MountVerbPronoun(sentences, matters, surrogates, order_last);
                 List<Lesson> conjunctions_pronouns = new List<Lesson>();
-                conjunctions_pronouns = MountDirectObjectPreposition(sentences, matters, conjunctions_pronouns, order_last);
+                conjunctions_pronouns = MountPrepositionIndirectObject(sentences, matters, conjunctions_pronouns, order_last);
                 conjunctions_pronouns = MountConjunction(sentences, matters, conjunctions_pronouns, order_init);
 
                 lessons = Union(conjunctions_nouns, conjunctions_pronouns);

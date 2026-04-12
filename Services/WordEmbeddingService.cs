@@ -186,6 +186,26 @@ namespace LetterStomach.Services
             }
         }
 
+        public bool Similarity(Dictionary<(string, string), int> word_2_vec, string? target, string? target1)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation similarity \"Word Embedding\" service failed!");
+
+                foreach (KeyValuePair<(string, string), int> value in word_2_vec)
+                {
+                    if ((value.Key.Item1 == target) && (value.Key.Item2 == target1))
+                        return true;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
         public bool Similarity(Dictionary<(byte[], byte[]), int> word_2_vec, byte[]? target, byte[]? target2)
         {
             try
@@ -195,7 +215,8 @@ namespace LetterStomach.Services
                 foreach (KeyValuePair<(byte[], byte[]), int> value in word_2_vec)
                 {
                     if ((value.Key.Item1.AsSpan().SequenceEqual(target)) 
-                        && (value.Key.Item2.AsSpan().SequenceEqual(target2))) return true;
+                        && (value.Key.Item2.AsSpan().SequenceEqual(target2))) 
+                        return true;
                 }
                 return false;
             }

@@ -13,8 +13,8 @@ namespace LetterStomach.Services.Interfaces
         Task SQLiteAsync(ISQLiteService sQLiteService);
         List<Materia> GetLetter(string language);
         Task<List<Materia>> GetLetterAsync(string language);
-        List<Word> MountSyntax(string language, Materia lesson, List<Materia> book);
-        List<Word> MountSyntax(string language, List<Word> terms, bool reverse);
-        string MountOration(string language, List<Word> words);
+        List<Word> Syntax(string language, Materia lesson, List<Materia> book);
+        List<Word> Syntax(string language, List<Word> terms, bool reverse);
+        string Oration(List<Word> words);
     }
 }

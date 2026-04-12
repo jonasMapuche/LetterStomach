@@ -44,6 +44,9 @@ namespace LetterStomach.Services
         private string _plural;
         private string _numeral_noun;
         private string _infinitive;
+        private string _adnominal_adjunct;
+        private string _adverbial_verb;
+        private string _adverbial_adjective;
 
         private IWordEmbeddingService _wordEmbeddingService;
         #endregion
@@ -76,6 +79,9 @@ namespace LetterStomach.Services
                 this._plural = SettingService.Instance.Plural;
                 this._numeral_noun = SettingService.Instance.Numeral_Noun;
                 this._infinitive = SettingService.Instance.Infinitive;
+                this._adnominal_adjunct = SettingService.Instance.Adnominal_Adjunct;
+                this._adverbial_verb = SettingService.Instance.Adverbial_Verb;
+                this._adverbial_adjective = SettingService.Instance.Adverbial_Adjective;
 
                 this._wordEmbeddingService = new WordEmbeddingService();
             }
@@ -96,6 +102,29 @@ namespace LetterStomach.Services
 
                 List<string> words = new List<string>();
                 HashSet<string> vocabulary = this._wordEmbeddingService.Vocabulary(sentences);
+                string item = string.Empty;
+                list.ForEach(word =>
+                {
+                    item = this._wordEmbeddingService.RemoveAccent(word.ToLower());
+                    if (Array.IndexOf(vocabulary.ToArray(), item) != -1)
+                        words.Add(word);
+                });
+                return words;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private List<string> FilterList(List<string> list, HashSet<string> vocabulary)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation filter list \"Morphology\" service failed!");
+
+                List<string> words = new List<string>();
                 string item = string.Empty;
                 list.ForEach(word =>
                 {
@@ -136,6 +165,28 @@ namespace LetterStomach.Services
             }
         }
 
+        private List<Circunstancia> FilterAdverb(List<Circunstancia> adverbs, HashSet<string> vocabulary)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation filter adverb \"Morphology\" service failed!");
+                List<Circunstancia> words = new List<Circunstancia>();
+                string word = string.Empty;
+                foreach (Circunstancia item in adverbs)
+                {
+                    word = this._wordEmbeddingService.RemoveAccent(item.nome.ToLower());
+                    if (Array.IndexOf(vocabulary.ToArray(), word) != -1)
+                        words.Add(item);
+                }
+                return words;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
         private List<Preceito> FilterArticle(List<Preceito> articles, List<Sentenca> sentences)
         {
             try
@@ -144,6 +195,29 @@ namespace LetterStomach.Services
 
                 List<Preceito> words = new List<Preceito>();
                 HashSet<string> vocabulary = this._wordEmbeddingService.Vocabulary(sentences);
+                string word = string.Empty;
+                articles.ForEach(item =>
+                {
+                    word = this._wordEmbeddingService.RemoveAccent(item.nome.ToLower());
+                    if (Array.IndexOf(vocabulary.ToArray(), word) != -1)
+                        words.Add(item);
+                });
+                return words;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private List<Preceito> FilterArticle(List<Preceito> articles, HashSet<string> vocabulary)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation filter article \"Morphology\" service failed!");
+
+                List<Preceito> words = new List<Preceito>();
                 string word = string.Empty;
                 articles.ForEach(item =>
                 {
@@ -184,6 +258,29 @@ namespace LetterStomach.Services
             }
         }
 
+        private List<Algarismo> FilterNumeral(List<Algarismo> numerals, HashSet<string> vocabulary)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation filter numeral \"Morphology\" service failed!");
+
+                List<Algarismo> words = new List<Algarismo>();
+                string word = string.Empty;
+                numerals.ForEach(item =>
+                {
+                    word = this._wordEmbeddingService.RemoveAccent(item.nome.ToLower());
+                    if (Array.IndexOf(vocabulary.ToArray(), word) != -1)
+                        words.Add(item);
+                });
+                return words;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
         private List<Estoutro> FilterPronoun(List<Estoutro> pronouns, List<Sentenca> sentences)
         {
             try
@@ -192,6 +289,29 @@ namespace LetterStomach.Services
 
                 List<Estoutro> words = new List<Estoutro>();
                 HashSet<string> vocabulary = this._wordEmbeddingService.Vocabulary(sentences);
+                string word = string.Empty;
+                pronouns.ForEach(item =>
+                {
+                    word = this._wordEmbeddingService.RemoveAccent(item.nome.ToLower());
+                    if (Array.IndexOf(vocabulary.ToArray(), word) != -1)
+                        words.Add(item);
+                });
+                return words;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private List<Estoutro> FilterPronoun(List<Estoutro> pronouns, HashSet<string> vocabulary)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation filter pronoun \"Morphology\" service failed!");
+
+                List<Estoutro> words = new List<Estoutro>();
                 string word = string.Empty;
                 pronouns.ForEach(item =>
                 {
@@ -256,6 +376,29 @@ namespace LetterStomach.Services
             }
         }
 
+        private List<Juncao> FilterPreposition(List<Juncao> prepositions, HashSet<string> vocabulary)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation filter preposition \"Morphology\" service failed!");
+
+                List<Juncao> words = new List<Juncao>();
+                string word = string.Empty;
+                prepositions.ForEach(item =>
+                {
+                    word = this._wordEmbeddingService.RemoveAccent(item.nome.ToLower());
+                    if (Array.IndexOf(vocabulary.ToArray(), word) != -1)
+                        words.Add(item);
+                });
+                return words;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
         private List<Elocucao> FilterVerb(List<Elocucao> verbs, List<Sentenca> sentences)
         {
             try
@@ -271,6 +414,29 @@ namespace LetterStomach.Services
                     if (Array.IndexOf(vocabulary.ToArray(), word) != -1)
                         words.Add(item);
                 });
+                return words;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private List<Elocucao> FilterVerb(List<Elocucao> verbs, HashSet<string> vocabulary)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation filter verb \"Morphology\" service failed!");
+
+                List<Elocucao> words = new List<Elocucao>();
+                string word = string.Empty;
+                foreach (Elocucao item in verbs)
+                {
+                    word = this._wordEmbeddingService.RemoveAccent(item.nome.ToLower());
+                    if (Array.IndexOf(vocabulary.ToArray(), word) != -1)
+                        words.Add(item);
+                };
                 return words;
             }
             catch (Exception ex)
@@ -323,6 +489,29 @@ namespace LetterStomach.Services
 
                 List<Ligacao> words = new List<Ligacao>();
                 HashSet<string> vocabulary = this._wordEmbeddingService.Vocabulary(sentences);
+                string word = string.Empty;
+                conjunctions.ForEach(item =>
+                {
+                    word = this._wordEmbeddingService.RemoveAccent(item.nome.ToLower());
+                    if (Array.IndexOf(vocabulary.ToArray(), word) != -1)
+                        words.Add(item);
+                });
+                return words;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private List<Ligacao> FilterConjunction(List<Ligacao> conjunctions, HashSet<string> vocabulary)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation filter conjunction \"Morphology\" service failed!");
+
+                List<Ligacao> words = new List<Ligacao>();
                 string word = string.Empty;
                 conjunctions.ForEach(item =>
                 {
@@ -749,6 +938,41 @@ namespace LetterStomach.Services
             }
         }
 
+        private List<Lesson> VerifyAdjective(List<Lesson> adjectives_adverbs, Dictionary<(string, string), int> word_2_vec)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation verify adjective \"Morphology\" service failed!");
+
+                List<Lesson> lessons = new List<Lesson>();
+                adjectives_adverbs.ForEach(word =>
+                {
+                    List<Word> words = new List<Word>();
+                    string first = string.Empty;
+                    string last = string.Empty;
+                    foreach (Word item in word.lecture)
+                    {
+                        if (item.kind == this._adjective) first = item.term;
+                        if (item.kind == this._adverb) last = item.term;
+                        words.Add(item);
+                    };
+                    bool similarity = this._wordEmbeddingService.Similarity(word_2_vec, first, last);
+                    if (similarity)
+                    {
+                        Lesson lesson = new Lesson();
+                        lesson.lecture = words;
+                        lessons.Add(lesson);
+                    }
+                });
+                return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
         private List<Lesson> UnionAdjective(List<string> adjectives, List<Lesson> adjectives_adverbs)
         {
             try
@@ -866,6 +1090,35 @@ namespace LetterStomach.Services
             }
         }
 
+        private List<Lesson> MountAdjectiveAdverb(Dictionary<(string, string), int> word_2_vec, HashSet<string> vocabulary, List<string> adjectives, List<Circunstancia> adverbs)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation mount adjective adverb \"Morphology\" service failed!");
+
+                List<Lesson> lessons = new List<Lesson>();
+
+                List<string> adjective_vocabulary = FilterList(adjectives, vocabulary);
+                List<Circunstancia> adverb_vocabulary = FilterAdverb(adverbs, vocabulary);
+
+                List<Lesson> adjective = MountAdjective(adjective_vocabulary);
+                List<Lesson> adjective_adverb = MountAdjectiveAdverb(adjective_vocabulary, adverb_vocabulary);
+                List<Lesson> adverb_adverb = MountAdverbAdverb(adverb_vocabulary);
+                List<Lesson> adjective_adverb_adverb = MountAdjectiveAdverb(adjective_vocabulary, adverb_adverb);
+
+                List<Lesson> union_adjective = UnionAdjective(adjective, adjective_adverb);
+                union_adjective = UnionAdjective(union_adjective, adjective_adverb_adverb);
+                List<Lesson> adjective_verify = VerifyAdjective(union_adjective, word_2_vec);
+
+                return adjective_verify;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
         private List<Lesson> MountAdjective(List<string> adjectives)
         {
             try
@@ -947,6 +1200,32 @@ namespace LetterStomach.Services
                 throw new InvalidOperationException(this.error_message);
             }
         }
+
+        public List<Lesson> GetAdverbialAdjunct(Dictionary<(string, string), int> word_2_vec, HashSet<string> vocabulary, List<string> adjectives, List<Circunstancia> adverbs)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation get adverbial adjunct \"Morphology\" service failed!");
+
+                List<Lesson> lessons = new List<Lesson>();
+
+                List<Lesson> adjective_adverb = MountAdjectiveAdverb(word_2_vec, vocabulary, adjectives, adverbs);
+
+                foreach (Lesson item in adjective_adverb)
+                {
+                    Lesson lesson = new Lesson();
+                    lesson.team = this._adverbial_adjective;
+                    lesson.lecture = item.lecture;
+                    lessons.Add(lesson);
+                };
+                return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
         #endregion
 
         #region ARTICLE
@@ -977,6 +1256,33 @@ namespace LetterStomach.Services
                 if (this._error_off) throw new InvalidOperationException("Operation get article \"Morphology\" service failed!");
 
                 List<Preceito> filter_article = FilterArticle(articles, sentences);
+
+                List<Lesson> lessons = new List<Lesson>();
+                filter_article.ForEach(item =>
+                {
+                    List<Word> words = new List<Word>();
+                    words = Word(item.nome, this._article, null, null);
+                    Lesson lesson = new Lesson();
+                    lesson.team = this._article;
+                    lesson.lecture = words;
+                    lessons.Add(lesson);
+                });
+                return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        public List<Lesson> GetArticle(HashSet<string> vocabulary, List<Preceito> articles)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation get article \"Morphology\" service failed!");
+
+                List<Preceito> filter_article = FilterArticle(articles, vocabulary);
 
                 List<Lesson> lessons = new List<Lesson>();
                 filter_article.ForEach(item =>
@@ -1061,6 +1367,66 @@ namespace LetterStomach.Services
             }
         }
 
+        private List<Lesson> VerifyNoun(List<Lesson> matters, Dictionary<(string, string), int> word_2_vec)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation verify noun \"Morphology\" service failed!");
+
+                List<Lesson> lessons = new List<Lesson>();
+                foreach (Lesson instruction in matters)
+                {
+                    List<Word> words = new List<Word>();
+                    string first = string.Empty;
+                    string middle = string.Empty;
+                    string last = string.Empty;
+                    bool three = false;
+                    if (instruction.lecture.Count > 2) three = true;
+                    instruction.lecture.ForEach(item =>
+                    {
+                        if (three)
+                        {
+                            if (item.kind == this._article) first = item.term;
+                            if ((item.kind != this._noun) && (item.kind != this._article)) middle = item.term;
+                            if (item.kind == this._noun) last = item.term;
+                        }
+                        else
+                        {
+                            if (item.kind != this._noun) first = item.term;
+                            if (item.kind == this._noun) last = item.term;
+                        }
+                        words.Add(item);
+                    });
+                    bool similarity = false;
+                    if (three)
+                    {
+                        similarity = this._wordEmbeddingService.Similarity(word_2_vec, first, middle);
+                        if (similarity)
+                            similarity = this._wordEmbeddingService.Similarity(word_2_vec, middle, last);
+                    }
+                    else
+                    {
+                        if (first != string.Empty)
+                            similarity = this._wordEmbeddingService.Similarity(word_2_vec, first, last);
+                        else
+                            similarity = true;
+                    }
+                    if (similarity)
+                    {
+                        Lesson lesson = new Lesson();
+                        lesson.lecture = words;
+                        lessons.Add(lesson);
+                    }
+                }
+                return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
         private List<Lesson> VerifyAdjectiveNoun(List<Lesson> matters, List<Sentenca> sentences)
         {
             try
@@ -1083,6 +1449,42 @@ namespace LetterStomach.Services
                     });
                     bool similarity = false;
                     similarity = this._wordEmbeddingService.Similarity(word_2_vec, vocabulary, adjective, noun);
+                    if (similarity)
+                    {
+                        Lesson lesson = new Lesson();
+                        lesson.lecture = words;
+                        lessons.Add(lesson);
+                    }
+                });
+                return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private List<Lesson> VerifyAdjectiveNoun(List<Lesson> matters, Dictionary<(string, string), int> word_2_vec)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation verify adjective noun \"Morphology\" service failed!");
+
+                List<Lesson> lessons = new List<Lesson>();
+                matters.ForEach(instruction =>
+                {
+                    List<Word> words = new List<Word>();
+                    string adjective = string.Empty;
+                    string noun = string.Empty;
+                    instruction.lecture.ForEach(item =>
+                    {
+                        if (item.kind == this._adjective) adjective = item.term;
+                        if (item.kind == this._noun) noun = item.term;
+                        words.Add(item);
+                    });
+                    bool similarity = false;
+                    similarity = this._wordEmbeddingService.Similarity(word_2_vec, adjective, noun);
                     if (similarity)
                     {
                         Lesson lesson = new Lesson();
@@ -1422,6 +1824,66 @@ namespace LetterStomach.Services
             }
         }
 
+        public List<Lesson> GetAdnominalAdjunct(Dictionary<(string, string), int> word_2_vec, HashSet<string> vocabulary, List<string> nouns, List<Estoutro> pronouns, List<Preceito> articles, List<Algarismo> numerals, List<string> adjectives, List<Circunstancia> adverbs)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation get adnominal adjunct \"Morphology\" service failed!");
+
+                List<Lesson> lessons = new List<Lesson>();
+
+                List<string> noun_vocabulary = FilterList(nouns, vocabulary);
+                List<Preceito> article_vocabulary = FilterArticle(articles, vocabulary);
+                List<Algarismo> numeral_vocabulary = FilterNumeral(numerals, vocabulary);
+
+                List<string> type_adjective = new List<string>();
+                type_adjective.Add(this._adjective);
+                List<Estoutro> pronoun_adjective = MountPronoun(type_adjective, pronouns);
+
+                List<string> type_demostrative = new List<string>();
+                type_demostrative.Add(this._demonstrative);
+                List<Estoutro> pronoun_demostrative = MountPronoun(type_demostrative, pronouns);
+
+                List<Estoutro> pronoun_adjective_vocabulary = FilterPronoun(pronoun_adjective, vocabulary);
+                List<Estoutro> pronoun_demostrative_vocabulary = FilterPronoun(pronoun_demostrative, vocabulary);
+
+                List<Lesson> noun = MountNoun(noun_vocabulary, article_vocabulary);
+
+                List<Lesson> noun_numeral = MountNounNumeral(noun_vocabulary, numeral_vocabulary, article_vocabulary);
+                List<Lesson> noun_article = MountNounArticle(noun_vocabulary, article_vocabulary);
+
+                List<Lesson> noun_possessive = MountNounPronoun(noun_vocabulary, pronoun_adjective_vocabulary, article_vocabulary);
+                List<Lesson> noun_demonstrative = MountNounPronoun(noun_vocabulary, pronoun_demostrative_vocabulary, article_vocabulary);
+
+                List<Lesson> union_noun = UnionNoun(noun, noun_numeral);
+                union_noun = UnionNoun(union_noun, noun_article);
+                union_noun = UnionNoun(union_noun, noun_possessive);
+                union_noun = UnionNoun(union_noun, noun_demonstrative);
+                List<Lesson> noun_verify = VerifyNoun(union_noun, word_2_vec);
+
+                List<Lesson> adjective_adverb = MountAdjectiveAdverb(word_2_vec, vocabulary, adjectives, adverbs); 
+
+                List<Lesson> noun_adjective = MountAdjectiveNoun(noun_verify, adjective_adverb);
+                List<Lesson> adjective_noun_vefiry = VerifyAdjectiveNoun(noun_adjective, word_2_vec);
+
+                List<Lesson> union_lesson = UnionNoun(noun_verify, adjective_noun_vefiry);
+
+                foreach (Lesson item in union_lesson)
+                {
+                    Lesson lesson = new Lesson();
+                    lesson.team = this._adnominal_adjunct;
+                    lesson.lecture = item.lecture;
+                    lessons.Add(lesson);
+                };
+                return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
         public List<Lesson> GetNoun(List<Sentenca> sentences, List<string> nouns, List<Estoutro> pronouns, List<Preceito> articles, List<Algarismo> numerals)
         {
             try
@@ -1443,13 +1905,14 @@ namespace LetterStomach.Services
 
                 List<Lesson> mount_noun = MountNoun(filter_noun, filter_article);
                 List<Lesson> noun_possessive = MountNounPronoun(filter_noun, filter_pronoun_adjective, filter_article);
-                List<Lesson> noun_demostrative = MountNounPronoun(filter_noun, filter_pronoun_demostrative, filter_article);
+                List<Lesson> noun_demonstrative = MountNounPronoun(filter_noun, filter_pronoun_demostrative, filter_article);
                 List<Lesson> noun_numeral = MountNounNumeral(filter_noun, filter_numeral, filter_article);
                 List<Lesson> noun_article = MountNounArticle(filter_noun, filter_article);
+                
                 List<Lesson> union_substantive = UnionNoun(mount_noun, noun_article);
                 List<Lesson> union_substantive_one = UnionNoun(union_substantive, noun_possessive);
                 List<Lesson> union_substantive_two = UnionNoun(union_substantive_one, noun_numeral);
-                List<Lesson> union_substantive_three = UnionNoun(union_substantive_two, noun_demostrative);
+                List<Lesson> union_substantive_three = UnionNoun(union_substantive_two, noun_demonstrative);
                 List<Lesson> verify_noun = VerifyNoun(union_substantive_three, sentences);
 
                 List<Lesson> lessons = new List<Lesson>();
@@ -1613,6 +2076,62 @@ namespace LetterStomach.Services
                 throw new InvalidOperationException(this.error_message);
             }
         }
+
+        public List<Lesson> GetPronoun(HashSet<string> vocabulary, List<Estoutro> pronouns)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation get pronoun \"Morphology\" service failed!");
+
+                List<string> type_personal = new List<string>();
+                type_personal.Add(this._personal);
+                List<Estoutro> mount_pronoun_personal = MountPronoun(type_personal, pronouns);
+                List<string> type_possessive = new List<string>();
+                type_possessive.Add(this._possessive);
+                List<Estoutro> mount_pronoun_possessive = MountPronoun(type_possessive, pronouns);
+                List<string> type_demostrative = new List<string>();
+                type_demostrative.Add(this._demonstrative);
+                List<Estoutro> mount_pronoun_demostrative = MountPronoun(type_demostrative, pronouns);
+                List<Estoutro> filter_pronoun_personal = FilterPronoun(mount_pronoun_personal, vocabulary);
+                List<Estoutro> filter_pronoun_possessive = FilterPronoun(mount_pronoun_possessive, vocabulary);
+                List<Estoutro> filter_pronoun_demostrative = FilterPronoun(mount_pronoun_demostrative, vocabulary);
+
+                List<Lesson> lessons = new List<Lesson>();
+                filter_pronoun_personal.ForEach(item =>
+                {
+                    List<Word> words = new List<Word>();
+                    words = Word(item.nome, this._pronoun, null, null);
+                    Lesson lesson = new Lesson();
+                    lesson.team = this._personal;
+                    lesson.lecture = words;
+                    lessons.Add(lesson);
+                });
+                filter_pronoun_possessive.ForEach(item =>
+                {
+                    List<Word> words = new List<Word>();
+                    words = Word(item.nome, this._pronoun, null, null);
+                    Lesson lesson = new Lesson();
+                    lesson.team = this._possessive;
+                    lesson.lecture = words;
+                    lessons.Add(lesson);
+                });
+                filter_pronoun_demostrative.ForEach(item =>
+                {
+                    List<Word> words = new List<Word>();
+                    words = Word(item.nome, this._pronoun, null, null);
+                    Lesson lesson = new Lesson();
+                    lesson.team = this._demonstrative;
+                    lesson.lecture = words;
+                    lessons.Add(lesson);
+                });
+                return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
         #endregion
 
         #region VERB ADVERBIAL ADJUNCT
@@ -1620,7 +2139,7 @@ namespace LetterStomach.Services
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation verify verbs adverbs \"Morphology\" service failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation verify verbs adverb \"Morphology\" service failed!");
 
                 List<Lesson> lessons = new List<Lesson>();
                 HashSet<string> vocabulary = this._wordEmbeddingService.Vocabulary(sentences);
@@ -1645,6 +2164,80 @@ namespace LetterStomach.Services
                         lessons.Add(lesson);
                     }
                 });
+                return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private List<Lesson> VerifyVerbAdverb(List<Lesson> verbs_adverbs, Dictionary<(string, string), int> word_2_vec)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation verify verb adverb \"Morphology\" service failed!");
+
+                List<Lesson> lessons = new List<Lesson>();
+                foreach (Lesson verb_adverb in verbs_adverbs)
+                {
+                    List<Word> words = new List<Word>();
+                    string first = string.Empty;
+                    string last = string.Empty;
+                    foreach (Word word in verb_adverb.lecture)
+                    {
+                        if (word.kind == this._verb) first = word.term;
+                        if (word.kind == this._adverb) last = word.term;
+                        words.Add(word);
+                    }
+                    bool similarity = this._wordEmbeddingService.Similarity(word_2_vec, first, last);
+                    if (similarity)
+                    {
+                        Lesson lesson = new Lesson();
+                        lesson.lecture = words;
+                        lessons.Add(lesson);
+                    }
+                }
+                return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private List<Lesson> VerifyVerbAdverbAdverb(List<Lesson> verbs_adverbs, Dictionary<(string, string), int> word_2_vec)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation verify verb adverb adverb \"Morphology\" service failed!");
+
+                List<Lesson> lessons = new List<Lesson>();
+
+                foreach (Lesson verb_adverb in verbs_adverbs)
+                {
+                    List<Word> words = new List<Word>();
+                    string verb = string.Empty;
+                    string adverb = string.Empty;
+                    string adverb_adverb = string.Empty;
+                    foreach (Word word in verb_adverb.lecture)
+                    {
+                        if (word.kind == this._verb) verb = word.term;
+                        if (word.kind == this._adverb) adverb = word.term;
+                        if (word.kind == this._adverb_adverb) adverb_adverb = word.term;
+                        words.Add(word);
+                    }
+                    bool similarity = this._wordEmbeddingService.Similarity(word_2_vec, verb, adverb);
+                    if (similarity) similarity = this._wordEmbeddingService.Similarity(word_2_vec, adverb, adverb);
+                    if (similarity)
+                    {
+                        Lesson lesson = new Lesson();
+                        lesson.lecture = words;
+                        lessons.Add(lesson);
+                    }
+                }
                 return lessons;
             }
             catch (Exception ex)
@@ -1764,7 +2357,7 @@ namespace LetterStomach.Services
             }
         }
 
-        private List<Lesson> MountVerbAdverb(List<Elocucao> verbs, List<Lesson> adverbs_adverbs)
+        private List<Lesson> MountVerbAdverbAdverb(List<Elocucao> verbs, List<Lesson> adverbs_adverbs)
         {
             try
             {
@@ -1814,7 +2407,7 @@ namespace LetterStomach.Services
                 List<Lesson> verify_verb_adverb = VerifyVerbAdverb(mount_verb_adverb, sentences);
                 List<Lesson> mount_adverb_adverb = MountAdverbAdverb(filter_adverb);
                 List<Lesson> verify_adverb_adverb = VerifyAdverb(mount_adverb_adverb, sentences);
-                List<Lesson> mount_verb_adverb_adverb = MountVerbAdverb(filter_infinitive, verify_adverb_adverb);
+                List<Lesson> mount_verb_adverb_adverb = MountVerbAdverbAdverb(filter_infinitive, verify_adverb_adverb);
                 List<Lesson> verify_verb_adverb_adverb = VerifyVerbAdverb(mount_verb_adverb_adverb, sentences);
                 List<Lesson> union_verb_adverb = UnionVerb(filter_infinitive, verify_verb_adverb);
                 List<Lesson> union_verb_adverb_adverb = UnionVerb(union_verb_adverb, verify_verb_adverb_adverb);
@@ -1835,6 +2428,49 @@ namespace LetterStomach.Services
                 throw new InvalidOperationException(this.error_message);
             }
         }
+
+        public List<Lesson> GetAdverbialAdjunct(Dictionary<(string, string), int> word_2_vec, HashSet<string> vocabulary, List<string> models, List<Elocucao> verbs, List<Circunstancia> adverbs)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation get adverbial adjunct \"Morphology\" service failed!");
+
+                List<Lesson> lessons = new List<Lesson>();
+
+                List<Circunstancia> adverb_vocabulary = FilterAdverb(adverbs, vocabulary);
+                List<Elocucao> list_verb = MountVerb(models, verbs);
+                List<Elocucao> verb_vocabulary = FilterVerb(list_verb, vocabulary);
+
+                List<string> kind_infinitive = new List<string>();
+                kind_infinitive.Add(this._infinitive);
+
+                List<Elocucao> verb_without_infinitive = FilterReverseVerb(verb_vocabulary, kind_infinitive);
+                
+                List<Lesson> verb_adverb = MountVerbAdverb(verb_without_infinitive, adverb_vocabulary);
+                List<Lesson> verify_verb_adverb = VerifyVerbAdverb(verb_adverb, word_2_vec);
+
+                List<Lesson> adverb_adverb = MountAdverbAdverb(adverb_vocabulary);
+                List<Lesson> verb_adverb_adverb = MountVerbAdverbAdverb(verb_without_infinitive, adverb_adverb);
+                List<Lesson> verify_verb_adverb_adverb = VerifyVerbAdverbAdverb(verb_adverb_adverb, word_2_vec);
+
+                List<Lesson> union_verb = UnionVerb(verb_without_infinitive, verify_verb_adverb);
+                union_verb = UnionVerb(union_verb, verb_adverb_adverb);
+
+                foreach (Lesson item in union_verb)
+                {
+                    Lesson lesson = new Lesson();
+                    lesson.team = this._adverbial_verb; 
+                    lesson.lecture = item.lecture;
+                    lessons.Add(lesson);
+                }
+                return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
         #endregion
 
         #region NUMERAL
@@ -1845,6 +2481,33 @@ namespace LetterStomach.Services
                 if (this._error_off) throw new InvalidOperationException("Operation get numeral \"Morphology\" service failed!");
 
                 List<Algarismo> filter_numeral = FilterNumeral(numerals, sentences);
+
+                List<Lesson> lessons = new List<Lesson>();
+                filter_numeral.ForEach(item =>
+                {
+                    List<Word> words = new List<Word>();
+                    words = Word(item.nome, this._numeral, null, null);
+                    Lesson lesson = new Lesson();
+                    lesson.team = this._numeral;
+                    lesson.lecture = words;
+                    lessons.Add(lesson);
+                });
+                return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        public List<Lesson> GetNumeral(HashSet<string> vocabulary, List<Algarismo> numerals)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation get numeral \"Morphology\" service failed!");
+
+                List<Algarismo> filter_numeral = FilterNumeral(numerals, vocabulary);
 
                 List<Lesson> lessons = new List<Lesson>();
                 filter_numeral.ForEach(item =>
@@ -1893,6 +2556,33 @@ namespace LetterStomach.Services
                 throw new InvalidOperationException(this.error_message);
             }
         }
+
+        public List<Lesson> GetConjunction(HashSet<string> vocabulary, List<Ligacao> conjunctions)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation get conjunction \"Morphology\" service failed!");
+
+                List<Ligacao> filter_conjunction = FilterConjunction(conjunctions, vocabulary);
+
+                List<Lesson> lessons = new List<Lesson>();
+                filter_conjunction.ForEach(item =>
+                {
+                    List<Word> words = new List<Word>();
+                    words = Word(item.nome, this._conjunction, null, null);
+                    Lesson lesson = new Lesson();
+                    lesson.team = this._conjunction;
+                    lesson.lecture = words;
+                    lessons.Add(lesson);
+                });
+                return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
         #endregion
 
         #region PREPOSITION
@@ -1903,6 +2593,33 @@ namespace LetterStomach.Services
                 if (this._error_off) throw new InvalidOperationException("Operation get preposition \"Morphology\" service failed!");
 
                 List<Juncao> filter_preposition = FilterPreposition(prepositions, sentences);
+
+                List<Lesson> lessons = new List<Lesson>();
+                filter_preposition.ForEach(item =>
+                {
+                    List<Word> words = new List<Word>();
+                    words = Word(item.nome, this._preposition, null, null);
+                    Lesson lesson = new Lesson();
+                    lesson.team = this._preposition;
+                    lesson.lecture = words;
+                    lessons.Add(lesson);
+                });
+                return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        public List<Lesson> GetPreposition(HashSet<string> vocabulary, List<Juncao> prepositions)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation get preposition \"Morphology\" service failed!");
+
+                List<Juncao> filter_preposition = FilterPreposition(prepositions, vocabulary);
 
                 List<Lesson> lessons = new List<Lesson>();
                 filter_preposition.ForEach(item =>
