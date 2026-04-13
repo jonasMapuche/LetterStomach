@@ -1,4 +1,5 @@
-﻿using LetterStomach.Enums;
+﻿using LetterStomach.Data;
+using LetterStomach.Enums;
 using LetterStomach.Models;
 using LetterStomach.Repositories;
 using LetterStomach.Repositories.SQLites;
@@ -13,9 +14,9 @@ namespace LetterStomach.Services
         #region ERROR
         private bool _error_on = true;
         private bool _error_off = false;
-        private string _error_message;
+        private string? _error_message;
 
-        public string error_message
+        public string? error_message
         {
             get => this._error_message;
             set
@@ -24,24 +25,27 @@ namespace LetterStomach.Services
             }
         }
 
-        public event EventHandler<string> OnError;
+        public event EventHandler<string>? OnError;
         #endregion
 
         #region VARIABLE
-        public List<Circunstancia> Circunstancia { get; set; }
-        public List<Estoutro> Estoutro { get; set; }
-        public List<Preceito> Preceito { get; set; }
-        public List<Algarismo> Algarismo { get; set; }
-        public List<Juncao> Juncao { get; set; }
-        public List<Materia> Materia { get; set; }
-        public List<Elocucao> Elocucao { get; set; }
-        public List<Sentenca> Sentenca { get; set; }
-        public List<Ligacao> Ligacao { get; set; }
-        public List<Assistente> Assistente { get; set; }
+        public List<Circunstancia>? Circunstancia { get; set; }
+        public List<Estoutro>? Estoutro { get; set; }
+        public List<Preceito>? Preceito { get; set; }
+        public List<Algarismo>? Algarismo { get; set; }
+        public List<Juncao>? Juncao { get; set; }
+        public List<Materia>? Materia { get; set; }
+        public List<Elocucao>? Elocucao { get; set; }
+        public List<Sentenca>? Sentenca { get; set; }
+        public List<Ligacao>? Ligacao { get; set; }
+        public List<Assistente>? Assistente { get; set; }
 
-        private static SQLiteAsyncConnection _database;
-        private const string FILE_SQLITE = "letter.db";
-        private string file_path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), FILE_SQLITE);
+        //private static SQLiteAsyncConnection _database;
+        private readonly SQLiteAsyncConnection _database;
+
+        private string _file_path;
+        //private const string FILE_SQLITE = "letter.db";
+        //private string file_path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), FILE_SQLITE);
         private const int QUANTITY_SQLITE = 12;
 
         private readonly IAdverbioRepository _adverbioRepository;
@@ -63,7 +67,7 @@ namespace LetterStomach.Services
         #endregion
 
         #region CONSTRUCTOR
-        public SQLiteService()
+        public SQLiteService(SQLiteContext sQLiteContex)
         {
             try
             {
@@ -74,7 +78,9 @@ namespace LetterStomach.Services
                 this._modelService = new ModelService();
                 this._settingService = SettingService.Instance;
 
-                Connect();
+                this._database = sQLiteContex.GetConnection();
+                this._file_path = sQLiteContex.GetFilePath();
+                //Connect();
 
                 this._adverbioRepository = new AdverbioRepository(_database);
                 this._artigoRepository = new ArtigoRepository(_database);
@@ -104,7 +110,7 @@ namespace LetterStomach.Services
             {
                 if (this._error_off) throw new InvalidOperationException("Operation connect \"SQLite\" service failed!");
 
-                _database = new SQLiteAsyncConnection(file_path);
+                //_database = new SQLiteAsyncConnection(file_path);
             }
             catch (Exception ex)
             {
@@ -121,7 +127,7 @@ namespace LetterStomach.Services
             {
                 if (this._error_off) throw new InvalidOperationException("Operation exit \"SQLite\" service failed!");
 
-                bool exist = File.Exists(file_path);
+                bool exist = File.Exists(this._file_path);
                 bool connect = (_database is not null) ? true : false;
                 int quantity = 0;
                 if (exist && connect)
@@ -154,7 +160,7 @@ namespace LetterStomach.Services
             {
                 if (this._error_off) throw new InvalidOperationException("Operation exit async \"SQLite\" service failed!");
 
-                bool exist = File.Exists(file_path);
+                bool exist = File.Exists(this._file_path);
                 bool connect = (_database is not null) ? true : false;
                 int quantity = 0;
                 if (exist && connect)

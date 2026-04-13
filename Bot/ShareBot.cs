@@ -9,9 +9,9 @@ namespace LetterStomach.Bot
         #region ERROR
         private bool _error_on = true;
         private bool _error_off = false;
-        private string _error_message;
+        private string? _error_message;
 
-        public string error_message
+        public string? error_message
         {
             get => this._error_message;
             set
@@ -20,41 +20,82 @@ namespace LetterStomach.Bot
             }
         }
 
-        public event EventHandler<string> OnError;
-        #endregion
-
-        #region CONSTANTS
-        private Dictionary<string, string> VAR_OPTIONS = SettingService.Instance.Options;
-        private Dictionary<string, string> VAR_CHOOSE = SettingService.Instance.Choose;
-        private Dictionary<string, string> VAR_FILE = SettingService.Instance.File;
-        private Dictionary<string, string> VAR_SCAN = SettingService.Instance.Scan;
-        private Dictionary<string, string> VAR_BOT = SettingService.Instance.Bot;
-        private Dictionary<string, string> VAR_CONNECTION = SettingService.Instance.Connection;
-        private Dictionary<string, string> VAR_NAME = SettingService.Instance.Name;
-        private Dictionary<string, string> VAR_OR = SettingService.Instance.Or;
-        private Dictionary<string, string> VAR_BY = SettingService.Instance.By;
-
-        private Dictionary<string, string> VAR_TERMINATE = SettingService.Instance.Terminate;
-
-        private Dictionary<string, string> VAR_UPLOAD = SettingService.Instance.Upload;
-        private Dictionary<string, string> VAR_DOWNLOAD = SettingService.Instance.Download;
-
-        private Dictionary<string, string> VAR_BLUETOOTHS = SettingService.Instance.Bluetooths;
-        private Dictionary<string, string> VAR_BLUETOOTH3 = SettingService.Instance.Bluetooth3;
-        private Dictionary<string, string> VAR_BLUETOOTH4 = SettingService.Instance.Bluetooth4;
-        private Dictionary<string, string> VAR_RASPBERRY = SettingService.Instance.Raspberry;
-
-        private Dictionary<string, string> VAR_SEND = SettingService.Instance.Send;
-        private Dictionary<string, string> VAR_CONNECT = SettingService.Instance.Connect;
-        private Dictionary<string, string> VAR_DISCONNECT = SettingService.Instance.Disconnect;
+        public event EventHandler<string>? OnError;
         #endregion
 
         #region VARIABLE
-        private List<string> _scan = new List<string>();
-        private string _device = string.Empty;
+        private Dictionary<string, string> _options;
+        private Dictionary<string, string> _choose;
+        private Dictionary<string, string> _file;
+        private Dictionary<string, string> _scan;
+        private Dictionary<string, string> _bot;
+        private Dictionary<string, string> _connection;
+        private Dictionary<string, string> _name;
+        private Dictionary<string, string> _or;
+        private Dictionary<string, string> _by;
 
-        public List<string> ShareScan { get => _scan; set => _scan = value; }
+        private Dictionary<string, string> _terminate;
+
+        private Dictionary<string, string> _upload;
+        private Dictionary<string, string> _download;
+
+        private Dictionary<string, string> _bluetooths;
+        private Dictionary<string, string> _bluetooth3;
+        private Dictionary<string, string> _bluetooth4;
+        private Dictionary<string, string> _raspberry;
+
+        private Dictionary<string, string> _send;
+        private Dictionary<string, string> _connect;
+        private Dictionary<string, string> _disconnect;
+
+        private List<string> _shareScan;
+        private string _device;
+
+        public List<string> ShareScan { get => _shareScan; set => _shareScan = value; }
         public string ShareDevice { get => _device; set => _device = value; }
+        #endregion
+
+        #region CONSTRUCTOR
+        public ShareBot()
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation constructor \"Share\" bot failed!");
+                else this.error_message = string.Empty;
+
+                this._options = SettingService.Instance.Options;
+                this._choose = SettingService.Instance.Choose;
+                this._file = SettingService.Instance.File;
+                this._scan = SettingService.Instance.Scan;
+                this._bot = SettingService.Instance.Bot;
+                this._connection = SettingService.Instance.Connection;
+                this._name = SettingService.Instance.Name;
+                this._or = SettingService.Instance.Or;
+                this._by = SettingService.Instance.By;
+
+                this._terminate = SettingService.Instance.Terminate;
+
+                this._upload = SettingService.Instance.Upload;
+                this._download = SettingService.Instance.Download;
+
+                this._bluetooths = SettingService.Instance.Bluetooths;
+                this._bluetooth3 = SettingService.Instance.Bluetooth3;
+                this._bluetooth4 = SettingService.Instance.Bluetooth4;
+                this._raspberry = SettingService.Instance.Raspberry;
+
+                this._send = SettingService.Instance.Send;
+                this._connect = SettingService.Instance.Connect;
+                this._disconnect = SettingService.Instance.Disconnect;
+
+                this._shareScan = new List<string>();
+                this._device = string.Empty;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
         #endregion
 
         #region ASK
@@ -64,31 +105,31 @@ namespace LetterStomach.Bot
             {
                 if (this._error_off) throw new InvalidOperationException("Operation share \"Share\" bot failed!");
 
-                HashSet<string> raspberry = VAR_RASPBERRY
+                HashSet<string> raspberry = this._raspberry
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> bluetooth3 = VAR_BLUETOOTH3
+                HashSet<string> bluetooth3 = this._bluetooth3
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> bluetooth4 = VAR_BLUETOOTH4
+                HashSet<string> bluetooth4 = this._bluetooth4
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> choose = VAR_CHOOSE
+                HashSet<string> choose = this._choose
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> or = VAR_OR
+                HashSet<string> or = this._or
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> options = VAR_OPTIONS
+                HashSet<string> options = this._options
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> terminate = VAR_TERMINATE
+                HashSet<string> terminate = this._terminate
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -98,8 +139,7 @@ namespace LetterStomach.Bot
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -107,33 +147,33 @@ namespace LetterStomach.Bot
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation bluetooth3 \"Share\" bot failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation scan \"Share\" bot failed!");
 
-                HashSet<string> scan = VAR_SCAN
+                HashSet<string> scan = this._scan
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> choose = VAR_CHOOSE
+                HashSet<string> choose = this._choose
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> options = VAR_OPTIONS
+                HashSet<string> options = this._options
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> or = VAR_OR
+                HashSet<string> or = this._or
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> connection = VAR_CONNECTION
+                HashSet<string> connection = this._connection
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> name = VAR_NAME
+                HashSet<string> name = this._name
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> terminate = VAR_TERMINATE
+                HashSet<string> terminate = this._terminate
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -143,8 +183,7 @@ namespace LetterStomach.Bot
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -154,23 +193,23 @@ namespace LetterStomach.Bot
             {
                 if (this._error_off) throw new InvalidOperationException("Operation send \"Share\" bot failed!");
 
-                HashSet<string> send = VAR_SEND
+                HashSet<string> send = this._send
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> choose = VAR_CHOOSE
+                HashSet<string> choose = this._choose
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> options = VAR_OPTIONS
+                HashSet<string> options = this._options
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> or = VAR_OR
+                HashSet<string> or = this._or
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> terminate = VAR_TERMINATE
+                HashSet<string> terminate = this._terminate
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -180,8 +219,7 @@ namespace LetterStomach.Bot
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
         #endregion
@@ -193,11 +231,11 @@ namespace LetterStomach.Bot
             {
                 if (this._error_off) throw new InvalidOperationException("Operation upload \"Share\" bot failed!");
 
-                HashSet<string> upload = VAR_UPLOAD
+                HashSet<string> upload = this._upload
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> file = VAR_FILE
+                HashSet<string> file = this._file
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -208,8 +246,7 @@ namespace LetterStomach.Bot
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -219,11 +256,11 @@ namespace LetterStomach.Bot
             {
                 if (this._error_off) throw new InvalidOperationException("Operation download \"Share\" bot failed!");
 
-                HashSet<string> download = VAR_DOWNLOAD
+                HashSet<string> download = this._download
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> file = VAR_FILE
+                HashSet<string> file = this._file
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -234,8 +271,7 @@ namespace LetterStomach.Bot
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -245,15 +281,15 @@ namespace LetterStomach.Bot
             {
                 if (this._error_off) throw new InvalidOperationException("Operation bluetooth \"Share\" bot failed!");
 
-                HashSet<string> bluetooth3 = VAR_BLUETOOTH3
+                HashSet<string> bluetooth3 = this._bluetooth3
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> bluetooth4 = VAR_BLUETOOTH4
+                HashSet<string> bluetooth4 = this._bluetooth4
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> scan = VAR_SCAN
+                HashSet<string> scan = this._scan
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -265,8 +301,7 @@ namespace LetterStomach.Bot
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -276,19 +311,19 @@ namespace LetterStomach.Bot
             {
                 if (this._error_off) throw new InvalidOperationException("Operation send \"Share\" bot failed!");
 
-                HashSet<string> send = VAR_SEND
+                HashSet<string> send = this._send
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> file = VAR_FILE
+                HashSet<string> file = this._file
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> by = VAR_BY
+                HashSet<string> by = this._by
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> bluetooth3 = VAR_BLUETOOTH3
+                HashSet<string> bluetooth3 = this._bluetooth3
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> bluetooth4 = VAR_BLUETOOTH4
+                HashSet<string> bluetooth4 = this._bluetooth4
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -301,8 +336,7 @@ namespace LetterStomach.Bot
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -312,13 +346,13 @@ namespace LetterStomach.Bot
             {
                 if (this._error_off) throw new InvalidOperationException("Operation disconnect \"Share\" bot failed!");
 
-                HashSet<string> disconnnect = VAR_DISCONNECT
+                HashSet<string> disconnnect = this._disconnect
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> bluetooth3 = VAR_BLUETOOTH3
+                HashSet<string> bluetooth3 = this._bluetooth3
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> bluetooth4 = VAR_BLUETOOTH4
+                HashSet<string> bluetooth4 = this._bluetooth4
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -330,8 +364,7 @@ namespace LetterStomach.Bot
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -339,18 +372,18 @@ namespace LetterStomach.Bot
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation disconnect \"Share\" bot failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation connect \"Share\" bot failed!");
 
-                HashSet<string> connect = VAR_CONNECT
+                HashSet<string> connect = this._connect
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> by = VAR_BY
+                HashSet<string> by = this._by
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> bluetooth3 = VAR_BLUETOOTH3
+                HashSet<string> bluetooth3 = this._bluetooth3
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> bluetooth4 = VAR_BLUETOOTH4
+                HashSet<string> bluetooth4 = this._bluetooth4
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -362,8 +395,7 @@ namespace LetterStomach.Bot
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
         #endregion
@@ -375,13 +407,13 @@ namespace LetterStomach.Bot
             {
                 if (this._error_off) throw new InvalidOperationException("Operation choose \"Share\" bot failed!");
 
-                HashSet<string> bluetooths3 = VAR_BLUETOOTH3
+                HashSet<string> bluetooths3 = this._bluetooth3
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> bluetooths4 = VAR_BLUETOOTH4
+                HashSet<string> bluetooths4 = this._bluetooth4
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> connects = VAR_CONNECT
+                HashSet<string> connects = this._connect
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -406,8 +438,7 @@ namespace LetterStomach.Bot
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -417,28 +448,28 @@ namespace LetterStomach.Bot
             {
                 if (this._error_off) throw new InvalidOperationException("Operation load \"Share\" bot failed!");
 
-                HashSet<string> bluetooths = VAR_BLUETOOTHS
+                HashSet<string> bluetooths = this._bluetooths
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> raspberrys = VAR_RASPBERRY
+                HashSet<string> raspberrys = this._raspberry
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> downloads = VAR_DOWNLOAD
+                HashSet<string> downloads = this._download
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> uploads = VAR_UPLOAD
+                HashSet<string> uploads = this._upload
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> scans = VAR_SCAN
+                HashSet<string> scans = this._scan
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> bluetooths3 = VAR_BLUETOOTH3
+                HashSet<string> bluetooths3 = this._bluetooth3
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> bluetooths4 = VAR_BLUETOOTH4
+                HashSet<string> bluetooths4 = this._bluetooth4
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> sends = VAR_SEND
+                HashSet<string> sends = this._send
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -480,7 +511,7 @@ namespace LetterStomach.Bot
                     result.Add(ask);
                     return result;
                 }
-                if (this._scan.Count > 0)
+                if (this._shareScan.Count > 0)
                 {
                     string device = string.Empty;
                     device = await FindDevice(language, messages, parameter);
@@ -499,8 +530,7 @@ namespace LetterStomach.Bot
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return new List<string>();
+                throw new InvalidOperationException(this.error_message);
             }
         }
         #endregion
@@ -512,11 +542,11 @@ namespace LetterStomach.Bot
             {
                 if (this._error_off) throw new InvalidOperationException("Operation find bluetooth \"Record\" bot failed!");
 
-                HashSet<string> bluetooths3 = VAR_BLUETOOTH3
+                HashSet<string> bluetooths3 = this._bluetooth3
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> bluetooths4 = VAR_BLUETOOTH4
+                HashSet<string> bluetooths4 = this._bluetooth4
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -533,8 +563,7 @@ namespace LetterStomach.Bot
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -542,13 +571,13 @@ namespace LetterStomach.Bot
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation find bluetooth \"Record\" bot failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation find device \"Record\" bot failed!");
 
                 string bluetooth = string.Empty;
                 bluetooth = FindBluetooth(language, messages);
 
                 List<string> memo = new List<string>();
-                memo = this._scan;
+                memo = this._shareScan;
                 if (memo.Count == 0) return string.Empty;
                 
                 string? device = string.Empty;
@@ -559,8 +588,7 @@ namespace LetterStomach.Bot
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
         #endregion
@@ -572,10 +600,10 @@ namespace LetterStomach.Bot
             {
                 if (this._error_off) throw new InvalidOperationException("Operation terminate \"Record\" bot failed!");
 
-                HashSet<string> terminate = VAR_TERMINATE
+                HashSet<string> terminate = this._terminate
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> bot = VAR_BOT
+                HashSet<string> bot = this._bot
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -585,8 +613,7 @@ namespace LetterStomach.Bot
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
         #endregion

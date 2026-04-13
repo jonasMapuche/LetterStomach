@@ -1,4 +1,5 @@
-﻿using LetterStomach.Models;
+﻿using LetterStomach.Data;
+using LetterStomach.Models;
 using MongoDB.Driver;
 
 namespace LetterStomach.Repositories.MongoDBs
@@ -31,7 +32,7 @@ namespace LetterStomach.Repositories.MongoDBs
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation constructor \"Sentence\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation constructor \"Sentenca\" repository failed!");
                 else this._error_message = string.Empty;
 
                 string connection = "mongodb://berthazatz:freedown@ac-clbogfo-shard-00-00.cydv8si.mongodb.net:27017,ac-clbogfo-shard-00-01.cydv8si.mongodb.net:27017,ac-clbogfo-shard-00-02.cydv8si.mongodb.net:27017/?ssl=true&replicaSet=atlas-2biwj4-shard-0&authSource=admin&appName=sentence";
@@ -48,6 +49,22 @@ namespace LetterStomach.Repositories.MongoDBs
                 throw new InvalidOperationException(this.error_message);
             }
         }
+
+        public SentencaRepository(SentencaContext sentencaContext)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation constructor \"Sentenca\" repository failed!");
+                else this._error_message = string.Empty;
+
+                this._collection = sentencaContext.GetCollection();
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
         #endregion
 
         #region GET
@@ -55,7 +72,7 @@ namespace LetterStomach.Repositories.MongoDBs
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation get language \"Sentence\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation get language \"Sentenca\" repository failed!");
 
                 return this._collection.Find(index => index.linguagem == language).ToList<Sentenca>();
             }
@@ -70,7 +87,7 @@ namespace LetterStomach.Repositories.MongoDBs
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation get language async \"Sentence\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation get language async \"Sentenca\" repository failed!");
 
                 return await this._collection.Find(index => index.linguagem == language).ToListAsync<Sentenca>();
             }

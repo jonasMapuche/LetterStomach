@@ -9,9 +9,9 @@ namespace LetterStomach.Bot
         #region ERROR
         private bool _error_on = true;
         private bool _error_off = false;
-        private string _error_message;
+        private string? _error_message;
 
-        public string error_message
+        public string? error_message
         {
             get => this._error_message;
             set
@@ -20,36 +20,77 @@ namespace LetterStomach.Bot
             }
         }
 
-        public event EventHandler<string> OnError;
+        public event EventHandler<string>? OnError;
         #endregion
 
         #region VARIABLE
-        private Dictionary<string, string> VAR_TURN = SettingService.Instance.Turn;
-        private Dictionary<string, string> VAR_TURN_ON = SettingService.Instance.Turn_On;
-        private Dictionary<string, string> VAR_FLASH = SettingService.Instance.Flash;
-        private Dictionary<string, string> VAR_ROTATE = SettingService.Instance.Rotate;
-        private Dictionary<string, string> VAR_CAMERA = SettingService.Instance.Camera;
-        private Dictionary<string, string> VAR_TERMINATE = SettingService.Instance.Terminate;
-        private Dictionary<string, string> VAR_BOT = SettingService.Instance.Bot;
+        private Dictionary<string, string> _turn;
+        private Dictionary<string, string> _turn_on;
+        private Dictionary<string, string> _flash;
+        private Dictionary<string, string> _rotate;
+        private Dictionary<string, string> _camera;
+        private Dictionary<string, string> _terminate;
+        private Dictionary<string, string> _bot;
 
-        private Dictionary<string, string> VAR_FRONT = SettingService.Instance.Front;
-        private Dictionary<string, string> VAR_REAR = SettingService.Instance.Rear;
+        private Dictionary<string, string> _front;
+        private Dictionary<string, string> _rear;
 
-        private Dictionary<string, string> VAR_ON = SettingService.Instance.On;
-        private Dictionary<string, string> VAR_OFF = SettingService.Instance.Off;
-        private Dictionary<string, string> VAR_AUTO = SettingService.Instance.Auto;
+        private Dictionary<string, string> _on;
+        private Dictionary<string, string> _off;
+        private Dictionary<string, string> _auto;
 
-        private Dictionary<string, string> VAR_START = SettingService.Instance.Start;
-        private Dictionary<string, string> VAR_STOP = SettingService.Instance.Stop;
+        private Dictionary<string, string> _start;
+        private Dictionary<string, string> _stop;
 
-        private Dictionary<string, string> VAR_SAVE = SettingService.Instance.Save;
+        private Dictionary<string, string> _save;
 
-        private Dictionary<string, string> VAR_SHOOT = SettingService.Instance.Shoot;
+        private Dictionary<string, string> _shoot;
 
-        private Dictionary<string, string> VAR_CATCH_FLASH = SettingService.Instance.Catch_Flash;
-        private Dictionary<string, string> VAR_CATCH_ROTATE = SettingService.Instance.Catch_Rotate;
-        private Dictionary<string, string> VAR_CATCH_CAPTURE = SettingService.Instance.Catch_Capture;
+        private Dictionary<string, string> _catch_flash;
+        private Dictionary<string, string> _catch_rotate;
+        private Dictionary<string, string> _catch_capture;
+        #endregion
 
+        #region CONSTRUCTOR
+        public CaptureBot()
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation constructor \"Capture\" bot failed!");
+                else this.error_message = string.Empty;
+
+                this._turn = SettingService.Instance.Turn;
+                this._turn_on = SettingService.Instance.Turn_On;
+                this._flash = SettingService.Instance.Flash;
+                this._rotate = SettingService.Instance.Rotate;
+                this._camera = SettingService.Instance.Camera;
+                this._terminate = SettingService.Instance.Terminate;
+                this._bot = SettingService.Instance.Bot;
+
+                this._front = SettingService.Instance.Front;
+                this._rear = SettingService.Instance.Rear;
+
+                this._on = SettingService.Instance.On;
+                this._off = SettingService.Instance.Off;
+                this._auto = SettingService.Instance.Auto;
+
+                this._start = SettingService.Instance.Start;
+                this._stop = SettingService.Instance.Stop;
+
+                this._save = SettingService.Instance.Save;
+
+                this._shoot = SettingService.Instance.Shoot;
+
+                this._catch_flash = SettingService.Instance.Catch_Flash;
+                this._catch_rotate = SettingService.Instance.Catch_Rotate;
+                this._catch_capture = SettingService.Instance.Catch_Capture;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
         #endregion
 
         #region ASK
@@ -59,15 +100,15 @@ namespace LetterStomach.Bot
             {
                 if (this._error_off) throw new InvalidOperationException("Operation rotate \"Capture\" bot failed!");
 
-                HashSet<string> front = VAR_FRONT
+                HashSet<string> front = this._front
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> rear = VAR_REAR
+                HashSet<string> rear = this._rear
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> terminate = VAR_TERMINATE
+                HashSet<string> terminate = this._terminate
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -77,8 +118,7 @@ namespace LetterStomach.Bot
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -88,19 +128,19 @@ namespace LetterStomach.Bot
             {
                 if (this._error_off) throw new InvalidOperationException("Operation flash \"Capture\" bot failed!");
 
-                HashSet<string> on = VAR_ON
+                HashSet<string> on = this._on
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> off = VAR_OFF
+                HashSet<string> off = this._off
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> auto = VAR_AUTO
+                HashSet<string> auto = this._auto
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> terminate = VAR_TERMINATE
+                HashSet<string> terminate = this._terminate
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -110,8 +150,7 @@ namespace LetterStomach.Bot
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -121,11 +160,11 @@ namespace LetterStomach.Bot
             {
                 if (this._error_off) throw new InvalidOperationException("Operation capture \"Capture\" bot failed!");
 
-                HashSet<string> capture = VAR_SHOOT
+                HashSet<string> capture = this._shoot
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> terminate = VAR_TERMINATE
+                HashSet<string> terminate = this._terminate
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -135,8 +174,7 @@ namespace LetterStomach.Bot
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -146,11 +184,11 @@ namespace LetterStomach.Bot
             {
                 if (this._error_off) throw new InvalidOperationException("Operation save \"Capture\" bot failed!");
 
-                HashSet<string> save = VAR_SAVE
+                HashSet<string> save = this._save
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> terminate = VAR_TERMINATE
+                HashSet<string> terminate = this._terminate
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -160,8 +198,7 @@ namespace LetterStomach.Bot
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
         #endregion
@@ -173,27 +210,27 @@ namespace LetterStomach.Bot
             {
                 if (this._error_off) throw new InvalidOperationException("Operation flash \"Capture\" bot failed!");
 
-                HashSet<string> turn_on = VAR_TURN_ON
+                HashSet<string> turn_on = this._turn_on
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> on = VAR_ON
+                HashSet<string> on = this._on
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> off = VAR_OFF
+                HashSet<string> off = this._off
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> auto = VAR_AUTO
+                HashSet<string> auto = this._auto
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> turn = VAR_TURN
+                HashSet<string> turn = this._turn
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> flash = VAR_FLASH
+                HashSet<string> flash = this._flash
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -206,8 +243,7 @@ namespace LetterStomach.Bot
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -217,19 +253,19 @@ namespace LetterStomach.Bot
             {
                 if (this._error_off) throw new InvalidOperationException("Operation rotate \"Capture\" bot failed!");
 
-                HashSet<string> front = VAR_FRONT
+                HashSet<string> front = this._front
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> rear = VAR_REAR
+                HashSet<string> rear = this._rear
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> rotate = VAR_ROTATE
+                HashSet<string> rotate = _rotate
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> camera = VAR_CAMERA
+                HashSet<string> camera = this._camera
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -241,8 +277,7 @@ namespace LetterStomach.Bot
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -252,11 +287,11 @@ namespace LetterStomach.Bot
             {
                 if (this._error_off) throw new InvalidOperationException("Operation capture \"Capture\" bot failed!");
 
-                HashSet<string> capture = VAR_SHOOT
+                HashSet<string> capture = this._shoot
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> camera = VAR_CAMERA
+                HashSet<string> camera = this._camera
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -267,8 +302,7 @@ namespace LetterStomach.Bot
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -278,11 +312,11 @@ namespace LetterStomach.Bot
             {
                 if (this._error_off) throw new InvalidOperationException("Operation save \"Capture\" bot failed!");
 
-                HashSet<string> save = VAR_SAVE
+                HashSet<string> save = this._save
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> camera = VAR_CAMERA
+                HashSet<string> camera = this._camera
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -293,8 +327,7 @@ namespace LetterStomach.Bot
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -302,13 +335,13 @@ namespace LetterStomach.Bot
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation capture \"Capture\" bot failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation start \"Capture\" bot failed!");
 
-                HashSet<string> start = VAR_START
+                HashSet<string> start = this._start
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> camera = VAR_CAMERA
+                HashSet<string> camera = this._camera
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -319,8 +352,7 @@ namespace LetterStomach.Bot
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -328,13 +360,13 @@ namespace LetterStomach.Bot
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation capture \"Capture\" bot failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation stop \"Capture\" bot failed!");
 
-                HashSet<string> stop = VAR_STOP
+                HashSet<string> stop = this._stop
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> camera = VAR_CAMERA
+                HashSet<string> camera = this._camera
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -345,8 +377,7 @@ namespace LetterStomach.Bot
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
         #endregion
@@ -358,15 +389,15 @@ namespace LetterStomach.Bot
             {
                 if (this._error_off) throw new InvalidOperationException("Operation choose \"Capture\" bot failed!");
 
-                HashSet<string> flashs = VAR_CATCH_FLASH
+                HashSet<string> flashs = this._catch_flash
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> rotates = VAR_CATCH_ROTATE
+                HashSet<string> rotates = this._catch_rotate
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> captures = VAR_CATCH_CAPTURE
+                HashSet<string> captures = this._catch_capture
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -395,8 +426,7 @@ namespace LetterStomach.Bot
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -406,27 +436,27 @@ namespace LetterStomach.Bot
             {
                 if (this._error_off) throw new InvalidOperationException("Operation load \"Capture\" bot failed!");
 
-                HashSet<string> flashs = VAR_CATCH_FLASH
+                HashSet<string> flashs = this._catch_flash
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> rotates = VAR_CATCH_ROTATE
+                HashSet<string> rotates = this._catch_rotate
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> captures = VAR_CATCH_CAPTURE
+                HashSet<string> captures = this._catch_capture
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> starts = VAR_START
+                HashSet<string> starts = this._start
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> stops = VAR_STOP
+                HashSet<string> stops = this._stop
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> saves = VAR_SAVE
+                HashSet<string> saves = this._save
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -463,8 +493,7 @@ namespace LetterStomach.Bot
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return new List<string>();
+                throw new InvalidOperationException(this.error_message);
             }
         }
         #endregion
@@ -476,11 +505,11 @@ namespace LetterStomach.Bot
             {
                 if (this._error_off) throw new InvalidOperationException("Operation terminate \"Record\" bot failed!");
 
-                HashSet<string> terminate = VAR_TERMINATE
+                HashSet<string> terminate = this._terminate
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> bot = VAR_BOT
+                HashSet<string> bot = this._bot
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -490,8 +519,7 @@ namespace LetterStomach.Bot
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
         #endregion

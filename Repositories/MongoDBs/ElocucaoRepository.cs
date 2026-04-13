@@ -1,4 +1,5 @@
-﻿using LetterStomach.Models;
+﻿using LetterStomach.Data;
+using LetterStomach.Models;
 using MongoDB.Driver;
 
 namespace LetterStomach.Repositories.MongoDBs
@@ -31,7 +32,7 @@ namespace LetterStomach.Repositories.MongoDBs
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation constructor \"Verb\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation constructor \"Elocucao\" repository failed!");
                 else this._error_message = string.Empty;
 
                 string connection = "mongodb://berthazatz:freedown@ac-folgaxm-shard-00-00.q3qzht9.mongodb.net:27017,ac-folgaxm-shard-00-01.q3qzht9.mongodb.net:27017,ac-folgaxm-shard-00-02.q3qzht9.mongodb.net:27017/?ssl=true&replicaSet=atlas-11bsn2-shard-0&authSource=admin&appName=verb";
@@ -48,6 +49,22 @@ namespace LetterStomach.Repositories.MongoDBs
                 throw new InvalidOperationException(this.error_message);
             }
         }
+
+        public ElocucaoRepository(ElocucaoContext elocucaoContext)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation constructor \"Elocucao\" repository failed!");
+                else this._error_message = string.Empty;
+
+                this._collection = elocucaoContext.GetCollection();
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
         #endregion
 
         #region GET
@@ -55,7 +72,7 @@ namespace LetterStomach.Repositories.MongoDBs
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation get language \"Verb\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation get language \"Elocucao\" repository failed!");
 
                 return this._collection.Find(index => index.linguagem == language).ToList<Elocucao>();
             }
@@ -70,7 +87,7 @@ namespace LetterStomach.Repositories.MongoDBs
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation get language async \"Verb\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation get language async \"Elocucao\" repository failed!");
 
                 return await this._collection.Find(index => index.linguagem == language).ToListAsync<Elocucao>();
             }
@@ -85,7 +102,7 @@ namespace LetterStomach.Repositories.MongoDBs
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation get model \"Verb\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation get model \"Elocucao\" repository failed!");
 
                 return this._collection.Find(index => index.linguagem == language && index.modelo == model).ToList<Elocucao>();
             }
@@ -100,7 +117,7 @@ namespace LetterStomach.Repositories.MongoDBs
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation get model async \"Verb\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation get model async \"Elocucao\" repository failed!");
 
                 return await this._collection.Find(index => index.linguagem == language && index.modelo == model).ToListAsync<Elocucao>();
             }

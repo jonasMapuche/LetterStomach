@@ -1,4 +1,5 @@
-﻿using LetterStomach.Models;
+﻿using LetterStomach.Data;
+using LetterStomach.Models;
 using MongoDB.Driver;
 
 namespace LetterStomach.Repositories.MongoDBs
@@ -31,10 +32,9 @@ namespace LetterStomach.Repositories.MongoDBs
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation constructor \"Preposition\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation constructor \"Juncao\" repository failed!");
                 else this._error_message = string.Empty;
 
-                //string connection = "mongodb://berthazatz:freedown@ac-coldsdi-shard-00-00.bad4zis.mongodb.net:27017,ac-coldsdi-shard-00-01.bad4zis.mongodb.net:27017,ac-coldsdi-shard-00-02.bad4zis.mongodb.net:27017/?ssl=true&replicaSet=atlas-y7pmm5-shard-0&authSource=admin&appName=preposition";
                 string connection = "mongodb://berthazatz:freedown@ac-bhaknbb-shard-00-00.egswt6j.mongodb.net:27017,ac-bhaknbb-shard-00-01.egswt6j.mongodb.net:27017,ac-bhaknbb-shard-00-02.egswt6j.mongodb.net:27017/?ssl=true&replicaSet=atlas-m120wo-shard-0&authSource=admin&appName=preposition";
                 string database = "stomach";
                 string collection = "preposition";
@@ -49,6 +49,22 @@ namespace LetterStomach.Repositories.MongoDBs
                 throw new InvalidOperationException(this.error_message);
             }
         }
+
+        public JuncaoRepository(JuncaoContext juncaoContext)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation constructor \"Juncao\" repository failed!");
+                else this._error_message = string.Empty;
+
+                this._collection = juncaoContext.GetCollection();
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
         #endregion
 
         #region GET
@@ -56,7 +72,7 @@ namespace LetterStomach.Repositories.MongoDBs
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation get language \"Preposition\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation get language \"Juncao\" repository failed!");
 
                 return this._collection.Find(index => index.linguagem == language).ToList<Juncao>();
             }
@@ -71,7 +87,7 @@ namespace LetterStomach.Repositories.MongoDBs
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation get language async \"Preposition\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation get language async \"Juncao\" repository failed!");
 
                 return await this._collection.Find(index => index.linguagem == language).ToListAsync<Juncao>();
             }

@@ -1,4 +1,5 @@
-﻿using LetterStomach.Models;
+﻿using LetterStomach.Data;
+using LetterStomach.Models;
 using MongoDB.Driver;
 
 namespace LetterStomach.Repositories.MongoDBs
@@ -31,7 +32,7 @@ namespace LetterStomach.Repositories.MongoDBs
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation constructor \"Letter\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation constructor \"Material\" repository failed!");
                 else this._error_message = string.Empty;
 
                 string connection = "mongodb://berthazatz:freedown@ac-dgizj8w-shard-00-00.88ewwu7.mongodb.net:27017,ac-dgizj8w-shard-00-01.88ewwu7.mongodb.net:27017,ac-dgizj8w-shard-00-02.88ewwu7.mongodb.net:27017/?ssl=true&replicaSet=atlas-4bl81c-shard-0&authSource=admin&appName=letter";
@@ -47,6 +48,22 @@ namespace LetterStomach.Repositories.MongoDBs
                 throw new InvalidOperationException(this.error_message);
             }
         }
+
+        public MateriaRepository(MaterialContext materialContext)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation constructor \"Material\" repository failed!");
+                else this._error_message = string.Empty;
+
+                this._collection = materialContext.GetCollection();
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
         #endregion
 
         #region GET
@@ -54,7 +71,7 @@ namespace LetterStomach.Repositories.MongoDBs
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation get lesson simples \"Letter\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation get lesson simples \"Material\" repository failed!");
 
                 return this._collection.Find(index => index.linguagem == language && index.licao == lesson).ToList<Materia>();
             }
@@ -69,7 +86,7 @@ namespace LetterStomach.Repositories.MongoDBs
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation get lesson simples async \"Letter\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation get lesson simples async \"Material\" repository failed!");
 
                 return this._collection.Find(index => index.linguagem == language && index.licao == lesson).ToList<Materia>();
             }

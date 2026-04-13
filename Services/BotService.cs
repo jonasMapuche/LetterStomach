@@ -10,9 +10,9 @@ namespace LetterStomach.Services
         #region ERROR
         private bool _error_on = true;
         private bool _error_off = false;
-        private string _error_message;
+        private string? _error_message;
 
-        public string error_message
+        public string? error_message
         {
             get => this._error_message;
             set
@@ -21,16 +21,16 @@ namespace LetterStomach.Services
             }
         }
 
-        public event EventHandler<string> OnError;
+        public event EventHandler<string>? OnError;
         #endregion
 
         #region VARIABLE
-        private Dictionary<string, string> VAR_TERMINATE = SettingService.Instance.Terminate;
-        private Dictionary<string, string> VAR_BOT = SettingService.Instance.Bot;
+        private Dictionary<string, string> _terminate;
+        private Dictionary<string, string> _bot;
 
-        ICaptureBot _captureBot = new CaptureBot();
-        IRecordBot _recordBot = new RecordBot();
-        IShareBot _shareBot = new ShareBot();
+        private ICaptureBot _captureBot;
+        private IRecordBot _recordBot;
+        private IShareBot _shareBot;
         #endregion
 
         #region CONSTRUCTOR
@@ -41,11 +41,20 @@ namespace LetterStomach.Services
                 if (this._error_off) throw new InvalidOperationException("Operation constructor \"Bot\" service failed!");
                 else this.error_message = string.Empty;
 
+                this._terminate = SettingService.Instance.Terminate;
+                this._bot = SettingService.Instance.Bot;
+
+                this._captureBot = new CaptureBot();
                 this._captureBot.OnError += OnError;
+                this._recordBot = new RecordBot();
+                this._recordBot.OnError += OnError;
+                this._shareBot = new ShareBot();
+                this._shareBot.OnError += OnError;
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
             }
         }
         #endregion
@@ -63,8 +72,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -80,8 +88,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -97,8 +104,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
         #endregion
@@ -108,7 +114,7 @@ namespace LetterStomach.Services
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation load \"Bot\" service failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation capture camera \"Bot\" service failed!");
 
                 string response = await this._captureBot.Choose(language, messages);
                 return response;
@@ -116,8 +122,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -125,7 +130,7 @@ namespace LetterStomach.Services
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation load \"Bot\" service failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation record audio \"Bot\" service failed!");
 
                 string response = await this._recordBot.Choose(language, messages);
                 return response;
@@ -133,8 +138,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -142,7 +146,7 @@ namespace LetterStomach.Services
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation load \"Bot\" service failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation share file \"Bot\" service failed!");
                
                 string response = await this._shareBot.Choose(language, messages);
                 return response;
@@ -150,8 +154,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
         #endregion
@@ -169,8 +172,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return new List<string>();
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -186,8 +188,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return new List<string>();
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -203,8 +204,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return new List<string>();
+                throw new InvalidOperationException(this.error_message);
             }
         }
         #endregion
@@ -216,11 +216,11 @@ namespace LetterStomach.Services
             {
                 if (this._error_off) throw new InvalidOperationException("Operation terminate \"Record\" bot failed!");
 
-                HashSet<string> terminate = VAR_TERMINATE
+                HashSet<string> terminate = this._terminate
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> bot = VAR_BOT
+                HashSet<string> bot = this._bot
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -230,8 +230,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -241,7 +240,7 @@ namespace LetterStomach.Services
             {
                 if (this._error_off) throw new InvalidOperationException("Operation terminate \"Bot\" service failed!");
 
-                HashSet<string> terminates = VAR_TERMINATE
+                HashSet<string> terminates = this._terminate
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -267,8 +266,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return new List<string>();
+                throw new InvalidOperationException(this.error_message);
             }
         }
         #endregion
@@ -284,7 +282,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -293,13 +291,13 @@ namespace LetterStomach.Services
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation share scan \"Bot\" service failed!");
+
                 return this._shareBot.ShareScan;
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return new List<string>();
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -311,13 +309,13 @@ namespace LetterStomach.Services
 
                 string result = string.Empty;
                 result = await this._shareBot.FindDevice(language, messages, device);
+
                 return result != string.Empty ? true : false;
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return false;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -329,13 +327,13 @@ namespace LetterStomach.Services
 
                 string result = string.Empty;
                 result = this._shareBot.ShareDevice;
+
                 return result;
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
         #endregion

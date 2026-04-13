@@ -4,6 +4,10 @@ using LetterStomach.Services;
 using LetterStomach.ViewModels;
 using LetterStomach.Views;
 using LetterStomach.Interfaces;
+using LetterStomach.Data;
+using LetterStomach.Repositories.MongoDBs;
+
+
 
 #if ANDROID
 using LetterStomach.Platforms.Android.Services;
@@ -34,14 +38,27 @@ namespace LetterStomach
             builder.Services.AddTransient<ITextSpeakService, TextSpeakService>();
 #endif
 
+            builder.Services.AddSingleton<AlgarismoContext>();
+            builder.Services.AddSingleton<AssistenteContext>();
+            builder.Services.AddSingleton<CircunstanciaContext>();
+            builder.Services.AddSingleton<ElocucaoContext>();
+            builder.Services.AddSingleton<EstoutroContext>();
+            builder.Services.AddSingleton<JuncaoContext>();
+            builder.Services.AddSingleton<LigacaoContext>();
+            builder.Services.AddSingleton<MaterialContext>();
+            builder.Services.AddSingleton<PreceitoContext>();
+            builder.Services.AddSingleton<SentencaContext>();
+            builder.Services.AddSingleton<MongoDBService>();
+
+            builder.Services.AddSingleton<SQLiteContext>();
             builder.Services.AddSingleton<SettingService>();
             builder.Services.AddSingleton<MessageService>();
-            builder.Services.AddSingleton<SingletonService>();
+
             builder.Services.AddTransient<BotService>();
             builder.Services.AddTransient<HttpService>();
             builder.Services.AddTransient<ModelService>();
             builder.Services.AddTransient<PerceptionService>();
-            builder.Services.AddTransient<SQLiteService>();
+            builder.Services.AddSingleton<SQLiteService>();
             builder.Services.AddTransient<TextToSpeakService>();
             builder.Services.AddTransient<WordEmbeddingService>();
 

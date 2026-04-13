@@ -9,9 +9,9 @@ namespace LetterStomach.Bot
         #region ERROR
         private bool _error_on = true;
         private bool _error_off = false;
-        private string _error_message;
+        private string? _error_message;
 
-        public string error_message
+        public string? error_message
         {
             get => this._error_message;
             set
@@ -20,21 +20,49 @@ namespace LetterStomach.Bot
             }
         }
 
-        public event EventHandler<string> OnError;
+        public event EventHandler<string>? OnError;
         #endregion
 
         #region VARIABLE
-        private Dictionary<string, string> VAR_WRITE = SettingService.Instance.Write;
-        private Dictionary<string, string> VAR_STOP = SettingService.Instance.Stop;
-        private Dictionary<string, string> VAR_TERMINATE = SettingService.Instance.Terminate;
-        private Dictionary<string, string> VAR_BOT = SettingService.Instance.Bot;
-        private Dictionary<string, string> VAR_RECORD = SettingService.Instance.Record;
+        private Dictionary<string, string> _write;
+        private Dictionary<string, string> _stop;
+        private Dictionary<string, string> _terminate;
+        private Dictionary<string, string> _bot;
+        private Dictionary<string, string> _record;
 
-        private Dictionary<string, string> VAR_MP3 = SettingService.Instance.MP3;
-        private Dictionary<string, string> VAR_WAV = SettingService.Instance.WAV;
+        private Dictionary<string, string> _mp3;
+        private Dictionary<string, string> _wav;
 
-        private Dictionary<string, string> VAR_CATCH_AUDIO = SettingService.Instance.Catch_Audio;
-        private Dictionary<string, string> VAR_CATCH_STOP = SettingService.Instance.Stop;
+        private Dictionary<string, string> _catch_audio;
+        private Dictionary<string, string> _catch_stop;
+        #endregion
+
+        #region CONSTRUCTOR
+        public RecordBot()
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation constructor \"Record\" bot failed!");
+                else this.error_message = string.Empty;
+
+                this._write = SettingService.Instance.Write;
+                this._stop = SettingService.Instance.Stop;
+                this._terminate = SettingService.Instance.Terminate;
+                this._bot = SettingService.Instance.Bot;
+                this._record = SettingService.Instance.Record;
+
+                this._mp3 = SettingService.Instance.MP3;
+                this._wav = SettingService.Instance.WAV;
+
+                this._catch_audio = SettingService.Instance.Catch_Audio;
+                this._catch_stop = SettingService.Instance.Stop;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
         #endregion
 
         #region ASK
@@ -44,15 +72,15 @@ namespace LetterStomach.Bot
             {
                 if (this._error_off) throw new InvalidOperationException("Operation audio \"Record\" bot failed!");
 
-                HashSet<string> mp3 = VAR_MP3
+                HashSet<string> mp3 = this._mp3
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> wav = VAR_WAV
+                HashSet<string> wav = this._wav
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> terminate = VAR_TERMINATE
+                HashSet<string> terminate = this._terminate
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -62,8 +90,7 @@ namespace LetterStomach.Bot
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -73,15 +100,15 @@ namespace LetterStomach.Bot
             {
                 if (this._error_off) throw new InvalidOperationException("Operation record \"Record\" bot failed!");
 
-                HashSet<string> stop = VAR_STOP
+                HashSet<string> stop = this._stop
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> write = VAR_WRITE
+                HashSet<string> write = this._write
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> record = VAR_RECORD
+                HashSet<string> record = this._record
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -91,8 +118,7 @@ namespace LetterStomach.Bot
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
         #endregion
@@ -104,15 +130,15 @@ namespace LetterStomach.Bot
             {
                 if (this._error_off) throw new InvalidOperationException("Operation audio \"Record\" bot failed!");
 
-                HashSet<string> mp3 = VAR_MP3
+                HashSet<string> mp3 = this._mp3
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> wav = VAR_WAV
+                HashSet<string> wav = this._wav
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> record = VAR_RECORD
+                HashSet<string> record = this._record
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -124,8 +150,7 @@ namespace LetterStomach.Bot
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -135,15 +160,15 @@ namespace LetterStomach.Bot
             {
                 if (this._error_off) throw new InvalidOperationException("Operation record \"Record\" bot failed!");
 
-                HashSet<string> stop = VAR_STOP
+                HashSet<string> stop = this._stop
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> mp3 = VAR_MP3
+                HashSet<string> mp3 = this._mp3
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> wav = VAR_WAV
+                HashSet<string> wav = this._wav
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -155,8 +180,7 @@ namespace LetterStomach.Bot
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
         #endregion
@@ -168,11 +192,11 @@ namespace LetterStomach.Bot
             {
                 if (this._error_off) throw new InvalidOperationException("Operation choose \"Record\" bot failed!");
 
-                HashSet<string> mp3s = VAR_MP3
+                HashSet<string> mp3s = this._mp3
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> wavs = VAR_WAV
+                HashSet<string> wavs = this._wav
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -195,8 +219,7 @@ namespace LetterStomach.Bot
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -206,19 +229,19 @@ namespace LetterStomach.Bot
             {
                 if (this._error_off) throw new InvalidOperationException("Operation load \"Record\" bot failed!");
 
-                HashSet<string> audios = VAR_CATCH_AUDIO
+                HashSet<string> audios = this._catch_audio
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> stops = VAR_CATCH_STOP
+                HashSet<string> stops = this._catch_stop
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> mp3s = VAR_MP3
+                HashSet<string> mp3s = this._mp3
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> wavs = VAR_WAV
+                HashSet<string> wavs = this._wav
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -254,8 +277,7 @@ namespace LetterStomach.Bot
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return new List<string>();
+                throw new InvalidOperationException(this.error_message);
             }
         }
         #endregion
@@ -267,11 +289,11 @@ namespace LetterStomach.Bot
             {
                 if (this._error_off) throw new InvalidOperationException("Operation terminate \"Record\" bot failed!");
 
-                HashSet<string> terminate = VAR_TERMINATE
+                HashSet<string> terminate = this._terminate
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> bot = VAR_BOT
+                HashSet<string> bot = this._bot
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -281,8 +303,7 @@ namespace LetterStomach.Bot
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
         #endregion

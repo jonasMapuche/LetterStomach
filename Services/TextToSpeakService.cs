@@ -8,9 +8,9 @@ namespace LetterStomach.Services
         #region ERROR
         private bool _error_on = true;
         private bool _error_off = false;
-        private string _error_message;
+        private string? _error_message;
 
-        public string error_message
+        public string? error_message
         {
             get => this._error_message;
             set
@@ -19,7 +19,7 @@ namespace LetterStomach.Services
             }
         }
 
-        public event EventHandler<string> OnError;
+        public event EventHandler<string>? OnError;
         #endregion
 
         #region VARIABLE
@@ -36,7 +36,8 @@ namespace LetterStomach.Services
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation constructor \"Text to Speak\" service failed!");
-                
+                else this.error_message = string.Empty;
+
                 this._language_english = SettingService.Instance.English;
                 this._language_deutsch = SettingService.Instance.Deutsch;
                 this._language_italiano = SettingService.Instance.Italino;

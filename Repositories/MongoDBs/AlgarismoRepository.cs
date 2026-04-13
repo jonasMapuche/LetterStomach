@@ -1,4 +1,5 @@
-﻿using LetterStomach.Models;
+﻿using LetterStomach.Data;
+using LetterStomach.Models;
 using MongoDB.Driver;
 
 namespace LetterStomach.Repositories.MongoDBs
@@ -31,7 +32,7 @@ namespace LetterStomach.Repositories.MongoDBs
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation constructor \"Numeral\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation constructor \"Algarismo\" repository failed!");
                 else this._error_message = string.Empty;
 
                 string connection = "mongodb://berthazatz:freedown@ac-5g3pi3r-shard-00-00.ulgehxk.mongodb.net:27017,ac-5g3pi3r-shard-00-01.ulgehxk.mongodb.net:27017,ac-5g3pi3r-shard-00-02.ulgehxk.mongodb.net:27017/?ssl=true&replicaSet=atlas-e1clwb-shard-0&authSource=admin&appName=numeral";
@@ -48,6 +49,22 @@ namespace LetterStomach.Repositories.MongoDBs
                 throw new InvalidOperationException(this.error_message);
             }
         }
+
+        public AlgarismoRepository(AlgarismoContext algarismoContext)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation constructor \"Algarismo\" repository failed!");
+                else this._error_message = string.Empty;
+
+                this._collection = algarismoContext.GetCollection();
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
         #endregion
 
         #region GET
@@ -55,7 +72,7 @@ namespace LetterStomach.Repositories.MongoDBs
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation get language \"Numeral\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation get language \"Algarismo\" repository failed!");
 
                 return this._collection.Find(index => index.linguagem == language).ToList<Algarismo>();
             }
@@ -70,7 +87,7 @@ namespace LetterStomach.Repositories.MongoDBs
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation get language async \"Numeral\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation get language async \"Algarismo\" repository failed!");
 
                 return await this._collection.Find(index => index.linguagem == language).ToListAsync<Algarismo>();
             }

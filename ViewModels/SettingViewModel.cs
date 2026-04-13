@@ -90,7 +90,6 @@ namespace LetterStomach.ViewModels
         }
 
         private bool _isCheckSetting;
-
         public bool IsCheckSetting
         {
             get => _isCheckSetting;
@@ -111,11 +110,8 @@ namespace LetterStomach.ViewModels
         public ICommand BackCommand { get; set; }
 
         private SettingService _settingService;
-        private ISQLiteService _sqlite_service;
 
-        /*
         private ISQLiteService _sQLiteService;
-
         public ISQLiteService SQLiteService
         {
             get => _sQLiteService;
@@ -124,7 +120,6 @@ namespace LetterStomach.ViewModels
                 _sQLiteService = value;
             }
         }
-        */
 
         private int _pitch_init = 0;
         private int _volume_init = 0;
@@ -133,23 +128,15 @@ namespace LetterStomach.ViewModels
         #endregion
 
         #region CONSTRUCTOR
-        public SettingViewModel()
+        public SettingViewModel(SQLiteService sQLiteService)
         {
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation contructor \"Setting\" view model failed!");
                 else this.error_message = string.Empty;
 
-                this._sqlite_service = HomeViewModel._sQLiteService;
+                this._sQLiteService = sQLiteService;
                 this._settingService = SettingService.Instance;
-
-                //bool sqlite_database = this._settingService.SQLiteDatabase;
-                //bool update_database = this._settingService.UpdateDatabase;
-                //bool drop_database = this._settingService.DropDatabase;
-                //int pitch_speak = this._settingService.PitchSpeak;
-                //int volume_speak = this._settingService.VolumeSpeak;
-                //int pitch_init = this._settingService.PitchSpeak;
-                //int volume_init = this._settingService.VolumeSpeak;
 
                 Items = new List<Hunks>
                 {
@@ -411,39 +398,39 @@ namespace LetterStomach.ViewModels
                 }
                 if (select_table == 0)
                 {
-                    await this._sqlite_service.Create(-1, true);
-                    await this._sqlite_service.Delete(-1, true);
-                    await this._sqlite_service.InsertAdverb();
-                    await this._sqlite_service.InsertPronoun();
-                    await this._sqlite_service.InsertArticle();
-                    await this._sqlite_service.InsertNumeral();
-                    await this._sqlite_service.InsertPreposition();
-                    await this._sqlite_service.InsertNoun();
-                    await this._sqlite_service.InsertAdjective();
-                    await this._sqlite_service.InsertVerb();
-                    await this._sqlite_service.InsertSentence();
-                    await this._sqlite_service.InsertConjunction();
-                    await this._sqlite_service.InsertAuxiliary();
-                    await this._sqlite_service.InsertModel();
+                    await this._sQLiteService.Create(-1, true);
+                    await this._sQLiteService.Delete(-1, true);
+                    await this._sQLiteService.InsertAdverb();
+                    await this._sQLiteService.InsertPronoun();
+                    await this._sQLiteService.InsertArticle();
+                    await this._sQLiteService.InsertNumeral();
+                    await this._sQLiteService.InsertPreposition();
+                    await this._sQLiteService.InsertNoun();
+                    await this._sQLiteService.InsertAdjective();
+                    await this._sQLiteService.InsertVerb();
+                    await this._sQLiteService.InsertSentence();
+                    await this._sQLiteService.InsertConjunction();
+                    await this._sQLiteService.InsertAuxiliary();
+                    await this._sQLiteService.InsertModel();
                 }
                 else
                 {
-                    await this._sqlite_service.Create(select_table, false);
-                    await this._sqlite_service.Delete(select_table, false);
+                    await this._sQLiteService.Create(select_table, false);
+                    await this._sQLiteService.Delete(select_table, false);
                 };
 
-                if (select_table == (int)Hunk.Adverb) await this._sqlite_service.InsertAdverb();
-                if (select_table == (int)Hunk.Pronoun) await this._sqlite_service.InsertPronoun();
-                if (select_table == (int)Hunk.Article) await this._sqlite_service.InsertArticle();
-                if (select_table == (int)Hunk.Numeral) await this._sqlite_service.InsertNumeral();
-                if (select_table == (int)Hunk.Preposition) await this._sqlite_service.InsertPreposition();
-                if (select_table == (int)Hunk.Noun) await this._sqlite_service.InsertNoun();
-                if (select_table == (int)Hunk.Adjective) await this._sqlite_service.InsertAdjective();
-                if (select_table == (int)Hunk.Verb) await this._sqlite_service.InsertVerb();
-                if (select_table == (int)Hunk.Sentence) await this._sqlite_service.InsertSentence();
-                if (select_table == (int)Hunk.Conjunction) await this._sqlite_service.InsertConjunction();
-                if (select_table == (int)Hunk.Auxiliary) await this._sqlite_service.InsertAuxiliary();
-                if (select_table == (int)Hunk.Model) await this._sqlite_service.InsertModel();
+                if (select_table == (int)Hunk.Adverb) await this._sQLiteService.InsertAdverb();
+                if (select_table == (int)Hunk.Pronoun) await this._sQLiteService.InsertPronoun();
+                if (select_table == (int)Hunk.Article) await this._sQLiteService.InsertArticle();
+                if (select_table == (int)Hunk.Numeral) await this._sQLiteService.InsertNumeral();
+                if (select_table == (int)Hunk.Preposition) await this._sQLiteService.InsertPreposition();
+                if (select_table == (int)Hunk.Noun) await this._sQLiteService.InsertNoun();
+                if (select_table == (int)Hunk.Adjective) await this._sQLiteService.InsertAdjective();
+                if (select_table == (int)Hunk.Verb) await this._sQLiteService.InsertVerb();
+                if (select_table == (int)Hunk.Sentence) await this._sQLiteService.InsertSentence();
+                if (select_table == (int)Hunk.Conjunction) await this._sQLiteService.InsertConjunction();
+                if (select_table == (int)Hunk.Auxiliary) await this._sQLiteService.InsertAuxiliary();
+                if (select_table == (int)Hunk.Model) await this._sQLiteService.InsertModel();
 
                 this.IsUpdateTable = !this.IsUpdateTable;
                 foreach (Hunks item in Items)
@@ -465,7 +452,7 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation drop sqlite \"Setting\" view model failed!");
 
-                await this._sqlite_service.Drop(-1, true);
+                await this._sQLiteService.Drop(-1, true);
                 this._settingService.SQLiteDatabase = false;
                 this.IsSQLiteTable = false;
                 this.IsSQLiteDrop = false;
@@ -484,7 +471,7 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation upgrade sqlite \"Setting\" view model failed!");
 
-                bool exist = await this._sqlite_service.ExistAsync();
+                bool exist = await this._sQLiteService.ExistAsync();
                 if (exist)
                 {
                     this._settingService.SQLiteDatabase = true;

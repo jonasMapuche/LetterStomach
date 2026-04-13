@@ -30,95 +30,92 @@ namespace LetterStomach.ViewModels
         public event EventHandler<string> OnError;
         #endregion
 
-        #region CONSTANTS
-        private string VAR_DECLARATIVE = SettingService.Instance.Declarative;
-        private string VAR_VERB = SettingService.Instance.Verb;
-        private string VAR_NOUN = SettingService.Instance.Noun;
-        private string VAR_ADJECTIVE = SettingService.Instance.Adjective;
-        private string VAR_PREDICATE = SettingService.Instance.Predicate;
-        private string VAR_NUMERAL = SettingService.Instance.Numeral;
-        private string VAR_ESPECIAL = SettingService.Instance.Especial;
-        private string VAR_PREPOSITION = SettingService.Instance.Preposition;
-
-        private Language PORTUGUES = SettingService.Instance.Portugues;
-
-        private Dictionary<string, string> VAR_LOAD = SettingService.Instance.Load;
-        private Dictionary<string, string> VAR_EXECUTE = SettingService.Instance.Execute;
-        private Dictionary<string, string> VAR_VIEW = SettingService.Instance.View;
-        private Dictionary<string, string> VAR_PLAY = SettingService.Instance.Play;
-        private Dictionary<string, string> VAR_ACTIVITY = SettingService.Instance.Activity;
-        private Dictionary<string, string> VAR_RECORD = SettingService.Instance.Record;
-        private Dictionary<string, string> VAR_STOP = SettingService.Instance.Stop;
-        private Dictionary<string, string> VAR_ROTATE = SettingService.Instance.Rotate;
-        private Dictionary<string, string> VAR_SPEAK = SettingService.Instance.Speak;
-        private Dictionary<string, string> VAR_DOWNLOAD = SettingService.Instance.Download;
-        private Dictionary<string, string> VAR_UPLOAD = SettingService.Instance.Upload;
-        private Dictionary<string, string> VAR_CAPTURE = SettingService.Instance.Capture;
-        private Dictionary<string, string> VAR_SAVE = SettingService.Instance.Save;
-        private Dictionary<string, string> VAR_TURN = SettingService.Instance.Turn;
-        private Dictionary<string, string> VAR_SHARE = SettingService.Instance.Share;
-        private Dictionary<string, string> VAR_FEATURE = SettingService.Instance.Feature;
-        private Dictionary<string, string> VAR_TERMINATE = SettingService.Instance.Terminate;
-        private Dictionary<string, string> VAR_TURN_ON = SettingService.Instance.Turn_On;
-        private Dictionary<string, string> VAR_START = SettingService.Instance.Start;
-        private Dictionary<string, string> VAR_SCAN = SettingService.Instance.Scan;
-        private Dictionary<string, string> VAR_WORK = SettingService.Instance.Work;
-        private Dictionary<string, string> VAR_DONT_WORK = SettingService.Instance.Dont_Work;
-        private Dictionary<string, string> VAR_SEND = SettingService.Instance.Send;
-        private Dictionary<string, string> VAR_CONNECT = SettingService.Instance.Connect;
-        private Dictionary<string, string> VAR_DISCONNECT = SettingService.Instance.Disconnect;
-        private Dictionary<string, string> VAR_CONNECTED = SettingService.Instance.Connected;
-        private Dictionary<string, string> VAR_JUNCAO = SettingService.Instance.Juncao;
-
-        private Dictionary<string, string> VAR_GPS = SettingService.Instance.GPS;
-        private Dictionary<string, string> VAR_BLUETOOTH = SettingService.Instance.Bluetooth;
-        private Dictionary<string, string> VAR_BLUETOOTH3 = SettingService.Instance.Bluetooth3;
-        private Dictionary<string, string> VAR_BLUETOOTH4 = SettingService.Instance.Bluetooth4;
-        private Dictionary<string, string> VAR_CAMERA = SettingService.Instance.Camera;
-        private Dictionary<string, string> VAR_WAV = SettingService.Instance.WAV;
-        private Dictionary<string, string> VAR_MP3 = SettingService.Instance.MP3;
-        private Dictionary<string, string> VAR_BATTERY = SettingService.Instance.Battery;
-        private Dictionary<string, string> VAR_FILE = SettingService.Instance.File;
-        private Dictionary<string, string> VAR_VIBRATION = SettingService.Instance.Vibration;
-        private Dictionary<string, string> VAR_TEXT = SettingService.Instance.Text;
-        private Dictionary<string, string> VAR_PHONE = SettingService.Instance.Phone;
-        private Dictionary<string, string> VAR_FLASH = SettingService.Instance.Flash;
-        private Dictionary<string, string> VAR_AUDIO = SettingService.Instance.Audio;
-        private Dictionary<string, string> VAR_BOT = SettingService.Instance.Bot;
-        private Dictionary<string, string> VAR_LONGITUDE = SettingService.Instance.Longitude;
-        private Dictionary<string, string> VAR_LATITUDE = SettingService.Instance.Latitude;
-        private Dictionary<string, string> VAR_LEVEL = SettingService.Instance.Level;
-
-        private Dictionary<string, string> VAR_WITH = SettingService.Instance.With;
-        private Dictionary<string, string> VAR_IN = SettingService.Instance.In;
-        private Dictionary<string, string> VAR_OFF = SettingService.Instance.Off;
-        private Dictionary<string, string> VAR_AUTO = SettingService.Instance.Auto;
-        private Dictionary<string, string> VAR_ON = SettingService.Instance.On;
-        private Dictionary<string, string> VAR_TO = SettingService.Instance.To;
-
-        private Dictionary<string, string> VAR_AND = SettingService.Instance.And;
-
-        private Dictionary<string, string> VAR_FRONT = SettingService.Instance.Front;
-        private Dictionary<string, string> VAR_REAR = SettingService.Instance.Rear;
-
-        private Dictionary<string, string> VAR_THROUGH = SettingService.Instance.Through;
-
-        private Dictionary<string, string> VAR_CATCH = SettingService.Instance.Catch;
-        private Dictionary<string, string> VAR_CATCH_CAMERA = SettingService.Instance.Catch_Camera;
-        private Dictionary<string, string> VAR_CATCH_RECORD = SettingService.Instance.Catch_Record;
-        private Dictionary<string, string> VAR_CATCH_SHARE = SettingService.Instance.Catch_Share;
-
-        private HashSet<int> VAR_ALGARISMO = SettingService.Instance.Algarismo;
-
-        private HashSet<int> VAR_THREE = SettingService.Instance.Three;
-        private HashSet<int> VAR_FOUR = SettingService.Instance.Four;
-
-        private string UNKNOW = "unknown";
-        #endregion
-
         #region VARIABLE
-        public ICommand BackCommand { get; set; }
+        private string _declarative;
+        private string _verb;
+        private string _noun;
+        private string _adjective;
+        private string _predicate;
+        private string _numeral;
+        private string _especial;
+        private string _preposition;
 
+        private Language _language_portugues;
+
+        private Dictionary<string, string> _load;
+        private Dictionary<string, string> _execute;
+        private Dictionary<string, string> _view;
+        private Dictionary<string, string> _play;
+        private Dictionary<string, string> _activity;
+        private Dictionary<string, string> _record;
+        private Dictionary<string, string> _stop;
+        private Dictionary<string, string> _rotate;
+        private Dictionary<string, string> _speak;
+        private Dictionary<string, string> _download;
+        private Dictionary<string, string> _upload;
+        private Dictionary<string, string> _capture;
+        private Dictionary<string, string> _save;
+        private Dictionary<string, string> _turn;
+        private Dictionary<string, string> _share;
+        private Dictionary<string, string> _feature;
+        private Dictionary<string, string> _terminate;
+        private Dictionary<string, string> _turn_on;
+        private Dictionary<string, string> _start;
+        private Dictionary<string, string> _scan;
+        private Dictionary<string, string> _work;
+        private Dictionary<string, string> _dont_work;
+        private Dictionary<string, string> _send;
+        private Dictionary<string, string> _connect;
+        private Dictionary<string, string> _disconnect;
+        private Dictionary<string, string> _connected;
+        private Dictionary<string, string> _juncao;
+
+        private Dictionary<string, string> _gps;
+        private Dictionary<string, string> _bluetooth;
+        private Dictionary<string, string> _bluetooth3;
+        private Dictionary<string, string> _bluetooth4;
+        private Dictionary<string, string> _camera;
+        private Dictionary<string, string> _wav;
+        private Dictionary<string, string> _mp3;
+        private Dictionary<string, string> _battery;
+        private Dictionary<string, string> _file;
+        private Dictionary<string, string> _vibration;
+        private Dictionary<string, string> _text;
+        private Dictionary<string, string> _phone;
+        private Dictionary<string, string> _flash;
+        private Dictionary<string, string> _audio;
+        private Dictionary<string, string> _bot;
+        private Dictionary<string, string> _longitude;
+        private Dictionary<string, string> _latitude;
+        private Dictionary<string, string> _level;
+
+        private Dictionary<string, string> _with;
+        private Dictionary<string, string> _in;
+        private Dictionary<string, string> _off;
+        private Dictionary<string, string> _auto;
+        private Dictionary<string, string> _on;
+        private Dictionary<string, string> _to;
+
+        private Dictionary<string, string> _and;
+
+        private Dictionary<string, string> _front;
+        private Dictionary<string, string> _rear;
+
+        private Dictionary<string, string> _through;
+
+        private Dictionary<string, string> _catch;
+        private Dictionary<string, string> _catch_camera;
+        private Dictionary<string, string> _catch_record;
+        private Dictionary<string, string> _catch_share;
+
+        private HashSet<int> _algarismo;
+
+        private HashSet<int> _three;
+        private HashSet<int> _four;
+
+        private string _unknow;
+
+        public ICommand BackCommand { get; set; }
         public ICommand SendCommand { get; set; }
 
         [ObservableProperty]
@@ -142,17 +139,14 @@ namespace LetterStomach.ViewModels
         [ObservableProperty]
         public bool showCamera;
 
-        private ICameraProvider _cameraProvider;
-
         public CameraView _cameraView;
 
-        public ICameraProvider MediaCamera {  get => _cameraProvider; set => _cameraProvider = value; }
-
+        private ICameraProvider _cameraProvider;
         private IHttpService _httpService;
-
         private IPerceptionService _perceptionService;
-
         private IBotService _botService;
+
+        public ICameraProvider MediaCamera {  get => _cameraProvider; set => _cameraProvider = value; }
 
         public CancellationToken Token => CancellationToken.None;
         #endregion
@@ -164,6 +158,89 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation contructor \"Bot\" view model failed!");
                 else this.error_message = string.Empty;
+
+                this._declarative = SettingService.Instance.Declarative;
+                this._verb = SettingService.Instance.Verb;
+                this._noun = SettingService.Instance.Noun;
+                this._adjective = SettingService.Instance.Adjective;
+                this._predicate = SettingService.Instance.Predicate;
+                this._numeral = SettingService.Instance.Numeral;
+                this._especial = SettingService.Instance.Especial;
+                this._preposition = SettingService.Instance.Preposition;
+
+                this._language_portugues = SettingService.Instance.Portugues;
+
+                this._load = SettingService.Instance.Load;
+                this._execute = SettingService.Instance.Execute;
+                this._view = SettingService.Instance.View;
+                this._play = SettingService.Instance.Play;
+                this._activity = SettingService.Instance.Activity;
+                this._record = SettingService.Instance.Record;
+                this._stop = SettingService.Instance.Stop;
+                this._rotate = SettingService.Instance.Rotate;
+                this._speak = SettingService.Instance.Speak;
+                this._download = SettingService.Instance.Download;
+                this._upload = SettingService.Instance.Upload;
+                this._capture = SettingService.Instance.Capture;
+                this._save = SettingService.Instance.Save;
+                this._turn = SettingService.Instance.Turn;
+                this._share = SettingService.Instance.Share;
+                this._feature = SettingService.Instance.Feature;
+                this._terminate = SettingService.Instance.Terminate;
+                this._turn_on = SettingService.Instance.Turn_On;
+                this._start = SettingService.Instance.Start;
+                this._scan = SettingService.Instance.Scan;
+                this._work = SettingService.Instance.Work;
+                this._dont_work = SettingService.Instance.Dont_Work;
+                this._send = SettingService.Instance.Send;
+                this._connect = SettingService.Instance.Connect;
+                this._disconnect = SettingService.Instance.Disconnect;
+                this._connected = SettingService.Instance.Connected;
+                this._juncao = SettingService.Instance.Juncao;
+
+                this._gps = SettingService.Instance.GPS;
+                this._bluetooth = SettingService.Instance.Bluetooth;
+                this._bluetooth3 = SettingService.Instance.Bluetooth3;
+                this._bluetooth4 = SettingService.Instance.Bluetooth4;
+                this._camera = SettingService.Instance.Camera;
+                this._wav = SettingService.Instance.WAV;
+                this._mp3 = SettingService.Instance.MP3;
+                this._battery = SettingService.Instance.Battery;
+                this._file = SettingService.Instance.File;
+                this._vibration = SettingService.Instance.Vibration;
+                this._text = SettingService.Instance.Text;
+                this._phone = SettingService.Instance.Phone;
+                this._flash = SettingService.Instance.Flash;
+                this._audio = SettingService.Instance.Audio;
+                this._bot = SettingService.Instance.Bot;
+                this._longitude = SettingService.Instance.Longitude;
+                this._latitude = SettingService.Instance.Latitude;
+                this._level = SettingService.Instance.Level;
+
+                this._with = SettingService.Instance.With;
+                this._in = SettingService.Instance.In;
+                this._off = SettingService.Instance.Off;
+                this._auto = SettingService.Instance.Auto;
+                this._on = SettingService.Instance.On;
+                this._to = SettingService.Instance.To;
+
+                this._and = SettingService.Instance.And;
+
+                this._front = SettingService.Instance.Front;
+                this._rear = SettingService.Instance.Rear;
+                this._through = SettingService.Instance.Through;
+
+                this._catch = SettingService.Instance.Catch;
+                this._catch_camera = SettingService.Instance.Catch_Camera;
+                this._catch_record = SettingService.Instance.Catch_Record;
+                this._catch_share = SettingService.Instance.Catch_Share;
+
+                this._algarismo = SettingService.Instance.Algarismo;
+
+                this._three = SettingService.Instance.Three;
+                this._four = SettingService.Instance.Four;
+
+                this._unknow = "unknown";
 
                 this.BackCommand = new AsyncRelayCommand(OnBackCommand);
                 this.SendCommand = new AsyncRelayCommand<string>(OnSendCommand);
@@ -182,6 +259,7 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -191,22 +269,16 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation init message \"Bot\" view model failed!");
 
-                Username = MessageService.Instance.GetUser(PORTUGUES.Lowercase);
-
+                Username = MessageService.Instance.GetUser(this._language_portugues.Lowercase);
                 List<Message> message_language = MessageService.Instance.Messages(Username.Name);
                 if (message_language.Count > 0)
-                {
                     Messages = message_language;
-                }
-                else
-                {
-                    Messages = MessageService.Instance.Messages(Username, "What can I do for you?", Username.Name);
-                }
-
+                else Messages = MessageService.Instance.Messages(Username, "What can I do for you?", Username.Name);
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
             }
         }
         #endregion
@@ -221,7 +293,6 @@ namespace LetterStomach.ViewModels
                 string language = Username.Name.ToLower();
                 User user = Username;
                 Messages = MessageService.Instance.Messages(null, parameter, language);
-
                 if (SettingService.Instance.ModeBot)
                 {
                     MessageService.Instance.Bots(null, parameter, language);
@@ -272,8 +343,7 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return null;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -288,7 +358,7 @@ namespace LetterStomach.ViewModels
                 vocables = locution.Word;
                 vocables.ForEach(index =>
                 {
-                    if (index.Class != VAR_ESPECIAL)
+                    if (index.Class != this._especial)
                     {
                         if (result == string.Empty) result = index.Term;
                         else
@@ -300,8 +370,7 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -311,19 +380,19 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation decision message \"Bot\" view model failed!");
 
-                HashSet<string> verbs = VAR_EXECUTE
+                HashSet<string> verbs = this._execute
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> nouns = VAR_ACTIVITY
+                HashSet<string> nouns = this._activity
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> adjectives = VAR_FEATURE
+                HashSet<string> adjectives = this._feature
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> prepositions = VAR_JUNCAO
+                HashSet<string> prepositions = this._juncao
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<int> numerals = VAR_ALGARISMO;
+                HashSet<int> numerals = this._algarismo;
 
                 Locution period1 = new Locution();
                 Locution period2 = new Locution();
@@ -339,12 +408,12 @@ namespace LetterStomach.ViewModels
                 if (locutions.Count > 1) phrase = await LocutionText(period2);
 
                 string result = string.Empty;
-                if ((period1 != null) && (period1.Kind == VAR_DECLARATIVE))
+                if ((period1 != null) && (period1.Kind == this._declarative))
                 {
                     string verb = string.Empty;
                     foreach (Vocable item in period1.Word)
                     {
-                        if (item.Class == VAR_VERB)
+                        if (item.Class == this._verb)
                         {
                             if (Array.IndexOf(verbs.ToArray(), item.Term) != -1)
                                 verb = item.Term;
@@ -353,7 +422,7 @@ namespace LetterStomach.ViewModels
                     string noun = string.Empty;
                     foreach (Vocable item in period1.Word)
                     {
-                        if ((item.Sentence == VAR_PREDICATE) && (item.Class == VAR_NOUN))
+                        if ((item.Sentence == this._predicate) && (item.Class == this._noun))
                         {
                             if (Array.IndexOf(nouns.ToArray(), item.Term) != -1)
                                 noun = item.Term;
@@ -362,7 +431,7 @@ namespace LetterStomach.ViewModels
                     string adjective = string.Empty;
                     foreach (Vocable item in period1.Word)
                     {
-                        if ((item.Sentence == VAR_PREDICATE) && (item.Class == VAR_ADJECTIVE))
+                        if ((item.Sentence == this._predicate) && (item.Class == this._adjective))
                         {
                             if (Array.IndexOf(adjectives.ToArray(), item.Term) != -1)
                                 adjective = item.Term;
@@ -371,7 +440,7 @@ namespace LetterStomach.ViewModels
                     string preposition = string.Empty;
                     foreach (Vocable item in period1.Word)
                     {
-                        if ((item.Sentence == VAR_PREDICATE) && (item.Class == VAR_PREPOSITION))
+                        if ((item.Sentence == this._predicate) && (item.Class == this._preposition))
                         {
                             if (Array.IndexOf(prepositions.ToArray(), item.Term) != -1)
                                 preposition = item.Term;
@@ -380,7 +449,7 @@ namespace LetterStomach.ViewModels
                     int numeral = -1;
                     foreach (Vocable item in period1.Word)
                     {
-                        if ((item.Sentence == VAR_PREDICATE) && (item.Class == VAR_NUMERAL))
+                        if ((item.Sentence == this._predicate) && (item.Class == this._numeral))
                         {
                             if (Array.IndexOf(numerals.ToArray(), int.Parse(item.Term)) != -1)
                                 numeral = int.Parse(item.Term);
@@ -394,8 +463,7 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -429,8 +497,7 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return new List<Message>();
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -440,16 +507,16 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation load command \"Bot\" view model failed!");
 
-                HashSet<string> cameras = VAR_CATCH_CAMERA
+                HashSet<string> cameras = this._catch_camera
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> records = VAR_CATCH_RECORD
+                HashSet<string> records = this._catch_record
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> shares = VAR_CATCH_SHARE
+                HashSet<string> shares = this._catch_share
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> terminates = VAR_TERMINATE
+                HashSet<string> terminates = this._terminate
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -491,8 +558,7 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return new List<Message>();
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -502,16 +568,16 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation choose command \"Bot\" view model failed!");
 
-                HashSet<string> cameras = VAR_CATCH_CAMERA
+                HashSet<string> cameras = this._catch_camera
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> records = VAR_CATCH_RECORD
+                HashSet<string> records = this._catch_record
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> shares = VAR_CATCH_SHARE
+                HashSet<string> shares = this._catch_share
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> terminates = VAR_TERMINATE
+                HashSet<string> terminates = this._terminate
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -522,7 +588,7 @@ namespace LetterStomach.ViewModels
                         result = await this._botService.CaptureCamera(language, messages);
                     if (Array.IndexOf(records.ToArray(), parameter) != -1)
                         result = await this._botService.RecordAudio(language, messages);
-                    //------
+
                     bool device = false;
                     device = await this._botService.DeviceShare(language, messages, parameter);
                     if ((Array.IndexOf(shares.ToArray(), parameter) != -1) || device)
@@ -533,8 +599,7 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -544,7 +609,7 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation send bot \"Bot\" view model failed!");
 
-                HashSet<string> catchs = VAR_CATCH
+                HashSet<string> catchs = this._catch
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -570,8 +635,7 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -585,14 +649,12 @@ namespace LetterStomach.ViewModels
                 locutions = await GoMessage(parameter, user, language);
                 string result = string.Empty;
                 result = await DecisionMessage(language, locutions);
-
                 return result;
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -603,137 +665,137 @@ namespace LetterStomach.ViewModels
                 if (this._error_off) throw new InvalidOperationException("Operation command button \"Bot\" view model failed!");
 
                 HashSet<string> verbs_load = new HashSet<string>();
-                verbs_load = VAR_LOAD.Where(index => index.Value.Contains(language))
+                verbs_load = this._load.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
                 HashSet<string> verbs_view = new HashSet<string>();
-                verbs_view = VAR_VIEW.Where(index => index.Value.Contains(language))
+                verbs_view = this._view.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
                 HashSet<string> verbs_play = new HashSet<string>();
-                verbs_play = VAR_PLAY.Where(index => index.Value.Contains(language))
+                verbs_play = this._play.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
                 HashSet<string> verbs_record = new HashSet<string>();
-                verbs_record = VAR_RECORD.Where(index => index.Value.Contains(language))
+                verbs_record = this._record.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
                 HashSet<string> verbs_stop = new HashSet<string>();
-                verbs_stop = VAR_STOP.Where(index => index.Value.Contains(language))
+                verbs_stop = this._stop.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
                 HashSet<string> verbs_rotate = new HashSet<string>();
-                verbs_rotate = VAR_ROTATE.Where(index => index.Value.Contains(language))
+                verbs_rotate = this._rotate.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
                 HashSet<string> verbs_speak = new HashSet<string>();
-                verbs_speak = VAR_SPEAK.Where(index => index.Value.Contains(language))
+                verbs_speak = this._speak.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
                 HashSet<string> verbs_download = new HashSet<string>();
-                verbs_download = VAR_DOWNLOAD.Where(index => index.Value.Contains(language))
+                verbs_download = this._download.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
                 HashSet<string> verbs_upload = new HashSet<string>();
-                verbs_upload = VAR_UPLOAD.Where(index => index.Value.Contains(language))
+                verbs_upload = this._upload.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
                 HashSet<string> verbs_vibtate = new HashSet<string>();
-                verbs_vibtate = VAR_VIBRATION.Where(index => index.Value.Contains(language))
+                verbs_vibtate = this._vibration.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
                 HashSet<string> verbs_capture = new HashSet<string>();
-                verbs_capture = VAR_CAPTURE.Where(index => index.Value.Contains(language))
+                verbs_capture = this._capture.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
                 HashSet<string> verbs_save = new HashSet<string>();
-                verbs_save = VAR_SAVE.Where(index => index.Value.Contains(language))
+                verbs_save = this._save.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
                 HashSet<string> verbs_turn = new HashSet<string>();
-                verbs_turn = VAR_TURN.Where(index => index.Value.Contains(language))
+                verbs_turn = this._turn.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
                 HashSet<string> verbs_share = new HashSet<string>();
-                verbs_share = VAR_SHARE.Where(index => index.Value.Contains(language))
+                verbs_share = this._share.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
                 HashSet<string> verbs_terminate = new HashSet<string>();
-                verbs_terminate = VAR_TERMINATE.Where(index => index.Value.Contains(language))
+                verbs_terminate = this._terminate.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
                 HashSet<string> verbs_turn_on = new HashSet<string>();
-                verbs_turn_on = VAR_TURN_ON.Where(index => index.Value.Contains(language))
+                verbs_turn_on = this._turn_on.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
                 HashSet<string> verbs_start = new HashSet<string>();
-                verbs_start = VAR_START.Where(index => index.Value.Contains(language))
+                verbs_start = this._start.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
                 HashSet<string> verbs_scan = new HashSet<string>();
-                verbs_scan = VAR_SCAN.Where(index => index.Value.Contains(language))
+                verbs_scan = this._scan.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
                 HashSet<string> verbs_send = new HashSet<string>();
-                verbs_send = VAR_SEND.Where(index => index.Value.Contains(language))
+                verbs_send = _send.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
                 HashSet<string> verbs_connect = new HashSet<string>();
-                verbs_connect = VAR_CONNECT.Where(index => index.Value.Contains(language))
+                verbs_connect = this._connect.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
                 HashSet<string> verbs_disconnect = new HashSet<string>();
-                verbs_disconnect = VAR_DISCONNECT.Where(index => index.Value.Contains(language))
+                verbs_disconnect = this._disconnect.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
                 HashSet<string> nouns_gps = new HashSet<string>();
-                nouns_gps = VAR_GPS.Where(index => index.Value.Contains(language))
+                nouns_gps = this._gps.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
                 HashSet<string> nouns_camera = new HashSet<string>();
-                nouns_camera = VAR_CAMERA.Where(index => index.Value.Contains(language))
+                nouns_camera = this._camera.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
                 HashSet<string> nouns_battery = new HashSet<string>();
-                nouns_battery = VAR_BATTERY.Where(index => index.Value.Contains(language))
+                nouns_battery = this._battery.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
                 HashSet<string> nouns_file = new HashSet<string>();
-                nouns_file = VAR_FILE.Where(index => index.Value.Contains(language))
+                nouns_file = this._file.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
                 HashSet<string> nouns_wav = new HashSet<string>();
-                nouns_wav = VAR_WAV.Where(index => index.Value.Contains(language))
+                nouns_wav = this._wav.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
                 HashSet<string> nouns_mp3 = new HashSet<string>();
-                nouns_mp3 = VAR_MP3.Where(index => index.Value.Contains(language))
+                nouns_mp3 = this._mp3.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
                 HashSet<string> nouns_vibration = new HashSet<string>();
-                nouns_vibration = VAR_VIBRATION.Where(index => index.Value.Contains(language))
+                nouns_vibration = this._vibration.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
                 HashSet<string> nouns_bluetooth = new HashSet<string>();
-                nouns_bluetooth = VAR_BLUETOOTH.Where(index => index.Value.Contains(language))
+                nouns_bluetooth = this._bluetooth.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
                 HashSet<string> nouns_text = new HashSet<string>();
-                nouns_text = VAR_TEXT.Where(index => index.Value.Contains(language))
+                nouns_text = this._text.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
                 HashSet<string> nouns_phone = new HashSet<string>();
-                nouns_phone = VAR_PHONE.Where(index => index.Value.Contains(language))
+                nouns_phone = this._phone.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
                 HashSet<string> nouns_flash = new HashSet<string>();
-                nouns_flash = VAR_FLASH.Where(index => index.Value.Contains(language))
+                nouns_flash = this._flash.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
                 HashSet<string> nouns_audio = new HashSet<string>();
-                nouns_audio = VAR_AUDIO.Where(index => index.Value.Contains(language))
+                nouns_audio = this._audio.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
                 HashSet<string> nouns_bot = new HashSet<string>();
-                nouns_bot = VAR_BOT.Where(index => index.Value.Contains(language))
+                nouns_bot = this._bot.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
                 HashSet<string> nouns_bluetooth3 = new HashSet<string>();
-                nouns_bluetooth3 = VAR_BLUETOOTH3.Where(index => index.Value.Contains(language))
+                nouns_bluetooth3 = this._bluetooth3.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
                 HashSet<string> nouns_bluetooth4 = new HashSet<string>();
-                nouns_bluetooth4 = VAR_BLUETOOTH4.Where(index => index.Value.Contains(language))
+                nouns_bluetooth4 = this._bluetooth4.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
                 HashSet<string> adjective_front = new HashSet<string>();
-                adjective_front = VAR_FRONT.Where(index => index.Value.Contains(language))
+                adjective_front = this._front.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
                 HashSet<string> adjective_rear = new HashSet<string>();
-                adjective_rear = VAR_REAR.Where(index => index.Value.Contains(language))
+                adjective_rear = this._rear.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
                 HashSet<string> adjective_on = new HashSet<string>();
-                adjective_on = VAR_ON.Where(index => index.Value.Contains(language))
+                adjective_on = this._on.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
                 HashSet<string> adjective_off = new HashSet<string>();
-                adjective_off = VAR_OFF.Where(index => index.Value.Contains(language))
+                adjective_off = this._off.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
                 HashSet<string> adjective_auto = new HashSet<string>();
-                adjective_auto = VAR_AUTO.Where(index => index.Value.Contains(language))
+                adjective_auto = this._auto.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
                 HashSet<string> preposition_to = new HashSet<string>();
-                preposition_to = VAR_TO.Where(index => index.Value.Contains(language))
+                preposition_to = this._to.Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<int> numeral_three = VAR_THREE;
-                HashSet<int> numeral_four = VAR_FOUR;
+                HashSet<int> numeral_three = this._three;
+                HashSet<int> numeral_four = this._four;
                 //-----
                 string response = string.Empty;
                 //-----
@@ -1069,8 +1131,7 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -1079,6 +1140,7 @@ namespace LetterStomach.ViewModels
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation back command \"Bot\" view model failed!");
+                
                 await Shell.Current.GoToAsync($"..");
             }
             catch (Exception ex)
@@ -1097,7 +1159,7 @@ namespace LetterStomach.ViewModels
                 Username = query["username"] as User;
                 if (Username == null)
                 {
-                    Username = MessageService.Instance.GetUser(PORTUGUES.Lowercase);
+                    Username = MessageService.Instance.GetUser(this._language_portugues.Lowercase);
                 }
                 List<Message> message_language = MessageService.Instance.Messages(Username.Name);
                 if (message_language.Count > 0)
@@ -1106,7 +1168,7 @@ namespace LetterStomach.ViewModels
                 }
                 else
                 {
-                    if (!((Username.Name == PORTUGUES.Lowercase) || (Username.Name == PORTUGUES.Uppercase)))
+                    if (!((Username.Name == this._language_portugues.Lowercase) || (Username.Name == this._language_portugues.Uppercase)))
                     {
                         List<Message> chats = MessageService.Instance.Chats;
                         Message? chat = chats.Find(index => index.Sender == Username);
@@ -1141,8 +1203,7 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -1152,10 +1213,10 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation start camera \"Bot\" view model failed!");
 
-                HashSet<string> start = VAR_START
+                HashSet<string> start = this._start
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> camera = VAR_CAMERA
+                HashSet<string> camera = this._camera
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -1167,8 +1228,7 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -1178,10 +1238,10 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation stop camera \"Bot\" view model failed!");
 
-                HashSet<string> stop = VAR_STOP
+                HashSet<string> stop = this._stop
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> camera = VAR_CAMERA
+                HashSet<string> camera = this._camera
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -1193,8 +1253,7 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -1204,16 +1263,16 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation rotate camera \"Bot\" view model failed!");
 
-                HashSet<string> camera = VAR_CAMERA
+                HashSet<string> camera = this._camera
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> rotate = VAR_ROTATE
+                HashSet<string> rotate = this._rotate
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> front = VAR_FRONT
+                HashSet<string> front = this._front
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> rear = VAR_REAR
+                HashSet<string> rear = this._rear
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -1237,8 +1296,7 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -1248,22 +1306,22 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation flash camera \"Bot\" view model failed!");
 
-                HashSet<string> flash = VAR_FLASH
+                HashSet<string> flash = this._flash
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> off = VAR_OFF
+                HashSet<string> off = this._off
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> on = VAR_ON
+                HashSet<string> on = this._on
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> auto = VAR_AUTO
+                HashSet<string> auto = this._auto
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> turn = VAR_TURN
+                HashSet<string> turn = this._turn
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> turn_on = VAR_TURN_ON
+                HashSet<string> turn_on = this._turn_on
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -1293,8 +1351,7 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -1304,10 +1361,10 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation capture image \"Bot\" view model failed!");
 
-                HashSet<string> camera = VAR_CAMERA
+                HashSet<string> camera = this._camera
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> capture = VAR_CAPTURE
+                HashSet<string> capture = this._capture
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -1319,8 +1376,7 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -1330,10 +1386,10 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation save image \"Bot\" view model failed!");
 
-                HashSet<string> save = VAR_SAVE
+                HashSet<string> save = this._save
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> camera = VAR_CAMERA
+                HashSet<string> camera = this._camera
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -1345,8 +1401,7 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -1363,8 +1418,7 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -1374,13 +1428,13 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation start record \"Bot\" view model failed!");
 
-                HashSet<string> mp3 = VAR_MP3
+                HashSet<string> mp3 = this._mp3
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> wav = VAR_WAV
+                HashSet<string> wav = this._wav
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> record = VAR_RECORD
+                HashSet<string> record = this._record
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -1404,8 +1458,7 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -1415,13 +1468,13 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation stop record \"Bot\" view model failed!");
 
-                HashSet<string> mp3 = VAR_MP3
+                HashSet<string> mp3 = this._mp3
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> wav = VAR_WAV
+                HashSet<string> wav = this._wav
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> stop = VAR_STOP
+                HashSet<string> stop = this._stop
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -1443,8 +1496,7 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -1454,13 +1506,13 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation play record \"Bot\" view model failed!");
 
-                HashSet<string> mp3 = VAR_MP3
+                HashSet<string> mp3 = this._mp3
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> wav = VAR_WAV
+                HashSet<string> wav = this._wav
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> play = VAR_PLAY
+                HashSet<string> play = this._play
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -1478,8 +1530,7 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -1496,8 +1547,7 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -1507,10 +1557,10 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation upload file \"Bot\" view model failed!");
 
-                HashSet<string> upload = VAR_UPLOAD
+                HashSet<string> upload = this._upload
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> file = VAR_FILE
+                HashSet<string> file = this._file
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -1525,8 +1575,7 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -1536,10 +1585,10 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation download file \"Bot\" view model failed!");
 
-                HashSet<string> download = VAR_DOWNLOAD
+                HashSet<string> download = this._download
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> file = VAR_FILE
+                HashSet<string> file = this._file
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -1551,8 +1600,7 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -1562,11 +1610,11 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation end bot \"Bot\" view model failed!");
 
-                HashSet<string> terminate = VAR_TERMINATE
+                HashSet<string> terminate = this._terminate
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<string> bot = VAR_BOT
+                HashSet<string> bot = this._bot
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -1579,8 +1627,7 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -1590,22 +1637,22 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation gps \"Bot\" view model failed!");
 
-                HashSet<string> work = VAR_WORK
+                HashSet<string> work = this._work
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> dont_work = VAR_DONT_WORK
+                HashSet<string> dont_work = this._dont_work
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> with = VAR_WITH
+                HashSet<string> with = this._with
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> and = VAR_AND
+                HashSet<string> and = this._and
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> longitude = VAR_LONGITUDE
+                HashSet<string> longitude = this._longitude
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> latitude = VAR_LATITUDE
+                HashSet<string> latitude = this._latitude
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -1621,8 +1668,7 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -1632,7 +1678,7 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation battery \"Bot\" view model failed!");
 
-                HashSet<string> load = VAR_LOAD
+                HashSet<string> load = this._load
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -1645,8 +1691,7 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -1656,10 +1701,10 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation vibration \"Bot\" view model failed!");
 
-                HashSet<string> vibration = VAR_VIBRATION
+                HashSet<string> vibration = this._vibration
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> level = VAR_LEVEL
+                HashSet<string> level = this._level
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -1671,8 +1716,7 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -1686,7 +1730,7 @@ namespace LetterStomach.ViewModels
                 string response = string.Empty;
                 if (bluetooth.Count == 0)
                 {
-                    response = UNKNOW;
+                    response = this._unknow;
                     List<string> unknow = new List<string>();
                     unknow.Add(response);
                     await this._botService.ShareScan(unknow);
@@ -1705,8 +1749,7 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -1720,7 +1763,7 @@ namespace LetterStomach.ViewModels
                 string response = string.Empty;
                 if (bluetooth.Count == 0)
                 {
-                    response = UNKNOW;
+                    response = this._unknow;
                     List<string> unknow = new List<string>();
                     unknow.Add(response);
                     await this._botService.ShareScan(unknow);
@@ -1740,8 +1783,7 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -1751,17 +1793,17 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation connect bluetooth 4 \"Bot\" view model failed!");
 
-                HashSet<string> bluetooth = VAR_BLUETOOTH
+                HashSet<string> bluetooth = this._bluetooth
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> connected = VAR_CONNECTED
+                HashSet<string> connected = this._connected
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> in_proposition = VAR_IN
+                HashSet<string> in_proposition = this._in
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<int> numeral_three = VAR_THREE;
+                HashSet<int> numeral_three = this._three;
 
                 string device = string.Empty;
                 device = await this._botService.DeviceShare();
@@ -1774,8 +1816,7 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -1785,17 +1826,17 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation connect bluetooth 4 \"Bot\" view model failed!");
 
-                HashSet<string> bluetooth = VAR_BLUETOOTH
+                HashSet<string> bluetooth = this._bluetooth
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> connected = VAR_CONNECTED
+                HashSet<string> connected = this._connected
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> in_proposition = VAR_IN
+                HashSet<string> in_proposition = this._in
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<int> numeral_four = VAR_FOUR;
+                HashSet<int> numeral_four = this._four;
 
                 string device = string.Empty;
                 device = await this._botService.DeviceShare();
@@ -1808,8 +1849,7 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -1819,14 +1859,14 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation disconnect bluetooth 3 \"Bot\" view model failed!");
 
-                HashSet<string> bluetooth = VAR_BLUETOOTH
+                HashSet<string> bluetooth = this._bluetooth
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> disconnect = VAR_DISCONNECT
+                HashSet<string> disconnect = this._disconnect
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                HashSet<int> numeral_three = VAR_THREE;
+                HashSet<int> numeral_three = this._three;
 
                 await this._perceptionService.DisconnectBluetooth3();
                 string response = string.Empty;
@@ -1836,8 +1876,7 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -1847,13 +1886,13 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation disconnect bluetooth 4 \"Bot\" view model failed!");
 
-                HashSet<string> bluetooth = VAR_BLUETOOTH
+                HashSet<string> bluetooth = this._bluetooth
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> disconnect = VAR_DISCONNECT
+                HashSet<string> disconnect = this._disconnect
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<int> numeral_four = VAR_FOUR;
+                HashSet<int> numeral_four = this._four;
 
                 string response = string.Empty;
                 await this._perceptionService.DisconnectBluetooth4();
@@ -1863,29 +1902,29 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
+        
         private async Task<string> SendBluetooth3(string language)
         {
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation disconnect bluetooth 3 \"Bot\" view model failed!");
 
-                HashSet<string> bluetooth = VAR_BLUETOOTH
+                HashSet<string> bluetooth = this._bluetooth
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> send = VAR_SEND
+                HashSet<string> send = _send
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> file = VAR_FILE
+                HashSet<string> file = this._file
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> through = VAR_THROUGH
+                HashSet<string> through = this._through
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<int> numeral_three = VAR_THREE;
+                HashSet<int> numeral_three = this._three;
 
                 string response = string.Empty;
                 await this._perceptionService.SendBluetooth3();
@@ -1895,29 +1934,29 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
+        
         private async Task<string> SendBluetooth4(string language)
         {
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation disconnect bluetooth 4 \"Bot\" view model failed!");
 
-                HashSet<string> bluetooth = VAR_BLUETOOTH
+                HashSet<string> bluetooth = this._bluetooth
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> send = VAR_SEND
+                HashSet<string> send = _send
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> file = VAR_FILE
+                HashSet<string> file = this._file
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> through = VAR_THROUGH
+                HashSet<string> through = this._through
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<int> numeral_four = VAR_FOUR;
+                HashSet<int> numeral_four = this._four;
 
                 string response = string.Empty;
                 await this._perceptionService.SendBluetooth4();
@@ -1927,8 +1966,7 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -1938,10 +1976,10 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation speak text \"Bot\" view model failed!");
 
-                HashSet<string> text = VAR_TEXT
+                HashSet<string> text = this._text
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> speak = VAR_SPEAK
+                HashSet<string> speak = this._speak
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -1953,8 +1991,7 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -1964,10 +2001,10 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation file text \"Bot\" view model failed!");
 
-                HashSet<string> file = VAR_FILE
+                HashSet<string> file = this._file
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
-                HashSet<string> save = VAR_SAVE
+                HashSet<string> save = this._save
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
@@ -1982,8 +2019,7 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
         #endregion
@@ -2012,8 +2048,7 @@ namespace LetterStomach.ViewModels
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return PermissionStatus.Denied;
+                throw new InvalidOperationException(this.error_message);
             }
         }
         #endregion

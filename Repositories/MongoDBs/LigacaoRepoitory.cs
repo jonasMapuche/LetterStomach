@@ -1,4 +1,5 @@
-﻿using LetterStomach.Models;
+﻿using LetterStomach.Data;
+using LetterStomach.Models;
 using MongoDB.Driver;
 
 namespace LetterStomach.Repositories.MongoDBs
@@ -31,7 +32,7 @@ namespace LetterStomach.Repositories.MongoDBs
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation constructor \"Conjunction\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation constructor \"Ligacao\" repository failed!");
                 else this._error_message = string.Empty;
 
                 string connection = "mongodb://berthazatz:freedown@ac-caq66mq-shard-00-00.55ugps8.mongodb.net:27017,ac-caq66mq-shard-00-01.55ugps8.mongodb.net:27017,ac-caq66mq-shard-00-02.55ugps8.mongodb.net:27017/?ssl=true&replicaSet=atlas-m1uiq4-shard-0&authSource=admin&appName=conjunction";
@@ -47,6 +48,22 @@ namespace LetterStomach.Repositories.MongoDBs
                 throw new InvalidOperationException(this.error_message);
             }
         }
+
+        public LigacaoRepoitory(LigacaoContext ligacaoContext)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation constructor \"Ligacao\" repository failed!");
+                else this._error_message = string.Empty;
+
+                this._collection = ligacaoContext.GetCollection();
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
         #endregion
 
         #region GET
@@ -54,7 +71,7 @@ namespace LetterStomach.Repositories.MongoDBs
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation get language \"Conjunction\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation get language \"Ligacao\" repository failed!");
 
                 return this._collection.Find(index => index.linguagem == language).ToList<Ligacao>();
             }
@@ -69,7 +86,7 @@ namespace LetterStomach.Repositories.MongoDBs
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation get language async \"Conjunction\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation get language async \"Ligacao\" repository failed!");
 
                 return await this._collection.Find(index => index.linguagem == language).ToListAsync<Ligacao>();
             }

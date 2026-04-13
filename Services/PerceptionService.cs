@@ -13,9 +13,9 @@ namespace LetterStomach.Services
         #region ERROR
         private bool _error_on = true;
         private bool _error_off = false;
-        private string _error_message;
+        private string? _error_message;
 
-        public string error_message
+        public string? error_message
         {
             get => this._error_message;
             set
@@ -24,14 +24,14 @@ namespace LetterStomach.Services
             }
         }
 
-        public event EventHandler<string> OnError;
+        public event EventHandler<string>? OnError;
         #endregion
 
         #region VARIABLE
         public List<Audio> _audios;
-        private IAudioService _audio_service;
-        private IRecordService _record_service;
-        private ITextSpeakService _text_speak_service;
+        private IAudioService _audioService;
+        private IRecordService _recordService;
+        private ITextSpeakService _textSpeakService;
         private IAdapter _adapterBluetooth;
         #endregion
 
@@ -43,18 +43,19 @@ namespace LetterStomach.Services
                 if (this._error_off) throw new InvalidOperationException("Operation contructor \"Perception\" service failed!");
                 else this.error_message = string.Empty;
 
-                this._record_service = recordService;
-                this._record_service.OnError += OnError;
+                this._recordService = recordService;
+                this._recordService.OnError += OnError;
 
-                this._audio_service = audioService;
-                this._audio_service.OnError += OnError;
+                this._audioService = audioService;
+                this._audioService.OnError += OnError;
 
-                this._text_speak_service = textSpeakService;
-                this._text_speak_service.OnError += OnError;
+                this._textSpeakService = textSpeakService;
+                this._textSpeakService.OnError += OnError;
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
             }
         }
         #endregion
@@ -64,7 +65,7 @@ namespace LetterStomach.Services
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation gps \"Perception\" service failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation current location \"Perception\" service failed!");
 
                 GeolocationRequest request = new GeolocationRequest(GeolocationAccuracy.Default, TimeSpan.FromSeconds(10));
                 Location location = await Geolocation.GetLocationAsync(request);
@@ -73,8 +74,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return null;
+                throw new InvalidOperationException(this.error_message);
             }
         }
         #endregion
@@ -152,7 +152,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -172,7 +172,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -189,8 +189,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -199,13 +198,14 @@ namespace LetterStomach.Services
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation play audio \"Perception\" service failed!");
-                this._audio_service.OnError += OnError;
-                this._audio_service.PlayAudio(file_path);
+
+                this._audioService.OnError += OnError;
+                this._audioService.PlayAudio(file_path);
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -214,13 +214,14 @@ namespace LetterStomach.Services
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation stop audio \"Perception\" service failed!");
-                this._audio_service.OnError += OnError;
-                this._audio_service.StopAudio();
+
+                this._audioService.OnError += OnError;
+                this._audioService.StopAudio();
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -229,13 +230,14 @@ namespace LetterStomach.Services
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation start record mp3 \"Perception\" service failed!");
-                this._record_service.OnError += OnError;
-                this._record_service.StartRecordMP3();
+
+                this._recordService.OnError += OnError;
+                this._recordService.StartRecordMP3();
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -244,12 +246,13 @@ namespace LetterStomach.Services
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation start record wav \"Perception\" service failed!");
-                this._record_service.StartRecordWav();
+                
+                this._recordService.StartRecordWav();
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -258,14 +261,14 @@ namespace LetterStomach.Services
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation start record mp3 \"Perception\" service failed!");
-                this._record_service.OnError += OnError;
-                return this._record_service.StopRecordMP3();
+
+                this._recordService.OnError += OnError;
+                return this._recordService.StopRecordMP3();
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -274,14 +277,14 @@ namespace LetterStomach.Services
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation start record wav \"Perception\" service failed!");
-                this._record_service.OnError += OnError;
-                return this._record_service.StopRecordWav();
+
+                this._recordService.OnError += OnError;
+                return this._recordService.StopRecordWav();
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -290,13 +293,14 @@ namespace LetterStomach.Services
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation speak text \"Perception\" service failed!");
-                this._text_speak_service.OnError += OnError;
-                this._text_speak_service.SpeakText(text);
+
+                this._textSpeakService.OnError += OnError;
+                this._textSpeakService.SpeakText(text);
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -305,14 +309,14 @@ namespace LetterStomach.Services
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation file text \"Perception\" service failed!");
-                this._text_speak_service.OnError += OnError;
-                return this._text_speak_service.FileText(text);
+
+                this._textSpeakService.OnError += OnError;
+                return this._textSpeakService.FileText(text);
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
         #endregion
@@ -328,14 +332,12 @@ namespace LetterStomach.Services
                 string file_path = FilePath.SetAudioFilePath(file_name);
                 Audio audio = new Audio() { url = file_path };
                 if (audio != null)
-                {
                     await File.WriteAllBytesAsync(file_path, bytes);
-                }
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
+                throw new InvalidOperationException(this.error_message);
             }
         }
         #endregion
@@ -349,13 +351,12 @@ namespace LetterStomach.Services
 
                 int secondsToVibrate = Random.Shared.Next(1, time);
                 TimeSpan vibrationLength = TimeSpan.FromSeconds(secondsToVibrate);
-
                 Vibration.Default.Vibrate(vibrationLength);
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
+                throw new InvalidOperationException(this.error_message);
             }
         }
         #endregion
@@ -372,8 +373,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return -1;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -388,8 +388,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -404,8 +403,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return BatteryState.Unknown;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -420,8 +418,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return BatteryPowerSource.Unknown;
+                throw new InvalidOperationException(this.error_message);
             }
         }
         #endregion
@@ -504,8 +501,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return new List<string>();
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -520,8 +516,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -539,8 +534,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return string.Empty;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -553,7 +547,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
+                throw new InvalidOperationException(this.error_message);
             }
         }
         #endregion

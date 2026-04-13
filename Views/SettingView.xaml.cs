@@ -48,7 +48,7 @@ public partial class SettingView : ContentPage
     #endregion
 
     #region CONSTRUCTOR
-    public SettingView()
+    public SettingView(SQLiteService sQLiteService)
     {
         try
         {
@@ -58,12 +58,11 @@ public partial class SettingView : ContentPage
             this._settingService = SettingService.Instance;
 
             InitializeComponent();
-            SettingViewModel ViewModel = new SettingViewModel();
+            SettingViewModel ViewModel = new SettingViewModel(sQLiteService);
             BindingContext = ViewModel;
             ViewModel.OnError += OnError;
 
             this._upgrade_init = swiSQLite.IsToggled;
-            //this._upgrade_init = this._settingService.SQLiteDatabase;
             this._pitch_init = (int)sldPich.Value;
             this._volume_init = (int)sldVolume.Value;
             ControlCheck(this._upgrade_table, this._update_table, this._drop_table, this._selected_table, this._upgrade_init, this._pitch_skeak, this._volume_skeak, this._pitch_init, this._volume_init);

@@ -1,5 +1,6 @@
 ﻿using MongoDB.Driver;
 using LetterStomach.Models;
+using LetterStomach.Data;
 
 namespace LetterStomach.Repositories.MongoDBs
 {
@@ -31,7 +32,7 @@ namespace LetterStomach.Repositories.MongoDBs
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation constructor \"Pronoun\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation constructor \"Estoutro\" repository failed!");
                 else this._error_message = string.Empty;
 
                 string connection = "mongodb://berthazatz:freedown@ac-brgkjgc-shard-00-00.px3emy6.mongodb.net:27017,ac-brgkjgc-shard-00-01.px3emy6.mongodb.net:27017,ac-brgkjgc-shard-00-02.px3emy6.mongodb.net:27017/?ssl=true&replicaSet=atlas-13rqdd-shard-0&authSource=admin&appName=pronoun";
@@ -47,6 +48,22 @@ namespace LetterStomach.Repositories.MongoDBs
                 throw new InvalidOperationException(this.error_message);
             }
         }
+
+        public EstoutroRepository(EstoutroContext estoutroContext)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation constructor \"Estoutro\" repository failed!");
+                else this._error_message = string.Empty;
+
+                this._collection = estoutroContext.GetCollection();
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
         #endregion
 
         #region GET
@@ -54,7 +71,7 @@ namespace LetterStomach.Repositories.MongoDBs
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation get language \"Pronoun\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation get language \"Estoutro\" repository failed!");
 
                 return this._collection.Find(index => index.linguagem == language).ToList<Estoutro>();
             }
@@ -69,7 +86,7 @@ namespace LetterStomach.Repositories.MongoDBs
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation get language async \"Pronoun\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation get language async \"Estoutro\" repository failed!");
 
                 return await this._collection.Find(index => index.linguagem == language).ToListAsync<Estoutro>();
             }
@@ -84,7 +101,7 @@ namespace LetterStomach.Repositories.MongoDBs
         {
             try 
             {
-                if (this._error_off) throw new InvalidOperationException("Operation get name \"Pronoun\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation get name \"Estoutro\" repository failed!");
 
                 return this._collection.Find(index => index.nome == name).FirstOrDefault();
             }
@@ -99,7 +116,7 @@ namespace LetterStomach.Repositories.MongoDBs
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation get name async \"Pronoun\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation get name async \"Estoutro\" repository failed!");
 
                 return await this._collection.Find(index => index.nome == name).FirstOrDefaultAsync();
             }

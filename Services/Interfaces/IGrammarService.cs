@@ -8,7 +8,7 @@ namespace LetterStomach.Services.Interfaces
         void Init();
         Task InitAsync();
         Task InitAsync(string language);
-        void MongoDB();
+        void MongoDB(IMongoDBService mongoDBService);
         void SQLite(ISQLiteService sQLiteService);
         Task SQLiteAsync(ISQLiteService sQLiteService);
         List<Materia> GetLetter(string language);

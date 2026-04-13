@@ -1,5 +1,6 @@
 ﻿using MongoDB.Driver;
 using LetterStomach.Models;
+using LetterStomach.Data;
 
 namespace LetterStomach.Repositories.MongoDBs
 {
@@ -31,7 +32,7 @@ namespace LetterStomach.Repositories.MongoDBs
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation constructor \"Article\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation constructor \"Preceito\" repository failed!");
                 else this._error_message = string.Empty;
 
                 string connection = "mongodb://berthazatz:freedown@ac-knhxaxk-shard-00-00.rzn652o.mongodb.net:27017,ac-knhxaxk-shard-00-01.rzn652o.mongodb.net:27017,ac-knhxaxk-shard-00-02.rzn652o.mongodb.net:27017/?ssl=true&replicaSet=atlas-amy702-shard-0&authSource=admin&appName=article";
@@ -47,6 +48,22 @@ namespace LetterStomach.Repositories.MongoDBs
                 throw new InvalidOperationException(this.error_message);
             }
         }
+
+        public PreceitoRepository(PreceitoContext preceitoContext)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation constructor \"Preceito\" repository failed!");
+                else this._error_message = string.Empty;
+
+                this._collection = preceitoContext.GetCollection();
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
         #endregion
 
         #region GET
@@ -54,7 +71,7 @@ namespace LetterStomach.Repositories.MongoDBs
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation get language \"Article\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation get language \"Preceito\" repository failed!");
 
                 return this._collection.Find(index => index.linguagem == language).ToList<Preceito>();
             }
@@ -68,7 +85,7 @@ namespace LetterStomach.Repositories.MongoDBs
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation get language async \"Article\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation get language async \"Preceito\" repository failed!");
 
                 return await this._collection.Find(index => index.linguagem == language).ToListAsync<Preceito>();
             }
@@ -83,7 +100,7 @@ namespace LetterStomach.Repositories.MongoDBs
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation get name \"Article\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation get name \"Preceito\" repository failed!");
 
                 return this._collection.Find(index => index.nome == name).FirstOrDefault();
             }
@@ -98,7 +115,7 @@ namespace LetterStomach.Repositories.MongoDBs
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation get name async \"Article\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation get name async \"Preceito\" repository failed!");
 
                 return await this._collection.Find(index => index.nome == name).FirstOrDefaultAsync();
             }

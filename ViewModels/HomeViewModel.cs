@@ -69,13 +69,15 @@ namespace LetterStomach.ViewModels
 
         private HashSet<string> _language_lesson;
 
-        public static ISQLiteService? _sQLiteService;
+        private ISQLiteService _sQLiteService;
         private IGrammarService _grammarService;
+        private ITextToSpeakService _textToSpeakService;
+        private IMongoDBService _mongoDBService;
         private SettingService _settingService;
         #endregion
 
         #region CONSTRUCTOR
-        public HomeViewModel()
+        public HomeViewModel(SQLiteService sQLiteService, MongoDBService mongoDBService)
         {
             try
             {
@@ -84,16 +86,17 @@ namespace LetterStomach.ViewModels
 
                 this._grammarService = new GrammarService();
                 this._settingService = SettingService.Instance;
+                this._textToSpeakService = new TextToSpeakService();
 
-                SQLiteService sQLiteService = new SQLiteService();
-                _sQLiteService = sQLiteService;
+                this._sQLiteService = sQLiteService;
+                this._mongoDBService = mongoDBService;
 
-                this._language_english = SettingService.Instance.English;
-                this._language_deutsch = SettingService.Instance.Deutsch;
-                this._language_italiano = SettingService.Instance.Italino;
-                this._language_francais = SettingService.Instance.Francais;
-                this._language_espanol = SettingService.Instance.Espanol;
-                this._language_lesson = SettingService.Instance.Lesson;
+                this._language_english = this._settingService.English;
+                this._language_deutsch = this._settingService.Deutsch;
+                this._language_italiano = this._settingService.Italino;
+                this._language_francais = this._settingService.Francais;
+                this._language_espanol = this._settingService.Espanol;
+                this._language_lesson = this._settingService.Lesson;
 
                 this.BotCommand = new AsyncRelayCommand<object>(OnBotCommand);
                 this.SpeakCommand = new AsyncRelayCommand<object>(OnSpeakCommand);
@@ -162,34 +165,28 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation speak command \"Home\" view model failed!");
 
-                ITextToSpeakService speak_service = new TextToSpeakService();
                 float pitch_speak = this._settingService.PitchFloat;
                 float volume_speak = this._settingService.PitchSpeak;
                 if (this._settingService.SpeakEnglish)
                 {
-                    speak_service.SpeakText(MessageService.Instance.Chats, this._language_english.Uppercase, pitch_speak, volume_speak);
+                    this._textToSpeakService.SpeakText(MessageService.Instance.Chats, this._language_english.Uppercase, pitch_speak, volume_speak);
                 }
-                ;
                 if (this._settingService.SpeakDeutsch)
                 {
-                    speak_service.SpeakText(MessageService.Instance.Chats, this._language_deutsch.Uppercase, pitch_speak, volume_speak);
+                    this._textToSpeakService.SpeakText(MessageService.Instance.Chats, this._language_deutsch.Uppercase, pitch_speak, volume_speak);
                 }
-                ;
                 if (this._settingService.SpeakItaliano)
                 {
-                    speak_service.SpeakText(MessageService.Instance.Chats, this._language_italiano.Uppercase, pitch_speak, volume_speak);
+                    this._textToSpeakService.SpeakText(MessageService.Instance.Chats, this._language_italiano.Uppercase, pitch_speak, volume_speak);
                 }
-                ;
                 if (this._settingService.SpeakFrancais)
                 {
-                    speak_service.SpeakText(MessageService.Instance.Chats, this._language_francais.Uppercase, pitch_speak, volume_speak);
+                    this._textToSpeakService.SpeakText(MessageService.Instance.Chats, this._language_francais.Uppercase, pitch_speak, volume_speak);
                 }
-                ;
                 if (this._settingService.SpeakEspanol)
                 {
-                    speak_service.SpeakText(MessageService.Instance.Chats, this._language_espanol.Uppercase, pitch_speak, volume_speak);
+                    this._textToSpeakService.SpeakText(MessageService.Instance.Chats, this._language_espanol.Uppercase, pitch_speak, volume_speak);
                 }
-                ;
             }
             catch (Exception ex)
             {
@@ -223,7 +220,7 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation database init \"Home\" view model failed!");
 
-                bool database = await _sQLiteService.ExistAsync();
+                bool database = await this._sQLiteService.ExistAsync();
                 bool init = this._settingService.InitDatabase;
                 if (!init) database = this._settingService.SQLiteDatabase;
                 if (database) this._settingService.SQLiteDatabase = true;
@@ -249,7 +246,12 @@ namespace LetterStomach.ViewModels
                     await Shell.Current.GoToAsync(nameof(ModalView));
 
                     bool database = await DatabaseInit();
-                    MessageService.Instance.Chats = MessageService.Instance.GetChats();
+                    ClearMessage();
+                    List<Message> memos = MessageService.Instance.GetChatsClear();
+                    MessageService.Instance.Chats = memos;
+                    //RecentChat = new ObservableCollection<Message>();
+                    RecentChat.Clear();
+                    RecentChat = new ObservableCollection<Message>(memos);
                     await InitAsync(database);
 
                     this._update_view = false;
@@ -349,8 +351,8 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation connect \"Home\" view model failed!");
 
-                if (database) this._grammarService.SQLite(_sQLiteService);
-                else this._grammarService.MongoDB();
+                if (database) this._grammarService.SQLite(this._sQLiteService);
+                else this._grammarService.MongoDB(this._mongoDBService);
             }
             catch (Exception ex)
             {
@@ -365,8 +367,8 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation connect async \"Home\" view model failed!");
 
-                if (database) await this._grammarService.SQLiteAsync(_sQLiteService);
-                else this._grammarService.MongoDB();
+                if (database) await this._grammarService.SQLiteAsync(this._sQLiteService);
+                else this._grammarService.MongoDB(this._mongoDBService);
             }
             catch (Exception ex)
             {

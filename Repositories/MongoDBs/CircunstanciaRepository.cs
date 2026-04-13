@@ -1,9 +1,10 @@
 ﻿using MongoDB.Driver;
 using LetterStomach.Models;
+using LetterStomach.Data;
 
 namespace LetterStomach.Repositories.MongoDBs
 {
-    public class CircusnstanciaRepository : ICircunstanciaRepository
+    public class CircunstanciaRepository : ICircunstanciaRepository
     {
         #region ERROR
         private bool _error_on = true;
@@ -27,11 +28,11 @@ namespace LetterStomach.Repositories.MongoDBs
         #endregion
 
         #region CONSTRUCTOR
-        public CircusnstanciaRepository()
+        public CircunstanciaRepository()
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation constructor \"Adverb\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation constructor \"Circunstancia\" repository failed!");
                 else this._error_message = string.Empty;
 
                 string connection = "mongodb://berthazatz:freedown@ac-3vr780m-shard-00-00.ewolqjf.mongodb.net:27017,ac-3vr780m-shard-00-01.ewolqjf.mongodb.net:27017,ac-3vr780m-shard-00-02.ewolqjf.mongodb.net:27017/?ssl=true&replicaSet=atlas-xmcuf5-shard-0&authSource=admin&appName=adverb";
@@ -47,6 +48,22 @@ namespace LetterStomach.Repositories.MongoDBs
                 throw new InvalidOperationException(this.error_message);
             }
         }
+
+        public CircunstanciaRepository(CircunstanciaContext circunstanciaContex)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation constructor \"Circunstancia\" repository failed!");
+                else this._error_message = string.Empty;
+
+                this._collection = circunstanciaContex.GetCollection();
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
         #endregion
 
         #region GET
@@ -54,7 +71,7 @@ namespace LetterStomach.Repositories.MongoDBs
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation get language \"Adverb\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation get language \"Circunstancia\" repository failed!");
 
                 return this._collection.Find(index => index.linguagem == language).ToList<Circunstancia>();
             }
@@ -69,7 +86,7 @@ namespace LetterStomach.Repositories.MongoDBs
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation get language async \"Adverb\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation get language async \"Circunstancia\" repository failed!");
 
                 return await this._collection.Find(index => index.linguagem == language).ToListAsync<Circunstancia>();
             }
@@ -84,7 +101,7 @@ namespace LetterStomach.Repositories.MongoDBs
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation get name \"Adverb\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation get name \"Circunstancia\" repository failed!");
 
                 return this._collection.Find(index => index.nome == name).FirstOrDefault();
             }
@@ -99,7 +116,7 @@ namespace LetterStomach.Repositories.MongoDBs
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation get name async \"Adverb\" view model failed!");
+                if (this._error_off) throw new InvalidOperationException("Operation get name async \"Circunstancia\" repository failed!");
 
                 return await this._collection.Find(index => index.nome == name).FirstOrDefaultAsync();
             }

@@ -418,6 +418,54 @@ namespace LetterStomach.Services
             }
         }
 
+        public List<Message> GetChatsClear()
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation get chats \"Message\" service failed!");
+
+                return new List<Message>
+                {
+                    new Message
+                    {
+                        Sender = user6,
+                        Time = "18:32",
+                        Text = "...",
+                    },
+                    new Message
+                    {
+                        Sender = user1,
+                        Time = "14:05",
+                        Text = "...",
+                    },
+                    new Message
+                    {
+                        Sender = user3,
+                        Time = "14:00",
+                        Text = "...",
+                    },
+                    new Message
+                    {
+                        Sender = user2,
+                        Time = "13:35",
+                        Text = "...",
+                    },
+                    new Message
+                    {
+                        Sender = user4,
+                        Time = "12:11",
+                        Text = "...",
+                    },
+                };
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                this.OnError?.Invoke(this, this.error_message);
+                return null;
+            }
+        }
+
         public List<Message> GetChatsSQLite()
         {
             try 

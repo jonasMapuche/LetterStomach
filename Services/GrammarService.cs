@@ -422,21 +422,21 @@ namespace LetterStomach.ViewModels
             }
         }
 
-        public void MongoDB()
+        public void MongoDB(IMongoDBService mongoDBService)
         {
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation mongodb \"Grammar\" service failed!");
 
-                this._circunstanciasRepository = new Repositories.MongoDBs.CircusnstanciaRepository();
-                this._preceitosRepository = new Repositories.MongoDBs.PreceitoRepository();
-                this._estoutrosRepository = new Repositories.MongoDBs.EstoutroRepository();
-                this._algarismosRepository = new Repositories.MongoDBs.AlgarismoRepository();
-                this._juncoesRepository = new Repositories.MongoDBs.JuncaoRepository();
-                this._elocucoesRepository = new Repositories.MongoDBs.ElocucaoRepository();
-                this._materiasRepository = new Repositories.MongoDBs.MateriaRepository();
-                this._sentencasRepository = new Repositories.MongoDBs.SentencaRepository();
-                this._ligacoesRepository = new Repositories.MongoDBs.LigacaoRepoitory();
+                this._circunstanciasRepository = new Repositories.MongoDBs.CircunstanciaRepository(mongoDBService.CircunstanciaContex);
+                this._preceitosRepository = new Repositories.MongoDBs.PreceitoRepository(mongoDBService.PreceitoContext);
+                this._estoutrosRepository = new Repositories.MongoDBs.EstoutroRepository(mongoDBService.EstoutroContext);
+                this._algarismosRepository = new Repositories.MongoDBs.AlgarismoRepository(mongoDBService.AlgarismoContext);
+                this._juncoesRepository = new Repositories.MongoDBs.JuncaoRepository(mongoDBService.JuncaoContext);
+                this._elocucoesRepository = new Repositories.MongoDBs.ElocucaoRepository(mongoDBService.ElocucaoContext);
+                this._materiasRepository = new Repositories.MongoDBs.MateriaRepository(mongoDBService.MaterialContext);
+                this._sentencasRepository = new Repositories.MongoDBs.SentencaRepository(mongoDBService.SentencaContext);
+                this._ligacoesRepository = new Repositories.MongoDBs.LigacaoRepoitory(mongoDBService.LigacaoContext);
             }
             catch (Exception ex)
             {
