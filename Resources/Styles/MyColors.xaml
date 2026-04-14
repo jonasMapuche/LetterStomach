@@ -13,5 +13,6 @@
     <Color x:Key="BackgroundColor">#374955</Color>
     <Color x:Key="WhiteColor">#FFFFFF</Color>
     <Color x:Key="PlusColor">#FF95A2</Color>
+    <Color x:Key="ModalColor">#80000000</Color>
 
 </ResourceDictionary>

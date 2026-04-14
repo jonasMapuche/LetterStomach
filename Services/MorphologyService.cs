@@ -529,6 +529,64 @@ namespace LetterStomach.Services
         }
         #endregion
 
+        #region UNION
+        private List<Lesson> Union(List<Lesson> firsts, List<Lesson> last)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation union \"Morphology\" service failed!");
+
+                List<Lesson> lessons = new List<Lesson>();
+                firsts.ForEach(item =>
+                {
+                    Lesson lesson = new Lesson();
+                    lesson.lecture = item.lecture;
+                    lessons.Add(lesson);
+                });
+                last.ForEach(item =>
+                {
+                    Lesson lesson = new Lesson();
+                    lesson.lecture = item.lecture;
+                    lessons.Add(lesson);
+                });
+                return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private List<Lesson> Union(List<string> first, List<Lesson> last)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation union \"Morphology\" service failed!");
+
+                List<Lesson> lessons = new List<Lesson>();
+                first.ForEach(item =>
+                {
+                    Lesson lesson = new Lesson();
+                    lesson.lecture = Word(item, this._adjective, null, null);
+                    lessons.Add(lesson);
+                });
+                last.ForEach(item =>
+                {
+                    Lesson lesson = new Lesson();
+                    lesson.lecture = item.lecture;
+                    lessons.Add(lesson);
+                });
+                return lessons;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+        #endregion
+
         #region SORT
         private List<Estoutro> SortPronoun(List<Estoutro> pronouns)
         {
@@ -945,7 +1003,7 @@ namespace LetterStomach.Services
                 if (this._error_off) throw new InvalidOperationException("Operation verify adjective \"Morphology\" service failed!");
 
                 List<Lesson> lessons = new List<Lesson>();
-                adjectives_adverbs.ForEach(word =>
+                foreach (Lesson word in adjectives_adverbs)
                 {
                     List<Word> words = new List<Word>();
                     string first = string.Empty;
@@ -963,63 +1021,7 @@ namespace LetterStomach.Services
                         lesson.lecture = words;
                         lessons.Add(lesson);
                     }
-                });
-                return lessons;
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
-                throw new InvalidOperationException(this.error_message);
-            }
-        }
-
-        private List<Lesson> UnionAdjective(List<string> adjectives, List<Lesson> adjectives_adverbs)
-        {
-            try
-            {
-                if (this._error_off) throw new InvalidOperationException("Operation union adjective \"Morphology\" service failed!");
-
-                List<Lesson> lessons = new List<Lesson>();
-                adjectives.ForEach(item =>
-                {
-                    Lesson lesson = new Lesson();
-                    lesson.lecture = Word(item, this._adjective, null, null);
-                    lessons.Add(lesson);
-                });
-                adjectives_adverbs.ForEach(item =>
-                {
-                    Lesson lesson = new Lesson();
-                    lesson.lecture = item.lecture;
-                    lessons.Add(lesson);
-                });
-                return lessons;
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
-                throw new InvalidOperationException(this.error_message);
-            }
-        }
-
-        private List<Lesson> UnionAdjective(List<Lesson> adjectives_adverbs, List<Lesson> adjectives_adverbs_adverbs)
-        {
-            try
-            {
-                if (this._error_off) throw new InvalidOperationException("Operation union adjective \"Morphology\" service failed!");
-
-                List<Lesson> lessons = new List<Lesson>();
-                adjectives_adverbs.ForEach(item =>
-                {
-                    Lesson lesson = new Lesson();
-                    item.lecture = item.lecture;
-                    lessons.Add(lesson);
-                });
-                adjectives_adverbs_adverbs.ForEach(item =>
-                {
-                    Lesson lesson = new Lesson();
-                    lesson.lecture = item.lecture;
-                    lessons.Add(lesson);
-                });
+                }
                 return lessons;
             }
             catch (Exception ex)
@@ -1106,8 +1108,8 @@ namespace LetterStomach.Services
                 List<Lesson> adverb_adverb = MountAdverbAdverb(adverb_vocabulary);
                 List<Lesson> adjective_adverb_adverb = MountAdjectiveAdverb(adjective_vocabulary, adverb_adverb);
 
-                List<Lesson> union_adjective = UnionAdjective(adjective, adjective_adverb);
-                union_adjective = UnionAdjective(union_adjective, adjective_adverb_adverb);
+                List<Lesson> union_adjective = Union(adjective, adjective_adverb);
+                union_adjective = Union(union_adjective, adjective_adverb_adverb);
                 List<Lesson> adjective_verify = VerifyAdjective(union_adjective, word_2_vec);
 
                 return adjective_verify;
@@ -1181,8 +1183,8 @@ namespace LetterStomach.Services
                 List<Lesson> verify_adverb_adverb = VerifyAdverb(mount_adverb_adverb, sentences);
                 List<Lesson> mount_adjective_adverb_adverb = MountAdjectiveAdverb(filter_adjective, verify_adverb_adverb);
                 List<Lesson> verify_adjective_adverb_adverb = VerifyAdjective(mount_adjective_adverb, sentences);
-                List<Lesson> union_adjective_adverb = UnionAdjective(filter_adjective, verify_adjective_adverb);
-                List<Lesson> union_adjective_adverb_adverb = UnionAdjective(union_adjective_adverb, verify_adjective_adverb_adverb);
+                List<Lesson> union_adjective_adverb = Union(filter_adjective, verify_adjective_adverb);
+                List<Lesson> union_adjective_adverb_adverb = Union(union_adjective_adverb, verify_adjective_adverb_adverb);
 
                 List<Lesson> lessons = new List<Lesson>();
                 union_adjective_adverb_adverb.ForEach(item =>
@@ -1543,34 +1545,6 @@ namespace LetterStomach.Services
             }
         }
 
-        private List<Lesson> UnionNoun(List<Lesson> firsts, List<Lesson> seconds)
-        {
-            try
-            {
-                if (this._error_off) throw new InvalidOperationException("Operation union noun \"Morphology\" service failed!");
-
-                List<Lesson> lessons = new List<Lesson>();
-                firsts.ForEach(item =>
-                {
-                    Lesson lesson = new Lesson();
-                    lesson.lecture = item.lecture;
-                    lessons.Add(lesson);
-                });
-                seconds.ForEach(item =>
-                {
-                    Lesson lesson = new Lesson();
-                    lesson.lecture = item.lecture;
-                    lessons.Add(lesson);
-                });
-                return lessons;
-            }
-            catch (Exception ex)
-            {
-                this.error_message = ex.Message;
-                throw new InvalidOperationException(this.error_message);
-            }
-        }
-
         private List<Lesson> MountAdjectivePrepositionNoun(List<Lesson> nouns, List<Lesson> adjectives, List<Lesson> prepositions)
         {
             try
@@ -1805,7 +1779,7 @@ namespace LetterStomach.Services
                 List<Lesson> verify_adjective_noun = VerifyAdjectiveNoun(mount_adjective_noun, sentences);
                 List<Lesson> mount_adjective_preposition_noun = MountAdjectivePrepositionNoun(nouns, adjectives, prepositions);
                 List<Lesson> verify_adjective_prepositon_noun = VerifyAdjectivePrepositionNoun(mount_adjective_preposition_noun, sentences);
-                List<Lesson> union_adjective_preposition_noun = UnionNoun(verify_adjective_noun, verify_adjective_prepositon_noun);
+                List<Lesson> union_adjective_preposition_noun = Union(verify_adjective_noun, verify_adjective_prepositon_noun);
 
                 List<Lesson> lessons = new List<Lesson>();
                 union_adjective_preposition_noun.ForEach(item =>
@@ -1855,10 +1829,10 @@ namespace LetterStomach.Services
                 List<Lesson> noun_possessive = MountNounPronoun(noun_vocabulary, pronoun_adjective_vocabulary, article_vocabulary);
                 List<Lesson> noun_demonstrative = MountNounPronoun(noun_vocabulary, pronoun_demostrative_vocabulary, article_vocabulary);
 
-                List<Lesson> union_noun = UnionNoun(noun, noun_numeral);
-                union_noun = UnionNoun(union_noun, noun_article);
-                union_noun = UnionNoun(union_noun, noun_possessive);
-                union_noun = UnionNoun(union_noun, noun_demonstrative);
+                List<Lesson> union_noun = Union(noun, noun_numeral);
+                union_noun = Union(union_noun, noun_article);
+                union_noun = Union(union_noun, noun_possessive);
+                union_noun = Union(union_noun, noun_demonstrative);
                 List<Lesson> noun_verify = VerifyNoun(union_noun, word_2_vec);
 
                 List<Lesson> adjective_adverb = MountAdjectiveAdverb(word_2_vec, vocabulary, adjectives, adverbs); 
@@ -1866,7 +1840,7 @@ namespace LetterStomach.Services
                 List<Lesson> noun_adjective = MountAdjectiveNoun(noun_verify, adjective_adverb);
                 List<Lesson> adjective_noun_vefiry = VerifyAdjectiveNoun(noun_adjective, word_2_vec);
 
-                List<Lesson> union_lesson = UnionNoun(noun_verify, adjective_noun_vefiry);
+                List<Lesson> union_lesson = Union(noun_verify, adjective_noun_vefiry);
 
                 foreach (Lesson item in union_lesson)
                 {
@@ -1909,10 +1883,10 @@ namespace LetterStomach.Services
                 List<Lesson> noun_numeral = MountNounNumeral(filter_noun, filter_numeral, filter_article);
                 List<Lesson> noun_article = MountNounArticle(filter_noun, filter_article);
                 
-                List<Lesson> union_substantive = UnionNoun(mount_noun, noun_article);
-                List<Lesson> union_substantive_one = UnionNoun(union_substantive, noun_possessive);
-                List<Lesson> union_substantive_two = UnionNoun(union_substantive_one, noun_numeral);
-                List<Lesson> union_substantive_three = UnionNoun(union_substantive_two, noun_demonstrative);
+                List<Lesson> union_substantive = Union(mount_noun, noun_article);
+                List<Lesson> union_substantive_one = Union(union_substantive, noun_possessive);
+                List<Lesson> union_substantive_two = Union(union_substantive_one, noun_numeral);
+                List<Lesson> union_substantive_three = Union(union_substantive_two, noun_demonstrative);
                 List<Lesson> verify_noun = VerifyNoun(union_substantive_three, sentences);
 
                 List<Lesson> lessons = new List<Lesson>();

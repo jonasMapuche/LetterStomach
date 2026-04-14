@@ -53,7 +53,7 @@ namespace LetterStomach.Services
         #endregion
 
         #region SPEAK
-        public async void SpeakText(List<Message> messages, string language, float pitch_speak, float volume_speak)
+        public async Task SpeakText(List<Message> messages, string language, float pitch_speak, float volume_speak)
         {
             try
             {

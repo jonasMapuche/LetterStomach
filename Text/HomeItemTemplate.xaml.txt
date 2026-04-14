@@ -16,22 +16,19 @@
                 <SwipeItems>
                     <SwipeItem 
                         x:Name="swiLeft"
-                        x:DataType="models:Message"
-                        IconImageSource="{Binding Move}"
+                        IconImageSource="play_arrow_62dp_white.png"
                         BackgroundColor="{StaticResource PrimaryColor}"
-                        Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:HomeViewModel}}, Path=SwipedMoveCommand}"
-                        CommandParameter="{Binding .}"/>
+                        Clicked="OnLeftClicked">
+                    </SwipeItem>
                 </SwipeItems>
             </SwipeView.LeftItems>
             <SwipeView.RightItems>
                 <SwipeItems>
                     <SwipeItem 
-                        x:Name="swiRight" 
-                        x:DataType="models:Message"
-                        IconImageSource="{Binding Speak}"
+                        x:Name="swiRight"
+                        IconImageSource="speaker_notes_off_62dp_white.png"
                         BackgroundColor="{StaticResource PrimaryColor}"
-                        Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:HomeViewModel}}, Path=SwipedSpeakCommand}"
-                        CommandParameter="{Binding .}"/>
+                        Clicked="OnRightClicked"/>
                 </SwipeItems>
             </SwipeView.RightItems>
             <Border StrokeThickness="0"

@@ -162,11 +162,19 @@ namespace LetterStomach.Services
                         return user10;
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
             }
         }
+        #endregion
+
+        #region IMAGE
+        public readonly string image_speak_on = "speaker_notes_62dp_white.png";
+        public readonly string image_speak_off = "speaker_notes_off_62dp_white.png";
+        public readonly string image_move_on = "play_arrow_62dp_white.png";
+        public readonly string image_move_off = "play_disabled_62dp_white.png";
         #endregion
 
         #region MESSAGES
@@ -212,8 +220,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return null;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -239,7 +246,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -264,8 +271,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return null;
+                throw new InvalidOperationException(this.error_message);
             }
         }
         #endregion
@@ -311,8 +317,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return null;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -338,7 +343,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -363,8 +368,7 @@ namespace LetterStomach.Services
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return null;
+                throw new InvalidOperationException(this.error_message);
             }
         }
         #endregion
@@ -383,38 +387,47 @@ namespace LetterStomach.Services
                         Sender = user6,
                         Time = "18:32",
                         Text = "Hey there! What\'s up? Is everything ok?",
+                        Speak = image_speak_off,
+                        Move = image_move_on
                     },
                     new Message
                     {
                         Sender = user1,
                         Time = "14:05",
                         Text = "Can I call you back later?, I\'m in a meeting.",
+                        Speak = image_speak_off,
+                        Move = image_move_on
                     },
                     new Message
                     {
                         Sender = user3,
                         Time = "14:00",
                         Text = "Yeah. Do you have any good song to recommend?",
+                        Speak = image_speak_off,
+                        Move = image_move_on
                     },
                     new Message
                     {
                         Sender = user2,
                         Time = "13:35",
                         Text = "Hi! I went shopping today and found a nice t-shirt.",
+                        Speak = image_speak_off,
+                        Move = image_move_on
                     },
                     new Message
                     {
                         Sender = user4,
                         Time = "12:11",
                         Text = "I passed you on the ride to work today, see you later.",
-                    },
+                        Speak = image_speak_off,
+                        Move = image_move_on
+                    }
                 };
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return null;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -431,38 +444,47 @@ namespace LetterStomach.Services
                         Sender = user6,
                         Time = "18:32",
                         Text = "...",
+                        Speak = image_speak_off,
+                        Move = image_move_on
                     },
                     new Message
                     {
                         Sender = user1,
                         Time = "14:05",
                         Text = "...",
+                        Speak = image_speak_off,
+                        Move = image_move_on
                     },
                     new Message
                     {
                         Sender = user3,
                         Time = "14:00",
                         Text = "...",
+                        Speak = image_speak_off,
+                        Move = image_move_on
                     },
                     new Message
                     {
                         Sender = user2,
                         Time = "13:35",
                         Text = "...",
+                        Speak = image_speak_off,
+                        Move = image_move_on
                     },
                     new Message
                     {
                         Sender = user4,
                         Time = "12:11",
                         Text = "...",
-                    },
+                        Speak = image_speak_off,
+                        Move = image_move_on
+                    }
                 };
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return null;
+                throw new InvalidOperationException(this.error_message);
             }
         }
 
@@ -479,38 +501,47 @@ namespace LetterStomach.Services
                         Sender = user6,
                         Time = "18:32",
                         Text = "Hey there! What\'s up?",
+                        Speak = image_speak_off,
+                        Move = image_move_on
                     },
                     new Message
                     {
                         Sender = user1,
                         Time = "14:05",
                         Text = "Can I call you back later?, I\'m in a meeting.",
+                        Speak = image_speak_off,
+                        Move = image_move_on
                     },
                     new Message
                     {
                         Sender = user3,
                         Time = "14:00",
                         Text = "Yeah. Do you have any good song to recommend?",
+                        Speak = image_speak_off,
+                        Move = image_move_on
                     },
                     new Message
                     {
                         Sender = user2,
                         Time = "13:35",
                         Text = "Hi! I went laundry today and found t-shirt.",
+                        Speak = image_speak_off,
+                        Move = image_move_on
                     },
                     new Message
                     {
                         Sender = user4,
                         Time = "12:11",
                         Text = "I passed you on the ride to work shopping, see you later.",
-                    },
+                        Speak = image_speak_off,
+                        Move = image_move_on
+                    }
                 };
             }
             catch (Exception ex)
             {
                 this.error_message = ex.Message;
-                this.OnError?.Invoke(this, this.error_message);
-                return null;
+                throw new InvalidOperationException(this.error_message);
             }
         }
         #endregion

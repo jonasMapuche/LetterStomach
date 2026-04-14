@@ -23,11 +23,11 @@ namespace LetterStomach.Services
             }
         }
 
-        public bool PauseEnglish { get; set; } = false;
-        public bool PauseDeutsch { get; set; } = false;
-        public bool PauseItaliano { get; set; } = false;
-        public bool PauseFrancais { get; set; } = false;
-        public bool PauseEspanol { get; set; } = false;
+        public bool PauseEnglish { get; set; } = true;
+        public bool PauseDeutsch { get; set; } = true;
+        public bool PauseItaliano { get; set; } = true;
+        public bool PauseFrancais { get; set; } = true;
+        public bool PauseEspanol { get; set; } = true;
 
         public bool SpeakEnglish { get; set; } = false;
         public bool SpeakDeutsch { get; set; } = false;
@@ -39,7 +39,7 @@ namespace LetterStomach.Services
         public bool SQLiteDatabase { get; set; } = false;
         public bool DropDatabase { get; set; } = false;
         public int PitchSpeak { get; set; } = 50;
-        public int VolumeSpeak { get; set; } = 50;
+        public int VolumeSpeak { get; set; } = 75;
         public float PitchFloat { get; set; } = 1.0f;
         public float VolumeFloat { get; set; } = .75f;
 

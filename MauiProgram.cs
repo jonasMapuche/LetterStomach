@@ -5,9 +5,6 @@ using LetterStomach.ViewModels;
 using LetterStomach.Views;
 using LetterStomach.Interfaces;
 using LetterStomach.Data;
-using LetterStomach.Repositories.MongoDBs;
-
-
 
 #if ANDROID
 using LetterStomach.Platforms.Android.Services;
@@ -27,9 +24,9 @@ namespace LetterStomach
                 .UseMauiCommunityToolkitCamera()
                 .ConfigureFonts(fonts =>
                 {
-                    fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-                    fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
-                    fonts.AddFont("Metropolis-Medium.ttf", "MetropolisMedium");
+                    fonts.AddFont("OpenSansRegular.ttf", "OpenSansRegular");
+                    fonts.AddFont("OpenSansSemibold.ttf", "OpenSansSemibold");
+                    fonts.AddFont("MetropolisMedium.ttf", "MetropolisMedium");
                 });
 
 #if ANDROID

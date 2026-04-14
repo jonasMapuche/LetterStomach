@@ -3,17 +3,16 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="LetterStomach.Views.ModalView"
              Shell.PresentationMode="ModalAnimated"
-             BackgroundColor="#00000000"
+             BackgroundColor="{StaticResource ModalColor}"
              Title="ModalView">
     <ContentPage.Content>
         <Grid
             VerticalOptions="Fill"
             HorizontalOptions="Fill">
-            <ActivityIndicator 
-                IsRunning="true"
-                VerticalOptions="Center" 
+            <ActivityIndicator IsRunning="True" 
+                Color="{StaticResource WhiteColor}" 
                 HorizontalOptions="Center" 
-                Color="{StaticResource PrimaryColor}" />
+                VerticalOptions="Center" />
             <Grid
                 Padding="10, 0, 10, 0"
                 RowDefinitions="500, 5, 20, *">

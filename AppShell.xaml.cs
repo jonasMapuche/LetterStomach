@@ -14,6 +14,7 @@ namespace LetterStomach
         public AppShell()
         {
             InitializeComponent();
+
             Routing.RegisterRoute(nameof(HomeView), typeof(HomeView));
             Routing.RegisterRoute(nameof(BotView), typeof(BotView));
             Routing.RegisterRoute(nameof(SettingView), typeof(SettingView));

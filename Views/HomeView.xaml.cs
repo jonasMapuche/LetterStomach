@@ -112,7 +112,10 @@ public partial class HomeView : ContentPage
             if (this._error_off) throw new InvalidOperationException("Operation appearing \"Home\" view failed!!");
 
             base.OnAppearing();
-            await this._viewModel.LoadCommand.ExecuteAsync(this);
+
+            if (this._error_message == string.Empty)
+                await this._viewModel.LoadCommand.ExecuteAsync(this);
+            
         }
         catch (Exception ex)
         {

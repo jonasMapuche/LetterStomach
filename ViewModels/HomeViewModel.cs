@@ -41,6 +41,9 @@ namespace LetterStomach.ViewModels
         public ICommand BotCommand { get; set; }
         public ICommand SpeakCommand { get; set; }
         public ICommand SwipedCommand { get; set; }
+        public ICommand SwipedSpeakCommand { get; set; }
+        public ICommand SwipedMoveCommand { get; set; }
+
         public IAsyncRelayCommand LoadCommand { get; }
 
         private List<Materia> _book_english;
@@ -69,6 +72,11 @@ namespace LetterStomach.ViewModels
 
         private HashSet<string> _language_lesson;
 
+        private string _image_speak_on;
+        private string _image_speak_off;
+        private string _image_move_on;
+        private string _image_move_off;
+
         private ISQLiteService _sQLiteService;
         private IGrammarService _grammarService;
         private ITextToSpeakService _textToSpeakService;
@@ -84,9 +92,19 @@ namespace LetterStomach.ViewModels
                 if (this._error_off) throw new InvalidOperationException("Operation constructor \"Home\" view model failed!");
                 else this.error_message = string.Empty;
 
-                this._grammarService = new GrammarService();
+                this.BotCommand = new AsyncRelayCommand<object>(OnBotCommand);
+                this.SpeakCommand = new AsyncRelayCommand<object>(OnSpeakCommand);
+                this.SwipedCommand = new AsyncRelayCommand<SwipeDirection>(OnSwipedCommand);
+                this.SwipedSpeakCommand = new AsyncRelayCommand<object>(OnSwipedSpeakCommand);
+                this.SwipedMoveCommand = new AsyncRelayCommand<object>(OnSwipedMoveCommand);
+                this.LoadCommand = new AsyncRelayCommand(OnLoadCommand);
+
+                IGrammarService grammarService = new GrammarService();
+                this._grammarService = grammarService;
+                ITextToSpeakService textToSpeakService = new TextToSpeakService();
+                this._textToSpeakService = textToSpeakService;
+
                 this._settingService = SettingService.Instance;
-                this._textToSpeakService = new TextToSpeakService();
 
                 this._sQLiteService = sQLiteService;
                 this._mongoDBService = mongoDBService;
@@ -98,10 +116,10 @@ namespace LetterStomach.ViewModels
                 this._language_espanol = this._settingService.Espanol;
                 this._language_lesson = this._settingService.Lesson;
 
-                this.BotCommand = new AsyncRelayCommand<object>(OnBotCommand);
-                this.SpeakCommand = new AsyncRelayCommand<object>(OnSpeakCommand);
-                this.SwipedCommand = new AsyncRelayCommand<SwipeDirection>(OnSwipedCommand);
-                this.LoadCommand = new AsyncRelayCommand(OnLoadCommand);
+                this._image_speak_on = MessageService.Instance.image_speak_on;
+                this._image_speak_off = MessageService.Instance.image_speak_off;
+                this._image_move_on = MessageService.Instance.image_move_on;
+                this._image_move_off = MessageService.Instance.image_move_off;
             }
             catch (Exception ex)
             {
@@ -119,23 +137,24 @@ namespace LetterStomach.ViewModels
                 if (this._error_off) throw new InvalidOperationException("Operation swiped command \"Home\" view model failed!");
 
                 await Shell.Current.GoToAsync(nameof(ModalView));
-                Thread backgroundThread = new Thread(async () =>
+                Task.Delay(500);
+                try
                 {
                     if (direction == SwipeDirection.Left)
                     {
                         MountPrevious(this._language_english.Lowercase);
-                        //MountPrevious(this._language_deutsch.Lowercase);
-                        //MountPrevious(this._language_italiano.Lowercase);
-                        //MountPrevious(this._language_francais.Lowercase);
-                        //MountPrevious(this._language_espanol.Lowercase);
+                        MountPrevious(this._language_deutsch.Lowercase);
+                        MountPrevious(this._language_italiano.Lowercase);
+                        MountPrevious(this._language_francais.Lowercase);
+                        MountPrevious(this._language_espanol.Lowercase);
                     }
                     else if (direction == SwipeDirection.Right)
                     {
                         MountNext(this._language_english.Lowercase);
-                        //MountNext(this._language_deutsch.Lowercase);
-                        //MountNext(this._language_italiano.Lowercase);
-                        //MountNext(this._language_francais.Lowercase);
-                        //MountNext(this._language_espanol.Lowercase);
+                        MountNext(this._language_deutsch.Lowercase);
+                        MountNext(this._language_italiano.Lowercase);
+                        MountNext(this._language_francais.Lowercase);
+                        MountNext(this._language_espanol.Lowercase);
                     }
                     else if (direction == SwipeDirection.Up)
                     {
@@ -145,12 +164,11 @@ namespace LetterStomach.ViewModels
                     {
                         MountDown();
                     }
-                    MainThread.BeginInvokeOnMainThread(async () =>
-                    {
-                        await Shell.Current.GoToAsync("..");
-                    });
-                });
-                backgroundThread.Start();
+                } 
+                finally
+                {
+                    await Shell.Current.GoToAsync("..");
+                }
             }
             catch (Exception ex)
             {
@@ -158,7 +176,6 @@ namespace LetterStomach.ViewModels
                 this.OnError?.Invoke(this, this.error_message);
             }
         }
-
         private async Task OnSpeakCommand(object? arg)
         {
             try
@@ -166,26 +183,27 @@ namespace LetterStomach.ViewModels
                 if (this._error_off) throw new InvalidOperationException("Operation speak command \"Home\" view model failed!");
 
                 float pitch_speak = this._settingService.PitchFloat;
-                float volume_speak = this._settingService.PitchSpeak;
+                float volume_speak = this._settingService.VolumeFloat;
+
                 if (this._settingService.SpeakEnglish)
                 {
-                    this._textToSpeakService.SpeakText(MessageService.Instance.Chats, this._language_english.Uppercase, pitch_speak, volume_speak);
+                    await this._textToSpeakService.SpeakText(MessageService.Instance.Chats, this._language_english.Uppercase, pitch_speak, volume_speak);
                 }
                 if (this._settingService.SpeakDeutsch)
                 {
-                    this._textToSpeakService.SpeakText(MessageService.Instance.Chats, this._language_deutsch.Uppercase, pitch_speak, volume_speak);
+                    await this._textToSpeakService.SpeakText(MessageService.Instance.Chats, this._language_deutsch.Uppercase, pitch_speak, volume_speak);
                 }
                 if (this._settingService.SpeakItaliano)
                 {
-                    this._textToSpeakService.SpeakText(MessageService.Instance.Chats, this._language_italiano.Uppercase, pitch_speak, volume_speak);
+                    await this._textToSpeakService.SpeakText(MessageService.Instance.Chats, this._language_italiano.Uppercase, pitch_speak, volume_speak);
                 }
                 if (this._settingService.SpeakFrancais)
                 {
-                    this._textToSpeakService.SpeakText(MessageService.Instance.Chats, this._language_francais.Uppercase, pitch_speak, volume_speak);
+                    await this._textToSpeakService.SpeakText(MessageService.Instance.Chats, this._language_francais.Uppercase, pitch_speak, volume_speak);
                 }
                 if (this._settingService.SpeakEspanol)
                 {
-                    this._textToSpeakService.SpeakText(MessageService.Instance.Chats, this._language_espanol.Uppercase, pitch_speak, volume_speak);
+                    await this._textToSpeakService.SpeakText(MessageService.Instance.Chats, this._language_espanol.Uppercase, pitch_speak, volume_speak);
                 }
             }
             catch (Exception ex)
@@ -235,6 +253,264 @@ namespace LetterStomach.ViewModels
             }
         }
 
+        private void ChangeSpeak(string text, bool status)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation change speak \"Home Item Template\" view failed!!");
+
+                if (text == this._language_english.Uppercase) this._settingService.SpeakEnglish = status;
+                if (text == this._language_deutsch.Uppercase) this._settingService.SpeakDeutsch = status;
+                if (text == this._language_italiano.Uppercase) this._settingService.SpeakItaliano = status;
+                if (text == this._language_francais.Uppercase) this._settingService.SpeakFrancais = status;
+                if (text == this._language_espanol.Uppercase) this._settingService.SpeakEspanol = status;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private async Task OnSwipedSpeakCommand(object? arg)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation swiped speak command \"Home\" view model failed!");
+
+                Message message = new Message();
+                message = arg as Message;
+                List<Message> messages = new List<Message>();
+                List<Message> locutions = new List<Message>();
+                messages = MessageService.Instance.Chats;
+                int value = messages.IndexOf(message);
+                int order = 0;
+                foreach (Message item in messages)
+                {
+                    Message locution = new Message();
+                    if (order == value)
+                    {
+                        locution.Text = item.Text;
+                        User user = new User();
+                        user = item.Sender;
+                        locution.Sender = user;
+                        locution.Move = item.Move;
+                        if (item.Speak == this._image_speak_on)
+                        {
+                            locution.Speak = this._image_speak_off;
+                            ChangeSpeak(item.Sender.Name, false);
+                        }
+                        else
+                        {
+                            locution.Speak = this._image_speak_on;
+                            ChangeSpeak(item.Sender.Name, true);
+                        }
+                    }
+                    else locution = item;
+                    locutions.Add(locution);
+                    order++;
+                }
+                RecentChat.Clear();
+                RecentChat = new ObservableCollection<Message>(locutions);
+                MessageService.Instance.Chats = locutions;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private void ChangePause(string text, bool status)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation change pause \"Home Item Template\" view failed!!");
+
+                if (text == this._language_english.Uppercase) this._settingService.PauseEnglish = status;
+                if (text == this._language_deutsch.Uppercase) this._settingService.PauseDeutsch = status;
+                if (text == this._language_italiano.Uppercase) this._settingService.PauseItaliano = status;
+                if (text == this._language_francais.Uppercase) this._settingService.PauseFrancais = status;
+                if (text == this._language_espanol.Uppercase) this._settingService.PauseEspanol = status;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private async Task OnSwipedMoveCommand(object? parameter)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation swiped move command \"Home\" view model failed!");
+
+                Message? message = new Message();
+                message = parameter as Message;
+                List<Message> messages = new List<Message>();
+                List<Message> locutions = new List<Message>();
+                messages = MessageService.Instance.Chats;
+                int value = messages.IndexOf(message);
+                int order = 0;
+                foreach (Message item in messages)
+                {
+                    Message locution = new Message();
+                    if (order == value)
+                    {
+                        locution.Text = item.Text;
+                        User user = new User();
+                        user = item.Sender;
+                        locution.Sender = user;
+                        locution.Speak = item.Speak;
+                        if (item.Move == this._image_move_on)
+                        {
+                            locution.Move = this._image_move_off;
+                            ChangePause(item.Sender.Name, false);
+                        }
+                        else
+                        {
+                            locution.Move = this._image_move_on;
+                            ChangePause(item.Sender.Name, true);
+                        }
+                    }
+                    else locution = item;
+                    locutions.Add(locution);
+                    order++;
+                }
+                RecentChat.Clear();
+                RecentChat = new ObservableCollection<Message>(locutions);
+                MessageService.Instance.Chats = locutions;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private async Task<string> ChangePause(string text)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation change pause \"Home Item Template\" view failed!!");
+
+                string pause = string.Empty;
+                if (text == this._language_english.Uppercase)
+                {
+                    if (this._settingService.PauseEnglish)
+                        pause = this._image_move_on;
+                    else pause = this._image_move_off;
+                }
+                if (text == this._language_deutsch.Uppercase)
+                {
+                    if (this._settingService.PauseDeutsch)
+                        pause = this._image_move_on;
+                    else pause = this._image_move_off;
+                }
+                if (text == this._language_italiano.Uppercase)
+                {
+                    if (this._settingService.PauseItaliano)
+                        pause = this._image_move_on;
+                    else pause = this._image_move_off;
+                }
+                if (text == this._language_francais.Uppercase)
+                {
+                    if (this._settingService.PauseFrancais)
+                        pause = this._image_move_on;
+                    else pause = this._image_move_off;
+                }
+                if (text == this._language_espanol.Uppercase)
+                {
+                    if (this._settingService.PauseEspanol)
+                        pause = this._image_move_on;
+                    else pause = this._image_move_off;
+                }
+                return pause;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private async Task<string> ChangeSpeak(string text)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation change speak \"Home Item Template\" view failed!!");
+
+                string speak = string.Empty;
+                if (text == this._language_english.Uppercase)
+                {
+                    if (this._settingService.SpeakEnglish)
+                        speak = this._image_speak_on;
+                    else speak = this._image_speak_off;
+                }
+                if (text == this._language_deutsch.Uppercase)
+                {
+                    if (this._settingService.SpeakDeutsch)
+                        speak = this._image_speak_on;
+                    else speak = this._image_speak_off;
+                }
+                if (text == this._language_italiano.Uppercase)
+                {
+                    if (this._settingService.SpeakItaliano)
+                        speak = this._image_speak_on;
+                    else speak = this._image_speak_off;
+                }
+                if (text == this._language_francais.Uppercase)
+                {
+                    if (this._settingService.SpeakFrancais)
+                        speak = this._image_speak_on;
+                    else speak = this._image_speak_off;
+                }
+                if (text == this._language_espanol.Uppercase)
+                {
+                    if (this._settingService.SpeakEspanol)
+                        speak = this._image_speak_on;
+                    else speak = this._image_speak_off;
+                }
+                return speak;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
+        private async Task OnInitChat()
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation init chat \"Home\" view model failed!");
+
+                ClearMessage();
+                List<Message> memos = MessageService.Instance.GetChatsClear();
+                List<Message> messages = new List<Message>();
+                foreach (Message memo in memos)
+                {
+                    Message message = new Message();
+                    message.Sender = memo.Sender;
+                    message.Text = memo.Text;
+                    message.Move = await ChangePause(memo.Sender.Name);
+                    message.Speak = await ChangeSpeak(memo.Sender.Name);
+                    messages.Add(message);
+                }
+                MessageService.Instance.Chats = messages;
+
+                RecentChat.Clear();
+                RecentChat = new ObservableCollection<Message>(messages);
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
         private async Task OnLoadCommand()
         {
             try
@@ -244,18 +520,17 @@ namespace LetterStomach.ViewModels
                 if (this._update_view) 
                 {
                     await Shell.Current.GoToAsync(nameof(ModalView));
-
-                    bool database = await DatabaseInit();
-                    ClearMessage();
-                    List<Message> memos = MessageService.Instance.GetChatsClear();
-                    MessageService.Instance.Chats = memos;
-                    //RecentChat = new ObservableCollection<Message>();
-                    RecentChat.Clear();
-                    RecentChat = new ObservableCollection<Message>(memos);
-                    await InitAsync(database);
-
-                    this._update_view = false;
-                    await Shell.Current.GoToAsync("..");
+                    try
+                    {
+                        bool database = await DatabaseInit();
+                        await OnInitChat();
+                        await OnInitAsync(database);
+                        this._update_view = false;
+                    }
+                    finally
+                    {
+                        await Shell.Current.GoToAsync("..");
+                    }
                 }
             }
             catch (Exception ex)
@@ -314,7 +589,7 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation init \"Home\" view model failed!");
                 
-                Connect(sqlite);
+                OnConnect(sqlite);
                 Grammar();
                 MountNext();
             }
@@ -325,13 +600,13 @@ namespace LetterStomach.ViewModels
             }
         }
 
-        private async Task InitAsync(bool sqlite)
+        private async Task OnInitAsync(bool sqlite)
         {
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation init async \"Home\" view model failed!");
 
-                await ConnectAsync(sqlite);
+                await OnConnectAsync(sqlite);
                 if (this._language_english != null) await GrammarAsync(this._language_english.Lowercase);
                 if (this._language_deutsch != null) await GrammarAsync(this._language_deutsch.Lowercase);
                 if (this._language_italiano != null) await GrammarAsync(this._language_italiano.Lowercase);
@@ -345,7 +620,7 @@ namespace LetterStomach.ViewModels
             }
         }
 
-        private void Connect(bool database)
+        private void OnConnect(bool database)
         {
             try
             {
@@ -361,7 +636,7 @@ namespace LetterStomach.ViewModels
             }
         }
 
-        private async Task ConnectAsync(bool database)
+        private async Task OnConnectAsync(bool database)
         {
             try
             {

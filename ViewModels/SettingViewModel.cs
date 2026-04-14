@@ -1,8 +1,10 @@
-﻿using CommunityToolkit.Mvvm.Input;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using LetterStomach.Enums;
 using LetterStomach.Models;
 using LetterStomach.Services;
 using LetterStomach.Services.Interfaces;
+using LetterStomach.Views;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
@@ -14,9 +16,9 @@ namespace LetterStomach.ViewModels
         #region ERROR
         private bool _error_on = true;
         private bool _error_off = false;
-        private string _error_message;
+        private string? _error_message;
 
-        public string error_message
+        public string? error_message
         {
             get => _error_message;
             set
@@ -25,7 +27,7 @@ namespace LetterStomach.ViewModels
             }
         }
 
-        public event EventHandler<string> OnError;
+        public event EventHandler<string>? OnError;
 
         public event PropertyChangedEventHandler? PropertyChanged;
         #endregion
@@ -245,7 +247,7 @@ namespace LetterStomach.ViewModels
                 if (volume_modify)
                 {
                     if (conjunction) message += " and";
-                    message += " to update pitch";
+                    message += " to update volume";
                     conjunction = true;
                 }
                 return message;
@@ -302,7 +304,7 @@ namespace LetterStomach.ViewModels
                 if (volume_modify)
                 {
                     if (conjunction) message += " and";
-                    message += " pitch";
+                    message += " volume";
                     conjunction = true;
                 }
                 return message;
@@ -356,16 +358,26 @@ namespace LetterStomach.ViewModels
                 if (answer)
                 {
                     bool update = false;
-                    if (update_database) update = await UpdateSQLite(select_table);
-                    if ((!init_database) && (sqlite_database)) update = await UpgradeSQLite();
-                    if ((init_database) && (!sqlite_database))
+
+                    await Shell.Current.GoToAsync(nameof(ModalView), true);
+
+                    try
                     {
-                        this._settingService.SQLiteDatabase = false;
-                        update = true;
+                        if (update_database) update = await UpdateSQLite(select_table);
+                        if ((!init_database) && (sqlite_database)) update = await UpgradeSQLite();
+                        if ((init_database) && (!sqlite_database))
+                        {
+                            this._settingService.SQLiteDatabase = false;
+                            update = true;
+                        }
+                        if (pitch_modify) update = await UpdatePitch(pitch_speak);
+                        if (volume_modify) update = await UpdateVolume(volume_speak);
+                        if (drop_database) update = await DropSQLite();
+                    } 
+                    finally
+                    {
+                        await Shell.Current.GoToAsync("..", true);
                     }
-                    if (pitch_modify) update = await UpdatePitch(pitch_speak);
-                    if (volume_modify) update = await UpdateVolume(volume_speak);
-                    if (drop_database) update = await DropSQLite();
 
                     if (update)
                     {
