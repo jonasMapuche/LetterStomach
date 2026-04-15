@@ -10,15 +10,14 @@
     </ContentView.Resources>
     <ContentView.Content>
         <SwipeView
-            Padding="2, 5"
-            Shadow="#000000 2 2">
+            Padding="2, 5">
             <SwipeView.LeftItems>
                 <SwipeItems>
                     <SwipeItem 
                         x:Name="swiLeft"
                         x:DataType="models:Message"
                         IconImageSource="{Binding Move}"
-                        BackgroundColor="{StaticResource PrimaryColor}"
+                        BackgroundColor="{StaticResource LetterColor}"
                         Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:HomeViewModel}}, Path=SwipedMoveCommand}"
                         CommandParameter="{Binding .}"/>
                 </SwipeItems>
@@ -29,14 +28,15 @@
                         x:Name="swiRight" 
                         x:DataType="models:Message"
                         IconImageSource="{Binding Speak}"
-                        BackgroundColor="{StaticResource PrimaryColor}"
+                        BackgroundColor="{StaticResource LetterColor}"
                         Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:HomeViewModel}}, Path=SwipedSpeakCommand}"
                         CommandParameter="{Binding .}"/>
                 </SwipeItems>
             </SwipeView.RightItems>
             <Border StrokeThickness="0"
-                StrokeShape="RoundRectangle 10, 10, 10, 10"
-                Background="{StaticResource WhiteColor}">
+                Stroke="{StaticResource ModalColor}"
+                StrokeShape="RoundRectangle 20, 20, 20, 10"
+                BackgroundColor="{StaticResource MessageColor}">
                 <Grid
                     ColumnDefinitions="Auto, *"
                     RowSpacing="0"

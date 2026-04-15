@@ -13,7 +13,7 @@
             Clicked="OnSettingClicked"/>
     </ContentPage.ToolbarItems>
     <ContentPage.Behaviors>
-        <toolkit:StatusBarBehavior StatusBarColor="{StaticResource PrimaryColor}" StatusBarStyle="LightContent" />
+        <toolkit:StatusBarBehavior StatusBarColor="{StaticResource LetterColor}" StatusBarStyle="LightContent" />
     </ContentPage.Behaviors>
     <ContentPage.Resources>
         <ResourceDictionary>
@@ -21,15 +21,8 @@
     </ContentPage.Resources>
     <ContentPage.Content>
         <Grid      
-            BackgroundColor="{StaticResource PrimaryColor}"
+            BackgroundColor="{StaticResource LetterColor}"
             RowDefinitions="20, *, 150">
-<!--
-            <Label 
-                Text="{Binding ErrorMessage}" 
-                TextColor="Red" 
-                x:DataType="viewmodels:HomeViewModel"
-                IsVisible="{Binding ErrorMessage, Converter={StaticResource StringToIsVisibleConverter}}" />
--->
             <Grid
                 Grid.Row="0"
                 RowDefinitions="Auto, *">
@@ -54,35 +47,37 @@
                 <Grid
                     ColumnDefinitions="*, 150"
                     BackgroundColor="{StaticResource WhiteColor}">
-                    <Grid
+                    <Border StrokeThickness="1"
+                        Stroke="{StaticResource ModalColor}">
+                        <Grid
                         Grid.Column="0"
-                        Shadow="#000000 4 4"
                         Padding="16, 4, 4, 16">
-                        <BoxView
+                            <BoxView
                             x:Name="boxDirection"
-                            BackgroundColor="{StaticResource WhiteColor}">
-                            <BoxView.GestureRecognizers>
-                                <TapGestureRecognizer 
+                            BackgroundColor="{StaticResource MessageColor}">
+                                <BoxView.GestureRecognizers>
+                                    <TapGestureRecognizer 
                                     Command="{Binding SpeakCommand}"/>
-                                <SwipeGestureRecognizer 
+                                    <SwipeGestureRecognizer 
                                     Direction="Up" 
                                     Command="{Binding SwipedCommand}" 
                                     CommandParameter="{x:Static SwipeDirection.Up}"/>
-                                <SwipeGestureRecognizer 
+                                    <SwipeGestureRecognizer 
                                     Direction="Right" 
                                     Command="{Binding SwipedCommand}" 
                                     CommandParameter="{x:Static SwipeDirection.Right}" />
-                                <SwipeGestureRecognizer 
+                                    <SwipeGestureRecognizer 
                                     Direction="Left" 
                                     Command="{Binding SwipedCommand}" 
                                     CommandParameter="{x:Static SwipeDirection.Left}" />
-                                <SwipeGestureRecognizer 
+                                    <SwipeGestureRecognizer 
                                     Direction="Down" 
                                     Command="{Binding SwipedCommand}" 
                                     CommandParameter="{x:Static SwipeDirection.Down}" />
-                            </BoxView.GestureRecognizers>                                                        
-                        </BoxView>
-                    </Grid>
+                                </BoxView.GestureRecognizers>
+                            </BoxView>
+                        </Grid>
+                    </Border>
                     <Grid 
                         Grid.Column="1"
                         BackgroundColor="{StaticResource WhiteColor}">
@@ -94,7 +89,7 @@
                             <Grid 
                                 Style="{StaticResource NewBotHomeGridStyle}">
                                 <Ellipse   
-                                    Fill="{StaticResource PrimaryColor}"/>
+                                    Fill="{StaticResource LetterColor}"/>
                                 <Image
                                     Style="{StaticResource NewBotHomeImageStyle}"
                                     Source="contacts_product_62dp_white.png"/>

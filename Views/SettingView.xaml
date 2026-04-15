@@ -32,7 +32,7 @@
         </ToolbarItem>
     </ContentPage.ToolbarItems>
     <ContentPage.Behaviors>
-        <toolkit:StatusBarBehavior StatusBarColor="{StaticResource PrimaryColor}" StatusBarStyle="LightContent" />
+        <toolkit:StatusBarBehavior StatusBarColor="{StaticResource LetterColor}" StatusBarStyle="LightContent" />
     </ContentPage.Behaviors>
     <ContentPage.Resources>
         <ResourceDictionary>
@@ -41,7 +41,7 @@
     </ContentPage.Resources>
     <ContentPage.Content>
         <Grid      
-            BackgroundColor="{StaticResource PrimaryColor}"
+            BackgroundColor="{StaticResource LetterColor}"
             RowDefinitions="40, *">
             <Grid
                 Grid.Row="0"

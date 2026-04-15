@@ -6,8 +6,8 @@
     xmlns:views="clr-namespace:LetterStomach.Views"
     xmlns:viewmodels="clr-namespace:LetterStomach.ViewModels"
     xmlns:locals="clr-namespace:LetterStomach"
-    Shell.FlyoutBehavior="Flyout"
     BackgroundColor="{StaticResource LetterColor}"
+    Shell.FlyoutBehavior="Flyout"
     Title="LetterStomach">
 
     <Shell.MenuItemTemplate>
@@ -68,7 +68,7 @@
     </Shell.ItemTemplate>
 
     <Shell.FlyoutHeader>
-        <StackLayout BackgroundColor="{StaticResource FabColor}">
+        <StackLayout BackgroundColor="{StaticResource LetterColor}">
             <Grid ColumnDefinitions="0.9*,0.1*">
                 <Label Text="Welcome to Letter Bot!"
                     FontSize="15"

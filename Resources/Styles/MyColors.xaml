@@ -15,4 +15,7 @@
     <Color x:Key="PlusColor">#FF95A2</Color>
     <Color x:Key="ModalColor">#80000000</Color>
 
+    <Color x:Key="BlueColor">#512BD4</Color>
+    <Color x:Key="TransparentColor">#f6f6f4</Color>
+
 </ResourceDictionary>

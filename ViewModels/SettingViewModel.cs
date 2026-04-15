@@ -1,5 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
+﻿using CommunityToolkit.Mvvm.Input;
 using LetterStomach.Enums;
 using LetterStomach.Models;
 using LetterStomach.Services;
@@ -127,6 +126,7 @@ namespace LetterStomach.ViewModels
         private int _volume_init = 0;
 
         private bool _update_setting = false;
+        private bool _update_database = false;
         #endregion
 
         #region CONSTRUCTOR
@@ -359,9 +359,8 @@ namespace LetterStomach.ViewModels
                 {
                     bool update = false;
 
-                    await Shell.Current.GoToAsync(nameof(ModalView), true);
-
-                    try
+                    await Shell.Current.GoToAsync(nameof(ModalView));
+                    Thread backgroundThread = new Thread(async () =>
                     {
                         if (update_database) update = await UpdateSQLite(select_table);
                         if ((!init_database) && (sqlite_database)) update = await UpgradeSQLite();
@@ -373,20 +372,21 @@ namespace LetterStomach.ViewModels
                         if (pitch_modify) update = await UpdatePitch(pitch_speak);
                         if (volume_modify) update = await UpdateVolume(volume_speak);
                         if (drop_database) update = await DropSQLite();
-                    } 
-                    finally
-                    {
-                        await Shell.Current.GoToAsync("..", true);
-                    }
 
-                    if (update)
-                    {
-                        this._update_setting = true;
-                        message = MessageCheck(init_database, sqlite_database, update_database, drop_database, pitch_modify, volume_modify);
-                        this.IsCheckSetting = !this.IsCheckSetting;
-                    }
-                    else message = MessageError();
-                    await Application.Current.MainPage.DisplayAlert("Conclusion", message, "Ok");
+                        MainThread.BeginInvokeOnMainThread(async () =>
+                        {
+                            await Shell.Current.GoToAsync("..");
+                            if (update)
+                            {
+                                if ((init_database != sqlite_database) || (this._update_database)) this._update_setting = true;
+                                message = MessageCheck(init_database, sqlite_database, update_database, drop_database, pitch_modify, volume_modify);
+                                this.IsCheckSetting = !this.IsCheckSetting;
+                            }
+                            else message = MessageError();
+                            await Application.Current.MainPage.DisplayAlert("Conclusion", message, "Ok");
+                        });
+                    });
+                    backgroundThread.Start();
                 };
             }
             catch (Exception ex)
@@ -449,6 +449,7 @@ namespace LetterStomach.ViewModels
                 {
                     if (item.Value == (int)Hunk.Nothing) this.SelectedItem = item;
                 }
+                this._update_database = true;
                 return true;
             }
             catch (Exception ex)

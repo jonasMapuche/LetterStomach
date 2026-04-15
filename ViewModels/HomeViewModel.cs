@@ -137,8 +137,7 @@ namespace LetterStomach.ViewModels
                 if (this._error_off) throw new InvalidOperationException("Operation swiped command \"Home\" view model failed!");
 
                 await Shell.Current.GoToAsync(nameof(ModalView));
-                Task.Delay(500);
-                try
+                Thread backgroundThread = new Thread(async () =>
                 {
                     if (direction == SwipeDirection.Left)
                     {
@@ -164,11 +163,12 @@ namespace LetterStomach.ViewModels
                     {
                         MountDown();
                     }
-                } 
-                finally
-                {
-                    await Shell.Current.GoToAsync("..");
-                }
+                    MainThread.BeginInvokeOnMainThread(async () =>
+                    {
+                        await Shell.Current.GoToAsync("..");
+                    });
+                });
+                backgroundThread.Start();
             }
             catch (Exception ex)
             {
