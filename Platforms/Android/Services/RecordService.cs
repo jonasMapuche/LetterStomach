@@ -2,7 +2,6 @@
 using Java.IO;
 using LetterStomach.Helpers;
 using LetterStomach.Interfaces;
-using System.Runtime.CompilerServices;
 
 namespace LetterStomach.Platforms.Android.Services
 {

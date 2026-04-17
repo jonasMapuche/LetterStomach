@@ -2,10 +2,10 @@
 using CommunityToolkit.Maui.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using LetterStomach.Interfaces;
 using LetterStomach.Models;
 using LetterStomach.Services;
 using LetterStomach.Services.Interfaces;
+using System.Collections.ObjectModel;
 using System.Windows.Input;
 
 namespace LetterStomach.ViewModels
@@ -16,9 +16,9 @@ namespace LetterStomach.ViewModels
         #region ERROR
         private bool _error_on = true;
         private bool _error_off = false;
-        private string _error_message;
+        private string? _error_message;
 
-        public string error_message
+        public string? error_message
         {
             get => this._error_message;
             set
@@ -27,7 +27,7 @@ namespace LetterStomach.ViewModels
             }
         }
 
-        public event EventHandler<string> OnError;
+        public event EventHandler<string>? OnError;
         #endregion
 
         #region VARIABLE
@@ -41,6 +41,7 @@ namespace LetterStomach.ViewModels
         private string _preposition;
 
         private Language _language_portugues;
+        private Language _language_english;
 
         private Dictionary<string, string> _load;
         private Dictionary<string, string> _execute;
@@ -88,6 +89,7 @@ namespace LetterStomach.ViewModels
         private Dictionary<string, string> _longitude;
         private Dictionary<string, string> _latitude;
         private Dictionary<string, string> _level;
+        private Dictionary<string, string> _charge;
 
         private Dictionary<string, string> _with;
         private Dictionary<string, string> _in;
@@ -113,22 +115,24 @@ namespace LetterStomach.ViewModels
         private HashSet<int> _three;
         private HashSet<int> _four;
 
-        private string _unknow;
+        private Dictionary<string, string> _unknow;
+        private Dictionary<string, string> _init;
+        private Dictionary<string, string> _dont_language;
 
         public ICommand BackCommand { get; set; }
         public ICommand SendCommand { get; set; }
 
         [ObservableProperty]
-        User username;
+        User? username;
 
         [ObservableProperty]
-        List<Message> messages;
+        ObservableCollection<Message>? messages;
 
         [ObservableProperty]
         private byte[]? bytes;
 
         [ObservableProperty]
-        private CameraInfo selectedCamera;
+        private CameraInfo? selectedCamera;
 
         [ObservableProperty]
         private CameraFlashMode flashMode;
@@ -139,20 +143,30 @@ namespace LetterStomach.ViewModels
         [ObservableProperty]
         public bool showCamera;
 
-        public CameraView _cameraView;
+        [ObservableProperty]
+        public string? textInput;
+
+        private CameraView? _viewCamera;
+
+        public CameraView? ViewCamera
+        {
+            get => this._viewCamera;
+            set
+            {
+                this._viewCamera = value;
+            }
+        }
 
         private ICameraProvider _cameraProvider;
         private IHttpService _httpService;
         private IPerceptionService _perceptionService;
         private IBotService _botService;
-
-        public ICameraProvider MediaCamera {  get => _cameraProvider; set => _cameraProvider = value; }
-
+         
         public CancellationToken Token => CancellationToken.None;
         #endregion
 
         #region CONTRUCTOR
-        public BotViewModel(IRecordService recordService, IAudioService audioService, ITextSpeakService textSpeakService) 
+        public BotViewModel(PerceptionService perceptionService, ICameraProvider cameraProvider, HttpService httpService)
         {
             try 
             {
@@ -169,6 +183,7 @@ namespace LetterStomach.ViewModels
                 this._preposition = SettingService.Instance.Preposition;
 
                 this._language_portugues = SettingService.Instance.Portugues;
+                this._language_english = SettingService.Instance.English;
 
                 this._load = SettingService.Instance.Load;
                 this._execute = SettingService.Instance.Execute;
@@ -216,6 +231,7 @@ namespace LetterStomach.ViewModels
                 this._longitude = SettingService.Instance.Longitude;
                 this._latitude = SettingService.Instance.Latitude;
                 this._level = SettingService.Instance.Level;
+                this._charge = SettingService.Instance.Charge;
 
                 this._with = SettingService.Instance.With;
                 this._in = SettingService.Instance.In;
@@ -240,16 +256,20 @@ namespace LetterStomach.ViewModels
                 this._three = SettingService.Instance.Three;
                 this._four = SettingService.Instance.Four;
 
-                this._unknow = "unknown";
+                this._unknow = SettingService.Instance.Unknow;
+
+                this._init = SettingService.Instance.Init;
+                this._dont_language = SettingService.Instance.Dont_Language;
 
                 this.BackCommand = new AsyncRelayCommand(OnBackCommand);
                 this.SendCommand = new AsyncRelayCommand<string>(OnSendCommand);
 
-                this.ShowCamera = false;
-                this.ShowPhoto = false;
+                ShowCamera = false;
+                ShowPhoto = false;
 
-                this._perceptionService = new PerceptionService(recordService, audioService, textSpeakService);
-                this._perceptionService.OnError += OnError;
+                this._cameraProvider = cameraProvider;
+                this._perceptionService = perceptionService;
+                this._httpService = httpService;
 
                 this._botService = new BotService();
                 this._botService.OnError += OnError;
@@ -263,17 +283,24 @@ namespace LetterStomach.ViewModels
             }
         }
 
-        private void OnInitMessage()
+        private async Task OnInitMessage()
         {
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation init message \"Bot\" view model failed!");
 
+                HashSet<string> inits = this._init
+                    .Where(index => index.Value.Contains(this._language_english.Lowercase))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+                string init = inits.ToArray()[0];
+
                 Username = MessageService.Instance.GetUser(this._language_portugues.Lowercase);
-                List<Message> message_language = MessageService.Instance.Messages(Username.Name);
-                if (message_language.Count > 0)
-                    Messages = message_language;
-                else Messages = MessageService.Instance.Messages(Username, "What can I do for you?", Username.Name);
+                string language = MessageService.Instance.GetLanguage(Username);
+                List<Message> memos = MessageService.Instance.Messages(language);
+                if (memos.Count > 0)
+                    Messages = new ObservableCollection<Message>(memos);
+                else
+                    Messages = ChargeMessage(Username, init, language);
             }
             catch (Exception ex)
             {
@@ -290,23 +317,36 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation send command \"Bot\" view model failed!");
 
-                string language = Username.Name.ToLower();
+                HashSet<string> dont_languages = this._dont_language
+                    .Where(index => index.Value.Contains(this._language_english.Lowercase))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+                string dont_language = dont_languages.ToArray()[0];
+
+                string language = Username.Name;
                 User user = Username;
-                Messages = MessageService.Instance.Messages(null, parameter, language);
-                if (SettingService.Instance.ModeBot)
-                {
-                    MessageService.Instance.Bots(null, parameter, language);
-                    string response = string.Empty;
-                    response = await OnSendBot(parameter, user, language);
-                }
+                Messages = ChargeMessage(null, parameter, language);
+                TextInput = string.Empty;
+
+                if (language != this._language_english.Uppercase)
+                    Messages = ChargeMessage(Username, dont_language, language);
                 else
                 {
-                    string declarative = string.Empty;
-                    declarative = await OnSendButton(parameter, user, language);
-                    if (declarative != string.Empty)
-                        Messages = MessageService.Instance.Messages(Username, declarative, Username.Name);
+                    language = this._language_english.Lowercase;
                     if (SettingService.Instance.ModeBot)
-                        MessageService.Instance.Bots(Username, declarative, Username.Name);
+                    {
+                        MessageService.Instance.Bots(null, parameter, language);
+                        string response = string.Empty;
+                        response = await OnSendBot(parameter, user, language);
+                    }
+                    else
+                    {
+                        string response = string.Empty;
+                        response = await OnSendButton(parameter, user, language);
+                        if (response != string.Empty)
+                            Messages = ChargeMessage(Username, response, language);
+                        if (SettingService.Instance.ModeBot)
+                            MessageService.Instance.Bots(Username, response, Username.Name);
+                    }
                 }
             }
             catch (Exception ex)
@@ -322,6 +362,8 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation go message \"Bot\" view model failed!");
 
+                List<Locution> locutions = new List<Locution>();
+
                 GoMessage goMessage = new GoMessage();
                 User bot = new User();
                 bot = new User
@@ -332,12 +374,7 @@ namespace LetterStomach.ViewModels
                 goMessage.sender = bot;
                 goMessage.language = language;
                 goMessage.message = parameter;
-
-                List<Locution> locutions = new List<Locution>();
-                this._httpService = new HttpService();
-                this._httpService.OnError += OnError;
                 locutions = await this._httpService.HttpGo(goMessage);
-
                 return locutions;
             }
             catch (Exception ex)
@@ -467,32 +504,50 @@ namespace LetterStomach.ViewModels
             }
         }
 
+        private ObservableCollection<Message> ChargeMessage(User? user, string text, string language)
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation charge message \"Bot\" view model failed!");
+
+                ObservableCollection<Message> result = new ObservableCollection<Message>();
+                List<Message> memos = new List<Message>();
+                memos = MessageService.Instance.Messages(user, text, language);
+                result = new ObservableCollection<Message>(memos);
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+
         private async Task<List<Message>> LoopCommmand(List<string> share, User user, string language)
         {
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation loop command \"Bot\" view model failed!");
 
-                List<Message> messages = new List<Message>();
+                List<Message> reports = new List<Message>();
                 foreach (string item in share)
                 {
-                    //-----
                     if (SettingService.Instance.ModeBot)
-                        messages = MessageService.Instance.Bots(user, item, language);
-                    Messages = MessageService.Instance.Messages(user, item, language);
-                    //-----
+                        reports = MessageService.Instance.Bots(user, item, language);
+                    Messages = ChargeMessage(user, item, language);
+
                     string response = string.Empty;
                     if (item != string.Empty)
                         response = await OnSendButton(item, user, language);
-                    //-----
                     if (response != string.Empty)
                     {
                         if (SettingService.Instance.ModeBot)
-                            messages = MessageService.Instance.Bots(user, response, language);
-                        Messages = MessageService.Instance.Messages(user, response, language);
+                            reports = MessageService.Instance.Bots(user, response, language);
+                        Messages = ChargeMessage(user, response, language);
                     }
                 }
-                return messages;
+                return reports;
             }
             catch (Exception ex)
             {
@@ -521,21 +576,18 @@ namespace LetterStomach.ViewModels
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
                 List<Message> notes = new List<Message>();
-
                 if (Array.IndexOf(terminates.ToArray(), parameter) != -1)
                 {
                     List<string> share = new List<string>();
                     share = await this._botService.Terminate(language, messages);
                     notes = await LoopCommmand(share, user, language);
                 }
-
                 if (Array.IndexOf(cameras.ToArray(), parameter) != -1)
                 {
                     List<string> share = new List<string>();
                     share = await this._botService.CaptureCamera(language, parameter, messages);
                     notes = await LoopCommmand(share, user, language);
                 }
-
                 if (Array.IndexOf(records.ToArray(), parameter) != -1)
                 {
                     List<string> share = new List<string>();
@@ -545,14 +597,12 @@ namespace LetterStomach.ViewModels
 
                 bool device = false;
                 device = await this._botService.DeviceShare(language, messages, parameter);
-
                 if ((Array.IndexOf(shares.ToArray(), parameter) != -1) || device)
                 {
                     List<string> share = new List<string>();
                     share = await this._botService.ShareFile(language, parameter, messages);
                     notes = await LoopCommmand(share, user, language);
                 }
-
                 return notes;
             }
             catch (Exception ex)
@@ -562,7 +612,7 @@ namespace LetterStomach.ViewModels
             }
         }
 
-        private async Task<string> ChooseCommmand(string parameter, string language, List<Message> messages)
+        private async Task<string> ChooseCommmand(string parameter, string language, List<Message> reports)
         {
             try
             {
@@ -582,17 +632,17 @@ namespace LetterStomach.ViewModels
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
                 string result = string.Empty;
-                if (messages.Count > 0)
+                if (reports.Count > 0)
                 {
                     if (Array.IndexOf(cameras.ToArray(), parameter) != -1)
-                        result = await this._botService.CaptureCamera(language, messages);
+                        result = await this._botService.CaptureCamera(language, reports);
                     if (Array.IndexOf(records.ToArray(), parameter) != -1)
-                        result = await this._botService.RecordAudio(language, messages);
+                        result = await this._botService.RecordAudio(language, reports);
 
                     bool device = false;
-                    device = await this._botService.DeviceShare(language, messages, parameter);
+                    device = await this._botService.DeviceShare(language, reports, parameter);
                     if ((Array.IndexOf(shares.ToArray(), parameter) != -1) || device)
-                        result = await this._botService.ShareFile(language, messages);
+                        result = await this._botService.ShareFile(language, reports);
                 }
                 return result;
             }
@@ -613,21 +663,21 @@ namespace LetterStomach.ViewModels
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
-                List<Message> messages = new List<Message>();
-                messages = MessageService.Instance.Bots(language);
-                bool device = await this._botService.DeviceShare(language, messages, parameter);
+                List<Message> reports = new List<Message>();
+                reports = MessageService.Instance.Bots(language);
+                bool device = await this._botService.DeviceShare(language, reports, parameter);
 
                 string result = string.Empty;
                 if ((Array.IndexOf(catchs.ToArray(), parameter) != -1) || device) 
                 {
                     List<Message> notes = new List<Message>();
-                    notes = await LoadCommmand(parameter, user, language, messages);
+                    notes = await LoadCommmand(parameter, user, language, reports);
 
                     result = await ChooseCommmand(parameter, language, notes);
                     if ((result != string.Empty) && (notes.Count > 0))
                     {
                         MessageService.Instance.Bots(user, result, language);
-                        Messages = MessageService.Instance.Messages(user, result, language);
+                        Messages = ChargeMessage(user, result, language);
                     }
                 }
                 return result;
@@ -796,7 +846,7 @@ namespace LetterStomach.ViewModels
 
                 HashSet<int> numeral_three = this._three;
                 HashSet<int> numeral_four = this._four;
-                //-----
+
                 string response = string.Empty;
                 //-----
                 if (Array.IndexOf(verbs_record.ToArray(), verb) != -1)
@@ -1125,7 +1175,7 @@ namespace LetterStomach.ViewModels
                         }
                     }
                 }
-                //-----
+
                 return response;
             }
             catch (Exception ex)
@@ -1156,29 +1206,30 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation apply query attibutes \"Bot\" view model failed!");
 
+                HashSet<string> inits = this._init
+                    .Where(index => index.Value.Contains(this._language_english.Lowercase))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+                string init = inits.ToArray()[0];
+
                 Username = query["username"] as User;
                 if (Username == null)
                 {
                     Username = MessageService.Instance.GetUser(this._language_portugues.Lowercase);
                 }
-                List<Message> message_language = MessageService.Instance.Messages(Username.Name);
-                if (message_language.Count > 0)
-                {
-                    Messages = message_language;
-                }
+                string language = MessageService.Instance.GetLanguage(Username);
+
+                List <Message> memos = MessageService.Instance.Messages(language);
+                if (memos.Count > 0)
+                    Messages = new ObservableCollection<Message>(memos);
                 else
                 {
-                    if (!((Username.Name == this._language_portugues.Lowercase) || (Username.Name == this._language_portugues.Uppercase)))
+                    if (!(language == this._language_portugues.Lowercase))
                     {
                         List<Message> chats = MessageService.Instance.Chats;
                         Message? chat = chats.Find(index => index.Sender == Username);
-                        List<Message> reports = MessageService.Instance.Messages(chat.Sender, chat.Text, chat.Sender.Name);
-                        Messages = reports;
+                        Messages = ChargeMessage(chat.Sender, chat.Text, language);
                     }
-                    else
-                    {
-                        Messages = MessageService.Instance.Messages(Username, "What can I do for you?", Username.Name);
-                    }
+                    else Messages = ChargeMessage(Username, init, Username.Name);
                 }
             }
             catch (Exception ex)
@@ -1220,8 +1271,12 @@ namespace LetterStomach.ViewModels
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
+                await RequestandCheckPermission();
+
                 string response = string.Empty;
-                //await this._cameraView.StartCameraPreview(Token);
+                ShowCamera = true;
+                this._viewCamera.StopCameraPreview();
+                await this._viewCamera.StartCameraPreview(Token);
                 response = $"{camera.ToArray()[0]} {start.ToArray()[0]}.";
                 return response;
             }
@@ -1245,8 +1300,11 @@ namespace LetterStomach.ViewModels
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
+                await RequestandCheckPermission();
+
                 string response = string.Empty;
-                //this._cameraView.StopCameraPreview();
+                ShowCamera = false;
+                this._viewCamera.StopCameraPreview();
                 response = $"{camera.ToArray()[0]} {stop.ToArray()[0]}.";
                 return response;
             }
@@ -1277,7 +1335,6 @@ namespace LetterStomach.ViewModels
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
                 string response = string.Empty;
-                /*
                 if (this._cameraProvider.AvailableCameras is not null)
                 {
                     if (SelectedCamera.DeviceId == this._cameraProvider.AvailableCameras[0].DeviceId)
@@ -1285,12 +1342,10 @@ namespace LetterStomach.ViewModels
                     else if (SelectedCamera.DeviceId == this._cameraProvider.AvailableCameras[1].DeviceId)
                         SelectedCamera = this._cameraProvider.AvailableCameras.First(x => x.Position == CameraPosition.Rear);
                 }
-                */
                 if (kind == front.ToArray()[0]) 
                     response = $"{camera.ToArray()[0]} {front.ToArray()[0]} {rotate.ToArray()[0]}.";
                 else
                     response = $"{camera.ToArray()[0]} {rear.ToArray()[0]} {rotate.ToArray()[0]}.";
-
                 return response;
             }
             catch (Exception ex)
@@ -1326,17 +1381,15 @@ namespace LetterStomach.ViewModels
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
                 string response = string.Empty;
-                /*
                 if (this._cameraProvider.AvailableCameras is not null)
                 {
                     if (flash.ToArray()[0] == kind)
-                        this.FlashMode = CameraFlashMode.On;
+                        FlashMode = CameraFlashMode.On;
                     if (off.ToArray()[0] == kind)
-                        this.FlashMode = CameraFlashMode.Off;
+                        FlashMode = CameraFlashMode.Off;
                     if (auto.ToArray()[0] == kind)
-                        this.FlashMode = CameraFlashMode.Auto;
+                        FlashMode = CameraFlashMode.Auto;
                 }
-                */
                 if (kind == on.ToArray()[0])
                     response = $"{flash.ToArray()[0]} {turn_on.ToArray()[0]}.";
                 else
@@ -1364,12 +1417,13 @@ namespace LetterStomach.ViewModels
                 HashSet<string> camera = this._camera
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
                 HashSet<string> capture = this._capture
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
                 string response = string.Empty;
-                //await this._cameraView.CaptureImage(Token);
+                await this._viewCamera.CaptureImage(Token);
                 response = $"{camera.ToArray()[0]} {capture.ToArray()[0]}.";
                 return response;
             }
@@ -1394,7 +1448,7 @@ namespace LetterStomach.ViewModels
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
                 string response = string.Empty;
-                //await _perceptionService.SaveImage(Bytes);
+                await this._perceptionService.SaveImage(Bytes);
                 response = $"{camera.ToArray()[0]} {save.ToArray()[0]}.";
                 return response;
             }
@@ -1538,7 +1592,7 @@ namespace LetterStomach.ViewModels
         {
             try
             {
-                if (this._error_off) throw new InvalidOperationException("Operation share file \"Bot\" view model failed!");
+                 if (this._error_off) throw new InvalidOperationException("Operation share file \"Bot\" view model failed!");
 
                 if (!SettingService.Instance.ModeBot) SettingService.Instance.ModeBot = true;
                 string response = await this._botService.ShareFile(language);
@@ -1565,10 +1619,8 @@ namespace LetterStomach.ViewModels
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
                 string response = string.Empty;
-                /*
                 string audio_file_path = await this._perceptionService.UploadFile();
                 this._perceptionService.SendRecording(audio_file_path);
-                */
                 response = $"{file.ToArray()[0]} {upload.ToArray()[0]}.";
                 return response;
             }
@@ -1593,7 +1645,7 @@ namespace LetterStomach.ViewModels
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
                 string response = string.Empty;
-                //await this._perceptionService.DownloadFile();
+                await this._perceptionService.DownloadFile();
                 response = $"{file.ToArray()[0]} {download.ToArray()[0]}.";
                 return response;
             }
@@ -1658,7 +1710,7 @@ namespace LetterStomach.ViewModels
 
                 string response = string.Empty;
                 Location location = new Location();
-                //location = await _perceptionService.GetCurrentLocation();
+                location = await this._perceptionService.GetCurrentLocation();
                 if (location != null)
                     response = $"{work.ToArray()[0]} {with.ToArray()[0]} {latitude.ToArray()[0]} {location.Latitude} {and.ToArray()[0]} {longitude.ToArray()[0]} {location.Longitude}.";
                 else
@@ -1678,14 +1730,14 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation battery \"Bot\" view model failed!");
 
-                HashSet<string> load = this._load
+                HashSet<string> charge = this._charge
                     .Where(index => index.Value.Contains(language))
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
                 string response = string.Empty;
                 double battery = 0;
-                //battery = _perceptionService.GetCharge();
-                response = $"{battery.ToString()}% {load.ToArray()[0]}.";
+                battery = _perceptionService.GetCharge();
+                response = $"{battery.ToString()}% {charge.ToArray()[0]}.";
                 return response;
             }
             catch (Exception ex)
@@ -1709,7 +1761,7 @@ namespace LetterStomach.ViewModels
                     .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
 
                 string response = string.Empty;
-                //this._perceptionService.SetVibration(number);
+                this._perceptionService.SetVibration(number);
                 response = $"{vibration.ToArray()[0]} {level.ToArray()[0]} {number}.";
                 return response;
             }
@@ -1726,14 +1778,18 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation scan bluetooth 3 \"Bot\" view model failed!");
 
+                HashSet<string> unknow = this._unknow
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
                 List<string> bluetooth = await this._perceptionService.ScanBluetooth3();
                 string response = string.Empty;
                 if (bluetooth.Count == 0)
                 {
-                    response = this._unknow;
-                    List<string> unknow = new List<string>();
-                    unknow.Add(response);
-                    await this._botService.ShareScan(unknow);
+                    response = unknow.ToArray()[0];
+                    List<string> unknows = new List<string>();
+                    unknows.Add(response);
+                    await this._botService.ShareScan(unknows);
                     return response;
                 } else
                     await this._botService.ShareScan(bluetooth);
@@ -1759,14 +1815,18 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation scan bluetooth 4 \"Bot\" view model failed!");
 
+                HashSet<string> unknow = this._unknow
+                    .Where(index => index.Value.Contains(language))
+                    .ToDictionary(index => index.Key, index => index.Value).Keys.ToHashSet();
+
                 List<string> bluetooth = await this._perceptionService.ScanBluetooth4();
                 string response = string.Empty;
                 if (bluetooth.Count == 0)
                 {
-                    response = this._unknow;
-                    List<string> unknow = new List<string>();
-                    unknow.Add(response);
-                    await this._botService.ShareScan(unknow);
+                    response = unknow.ToArray()[0];
+                    List<string> unknows = new List<string>();
+                    unknows.Add(response);
+                    await this._botService.ShareScan(unknows);
                     return response;
                 }
                 else
@@ -2031,15 +2091,22 @@ namespace LetterStomach.ViewModels
             {
                 if (this._error_off) throw new InvalidOperationException("Operation request check permission \"Bot\" view model failed!");
 
-                PermissionStatus status = await Permissions.CheckStatusAsync<Permissions.StorageWrite>();
-                if (status != PermissionStatus.Granted)
+                PermissionStatus statusStorare = await Permissions.CheckStatusAsync<Permissions.StorageWrite>();
+                if (statusStorare != PermissionStatus.Granted)
                     await Permissions.RequestAsync<Permissions.StorageWrite>();
-                status = await Permissions.CheckStatusAsync<Permissions.Microphone>();
-                if (status != PermissionStatus.Granted)
+                PermissionStatus statusMicrophone = await Permissions.CheckStatusAsync<Permissions.Microphone>();
+                if (statusMicrophone != PermissionStatus.Granted)
                     await Permissions.RequestAsync<Permissions.Microphone>();
+                PermissionStatus statusCamera = await Permissions.CheckStatusAsync<Permissions.Camera>();
+                if (statusCamera != PermissionStatus.Granted)
+                    await Permissions.RequestAsync<Permissions.Camera>();
+
                 PermissionStatus storagePermission = await Permissions.CheckStatusAsync<Permissions.StorageWrite>();
                 PermissionStatus microPhonePermission = await Permissions.CheckStatusAsync<Permissions.Microphone>();
-                if (storagePermission == PermissionStatus.Granted && microPhonePermission == PermissionStatus.Granted)
+                PermissionStatus cameraPermission = await Permissions.RequestAsync<Permissions.Camera>();
+                if (storagePermission == PermissionStatus.Granted 
+                    && microPhonePermission == PermissionStatus.Granted
+                    && cameraPermission == PermissionStatus.Granted)
                 {
                     return PermissionStatus.Granted;
                 }

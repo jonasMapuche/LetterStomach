@@ -11,9 +11,9 @@ namespace LetterStomach.Platforms.Android.Services
         #region ERROR
         private bool _error_on = true;
         private bool _error_off = false;
-        private string _error_message;
+        private string? _error_message;
 
-        public string error_message
+        public string? error_message
         {
             get => this._error_message;
             set
@@ -22,12 +22,12 @@ namespace LetterStomach.Platforms.Android.Services
             }
         }
 
-        public event EventHandler<string> OnError;
+        public event EventHandler<string>? OnError;
         #endregion
 
         #region VARIABLE
-        private TextToSpeech _textToSpeech;
-        private string _text;
+        private TextToSpeech? _textToSpeech;
+        private string? _text;
         #endregion
 
         #region CONSTRUCTOR

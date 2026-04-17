@@ -96,6 +96,14 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <None Remove="Platforms\Android\Environment.txt" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <AndroidEnvironment Include="Platforms\Android\Environment.txt" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="CommunityToolkit.Maui" Version="12.2.0" />
 		<PackageReference Include="CommunityToolkit.Maui.Camera" Version="3.0.2" />
 		<PackageReference Include="CommunityToolkit.Maui.MediaElement" Version="6.1.2" />

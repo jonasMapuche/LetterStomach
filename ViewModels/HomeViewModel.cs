@@ -36,7 +36,7 @@ namespace LetterStomach.ViewModels
         private bool _update_view = true;
 
         [ObservableProperty]
-        public ObservableCollection<Message> recentChat;
+        public ObservableCollection<Message>? recentChat;
 
         public ICommand BotCommand { get; set; }
         public ICommand SpeakCommand { get; set; }
@@ -46,23 +46,23 @@ namespace LetterStomach.ViewModels
 
         public IAsyncRelayCommand LoadCommand { get; }
 
-        private List<Materia> _book_english;
-        private List<Materia> _book_deutsch;
-        private List<Materia> _book_italiano;
-        private List<Materia> _book_francais;
-        private List<Materia> _book_espanol;
+        private List<Materia>? _book_english;
+        private List<Materia>? _book_deutsch;
+        private List<Materia>? _book_italiano;
+        private List<Materia>? _book_francais;
+        private List<Materia>? _book_espanol;
 
-        private Materia _lesson_english;
-        private Materia _lesson_deutsch;
-        private Materia _lesson_italiano;
-        private Materia _lesson_francais;
-        private Materia _lesson_espanol;
+        private Materia? _lesson_english;
+        private Materia? _lesson_deutsch;
+        private Materia? _lesson_italiano;
+        private Materia? _lesson_francais;
+        private Materia? _lesson_espanol;
 
-        private List<Word> _word_english;
-        private List<Word> _word_deutsch;
-        private List<Word> _word_italiano;
-        private List<Word> _word_francais;
-        private List<Word> _word_espanol;
+        private List<Word>? _word_english;
+        private List<Word>? _word_deutsch;
+        private List<Word>? _word_italiano;
+        private List<Word>? _word_francais;
+        private List<Word>? _word_espanol;
 
         private Language _language_english;
         private Language _language_deutsch;
@@ -85,7 +85,7 @@ namespace LetterStomach.ViewModels
         #endregion
 
         #region CONSTRUCTOR
-        public HomeViewModel(SQLiteService sQLiteService, MongoDBService mongoDBService)
+        public HomeViewModel(SQLiteService sQLiteService, MongoDBService mongoDBService, TextToSpeakService textToSpeakService, GrammarService grammarService)
         {
             try
             {
@@ -99,15 +99,12 @@ namespace LetterStomach.ViewModels
                 this.SwipedMoveCommand = new AsyncRelayCommand<object>(OnSwipedMoveCommand);
                 this.LoadCommand = new AsyncRelayCommand(OnLoadCommand);
 
-                IGrammarService grammarService = new GrammarService();
-                this._grammarService = grammarService;
-                ITextToSpeakService textToSpeakService = new TextToSpeakService();
-                this._textToSpeakService = textToSpeakService;
-
                 this._settingService = SettingService.Instance;
 
+                this._textToSpeakService = textToSpeakService;
                 this._sQLiteService = sQLiteService;
                 this._mongoDBService = mongoDBService;
+                this._grammarService = grammarService;
 
                 this._language_english = this._settingService.English;
                 this._language_deutsch = this._settingService.Deutsch;

@@ -1,4 +1,5 @@
 using LetterStomach.Services;
+using LetterStomach.Services.Interfaces;
 using LetterStomach.ViewModels;
 
 namespace LetterStomach.Views;
@@ -36,14 +37,14 @@ public partial class HomeView : ContentPage
     #endregion
 
     #region CONSTRUTOR
-    public HomeView(SQLiteService sQLiteService, MongoDBService mongoDBService)
+    public HomeView(SQLiteService sQLiteService, MongoDBService mongoDBService, TextToSpeakService textToSpeakService, GrammarService grammarService)
 	{
         try
         {
             if (this._error_off) throw new InvalidOperationException("Operation contructor \"Home\" view failed!!");
             else this.error_message = string.Empty;
 
-            HomeViewModel ViewModel = new HomeViewModel(sQLiteService, mongoDBService);
+            HomeViewModel ViewModel = new HomeViewModel(sQLiteService, mongoDBService, textToSpeakService, grammarService);
             InitializeComponent();
             BindingContext = ViewModel;
             this._viewModel = ViewModel;

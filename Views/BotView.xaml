@@ -81,7 +81,7 @@
                     <Grid
                         Grid.Column="1">
                         <toolkit:CameraView 
-                            x:Name="cavCamera"
+                            x:Name="Camera"
                             x:DataType="viewmodels:BotViewModel"
                             CameraFlashMode="{Binding FlashMode}"
                             IsVisible="{Binding ShowCamera}"
@@ -117,6 +117,7 @@
                             <controls:BorderlessEntry
                                 x:Name="ctrMessage"
                                 Placeholder="Type your message..."
+                                Text="{Binding TextInput, Mode=TwoWay}"
                                 Style="{StaticResource ChatEntryBotControlStyle}"/>
                             <Grid 
                                 Grid.Column="1"

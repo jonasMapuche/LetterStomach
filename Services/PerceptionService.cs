@@ -28,11 +28,11 @@ namespace LetterStomach.Services
         #endregion
 
         #region VARIABLE
-        public List<Audio> _audios;
+        public List<Audio>? _audios;
         private IAudioService _audioService;
         private IRecordService _recordService;
         private ITextSpeakService _textSpeakService;
-        private IAdapter _adapterBluetooth;
+        private IAdapter? _adapterBluetooth;
         #endregion
 
         #region CONSTRUCTOR

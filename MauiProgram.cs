@@ -47,28 +47,34 @@ namespace LetterStomach
             builder.Services.AddSingleton<SentencaContext>();
             builder.Services.AddSingleton<MongoDBService>();
 
+            builder.Services.AddSingleton<HttpService>();
+            builder.Services.AddSingleton<ModelService>();
+
             builder.Services.AddSingleton<SQLiteContext>();
+            builder.Services.AddSingleton<SQLiteService>();
+
             builder.Services.AddSingleton<SettingService>();
             builder.Services.AddSingleton<MessageService>();
 
-            builder.Services.AddTransient<BotService>();
-            builder.Services.AddTransient<HttpService>();
-            builder.Services.AddTransient<ModelService>();
-            builder.Services.AddTransient<PerceptionService>();
-            builder.Services.AddSingleton<SQLiteService>();
-            builder.Services.AddTransient<TextToSpeakService>();
-            builder.Services.AddTransient<WordEmbeddingService>();
+            builder.Services.AddSingleton<BotService>();
+            builder.Services.AddSingleton<TextToSpeakService>();
 
-            builder.Services.AddTransient<SyntaxService>();
-            builder.Services.AddTransient<MorphologyService>();
-            builder.Services.AddTransient<GrammarService>();
+            builder.Services.AddTransient<SettingViewModel>();
+            builder.Services.AddTransient<SettingView>();
+
+            builder.Services.AddSingleton<PerceptionService>();
 
             builder.Services.AddTransient<BotViewModel>();
-            builder.Services.AddTransient<HomeViewModel>();
-            builder.Services.AddTransient<SettingViewModel>();
-            builder.Services.AddTransient<HomeView>();
             builder.Services.AddTransient<BotView>();
-            builder.Services.AddTransient<SettingView>();
+
+            builder.Services.AddSingleton<WordEmbeddingService>();
+
+            builder.Services.AddSingleton<SyntaxService>();
+            builder.Services.AddSingleton<MorphologyService>();
+            builder.Services.AddSingleton<GrammarService>();
+
+            builder.Services.AddTransient<HomeViewModel>();
+            builder.Services.AddTransient<HomeView>();
 #if DEBUG
             builder.Logging.AddDebug();
 #endif

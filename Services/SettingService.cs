@@ -219,6 +219,9 @@ namespace LetterStomach.Services
         private static readonly string disconnect_english = "disconnect";
         private static readonly string connected_english = "connected";
 
+        private static readonly string init_english = "What can I do for you?";
+        private static readonly string dont_language_english = "Language not work yet.";
+
         private static readonly string gps_english = "gps";
         private static readonly string bluetooth_english = "bluetooth";
         private static readonly string battery_english = "battery";
@@ -241,6 +244,8 @@ namespace LetterStomach.Services
         private static readonly string latitude_english = "latitude";
         private static readonly string longitude_english = "longitude";
         private static readonly string level_english = "level";
+        private static readonly string charge_english = "charge";
+        private static readonly string unknow_english = "unknow";
 
         private static readonly string on_english = "on";
         private static readonly string off_english = "off";
@@ -838,5 +843,26 @@ namespace LetterStomach.Services
             order_9,
             order_10
         };
+
+        public Dictionary<string, string> Init = new Dictionary<string, string>()
+        {
+            { init_english, english }
+        };
+
+        public Dictionary<string, string> Dont_Language = new Dictionary<string, string>()
+        {
+            { dont_language_english, english }
+        };
+
+        public Dictionary<string, string> Charge = new Dictionary<string, string>()
+        {
+            { charge_english, english }
+        };
+        
+        public Dictionary<string, string> Unknow = new Dictionary<string, string>()
+        {
+            { unknow_english, english }
+        };
+
     }
 }

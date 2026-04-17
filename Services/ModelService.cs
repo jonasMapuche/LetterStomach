@@ -22,6 +22,21 @@ namespace LetterStomach.Services
         public event EventHandler<string>? OnError;
         #endregion
 
+        #region CONSTRUCTION
+        public ModelService()
+        {
+            try
+            {
+                if (this._error_off) throw new InvalidOperationException("Operation model service \"Model\" service failed!");
+            }
+            catch (Exception ex)
+            {
+                this.error_message = ex.Message;
+                throw new InvalidOperationException(this.error_message);
+            }
+        }
+        #endregion
+
         #region MOUNT OBJECT
         private Circunstancia InsertCircunstancia(string language, string name, List<string> types)
         {

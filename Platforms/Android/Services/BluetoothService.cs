@@ -8,9 +8,9 @@ namespace LetterStomach.Platforms.Android.Services
         #region ERROR
         private bool _error_on = true;
         private bool _error_off = false;
-        private string _error_message;
+        private string? _error_message;
 
-        public string error_message
+        public string? error_message
         {
             get => this._error_message;
             set
@@ -19,11 +19,11 @@ namespace LetterStomach.Platforms.Android.Services
             }
         }
 
-        public event EventHandler<string> OnError;
+        public event EventHandler<string>? OnError;
         #endregion
 
         #region VARIABLE
-        BluetoothAdapter _bluetoothAdapter;
+        private readonly BluetoothAdapter? _bluetoothAdapter;
         #endregion
 
         #region CONSTRUCTOR
@@ -34,10 +34,10 @@ namespace LetterStomach.Platforms.Android.Services
                 if (this._error_off) throw new InvalidOperationException("Operation contructor \"Bluetooth\" service failed!");
                 else this.error_message = string.Empty;
 
-                BluetoothManager bluetoothManager = (BluetoothManager)Platform.AppContext.GetSystemService(Context.BluetoothService);
-                BluetoothAdapter bluetoothAdapter = bluetoothManager.Adapter;
+                BluetoothManager? bluetoothManager = (BluetoothManager)Platform.AppContext.GetSystemService(Context.BluetoothService);
+                BluetoothAdapter? bluetoothAdapter = bluetoothManager.Adapter;
 
-                if ((!bluetoothAdapter.IsEnabled) && (bluetoothAdapter != null))
+                if ((bluetoothAdapter != null) && (!bluetoothAdapter.IsEnabled))
                 {
                     Intent enableBtIntent = new Intent(BluetoothAdapter.ActionRequestEnable);
                     enableBtIntent.SetFlags(ActivityFlags.NewTask); 

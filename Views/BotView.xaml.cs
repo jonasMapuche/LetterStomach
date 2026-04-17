@@ -8,9 +8,9 @@ public partial class BotView : ContentPage
     #region ERROR
     private bool _error_on = true;
     private bool _error_off = false;
-    private string _error_message;
+    private string? _error_message;
 
-    public string error_message
+    public string? error_message
     {
         get => this._error_message;
         set
@@ -32,7 +32,6 @@ public partial class BotView : ContentPage
     #endregion
 
     #region VARIABLE
-    private ICameraProvider _cameraProvider;
     private BotViewModel _botViewModel;
     #endregion
 
@@ -48,7 +47,7 @@ public partial class BotView : ContentPage
             ViewModel.OnError += OnError;
 		    BindingContext = ViewModel;
             this._botViewModel = ViewModel;
-            this._botViewModel.MediaCamera = this._cameraProvider;
+            this._botViewModel.ViewCamera = Camera;
         }
         catch (Exception ex)
         {
@@ -65,7 +64,7 @@ public partial class BotView : ContentPage
         {
             if (this._error_off) throw new InvalidOperationException("Operation media captured \"Bot\" view failed!");
 
-            var memoryStream = new MemoryStream();
+            MemoryStream? memoryStream = new MemoryStream();
             e.Media.CopyTo(memoryStream);
             this._botViewModel.Bytes = memoryStream.ToArray();
         }

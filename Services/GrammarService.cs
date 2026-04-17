@@ -135,15 +135,15 @@ namespace LetterStomach.ViewModels
         #endregion
 
         #region CONSTRUCTOR
-        public GrammarService()
+        public GrammarService(WordEmbeddingService wordEmbeddingService, SyntaxService syntaxService, MorphologyService morphologyService)
         {
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation constructor \"Grammar\" service failed!");
 
-                this._syntaxService = new SyntaxService();
-                this._morphologyService = new MorphologyService();
-                this._wordEmbeddingService = new WordEmbeddingService();
+                this._syntaxService = syntaxService;
+                this._morphologyService = morphologyService;
+                this._wordEmbeddingService = wordEmbeddingService;
 
                 this._language_english = SettingService.Instance.English;
                 this._language_deutsch = SettingService.Instance.Deutsch;

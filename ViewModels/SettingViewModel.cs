@@ -469,6 +469,7 @@ namespace LetterStomach.ViewModels
                 this._settingService.SQLiteDatabase = false;
                 this.IsSQLiteTable = false;
                 this.IsSQLiteDrop = false;
+                this._update_database = true;
                 return true;
             }
             catch (Exception ex)

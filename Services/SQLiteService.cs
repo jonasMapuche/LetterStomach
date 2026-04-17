@@ -67,15 +67,15 @@ namespace LetterStomach.Services
         #endregion
 
         #region CONSTRUCTOR
-        public SQLiteService(SQLiteContext sQLiteContex)
+        public SQLiteService(SQLiteContext sQLiteContex, HttpService httpService, ModelService modelService)
         {
             try
             {
                 if (this._error_off) throw new InvalidOperationException("Operation constructor \"SQLite\" service failed!");
                 else this.error_message = string.Empty;
 
-                this._httpService = new HttpService();
-                this._modelService = new ModelService();
+                this._httpService = httpService;
+                this._modelService = modelService;
                 this._settingService = SettingService.Instance;
 
                 this._database = sQLiteContex.GetConnection();

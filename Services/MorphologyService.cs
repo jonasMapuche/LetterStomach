@@ -52,7 +52,7 @@ namespace LetterStomach.Services
         #endregion
 
         #region CONSTRUCTOR
-        public MorphologyService()
+        public MorphologyService(WordEmbeddingService wordEmbeddingService)
         {
             try
             {
@@ -83,7 +83,7 @@ namespace LetterStomach.Services
                 this._adverbial_verb = SettingService.Instance.Adverbial_Verb;
                 this._adverbial_adjective = SettingService.Instance.Adverbial_Adjective;
 
-                this._wordEmbeddingService = new WordEmbeddingService();
+                this._wordEmbeddingService = wordEmbeddingService;
             }
             catch (Exception ex)
             {
