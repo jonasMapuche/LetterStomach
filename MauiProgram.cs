@@ -73,8 +73,8 @@ namespace LetterStomach
             builder.Services.AddSingleton<MorphologyService>();
             builder.Services.AddSingleton<GrammarService>();
 
-            builder.Services.AddTransient<HomeViewModel>();
-            builder.Services.AddTransient<HomeView>();
+            builder.Services.AddSingleton<HomeViewModel>();
+            builder.Services.AddSingleton<HomeView>();
 #if DEBUG
             builder.Logging.AddDebug();
 #endif

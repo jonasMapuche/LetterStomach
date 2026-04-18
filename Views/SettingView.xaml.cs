@@ -44,7 +44,7 @@ public partial class SettingView : ContentPage
     private int _pitch_skeak = 0;
     private int _volume_skeak = 0;
 
-    private SettingService _settingService;
+    private SettingService? _settingService;
     #endregion
 
     #region CONSTRUCTOR
@@ -259,6 +259,15 @@ public partial class SettingView : ContentPage
             this.error_message = ex.Message;
             this.OnError(this, this.error_message);
         }
+    }
+    #endregion
+
+    #region EVENT
+    protected override void OnDisappearing()
+    {
+        base.OnDisappearing();
+
+        this.Handler?.DisconnectHandler();
     }
     #endregion
 }

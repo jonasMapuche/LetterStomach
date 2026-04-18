@@ -34,8 +34,8 @@ namespace LetterStomach.ViewModels
         #region VARIABLE
         public List<Hunks> Items { get; set; }
 
-        private Hunks _selectedItem;
-        public Hunks SelectedItem
+        private Hunks? _selectedItem;
+        public Hunks? SelectedItem
         {
             get => _selectedItem;
             set
