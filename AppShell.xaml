@@ -6,8 +6,9 @@
     xmlns:views="clr-namespace:LetterStomach.Views"
     xmlns:viewmodels="clr-namespace:LetterStomach.ViewModels"
     xmlns:locals="clr-namespace:LetterStomach"
-    BackgroundColor="{StaticResource LetterColor}"
     Shell.FlyoutBehavior="Flyout"
+    Background="{StaticResource FabColor}"
+    BackgroundColor="{StaticResource LetterColor}"
     Title="LetterStomach">
 
     <Shell.MenuItemTemplate>

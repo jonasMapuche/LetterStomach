@@ -4,7 +4,7 @@
              x:Class="LetterStomach.Resources.Styles.MyColors">
 
     <Color x:Key="PrimaryColor">#01574f</Color>
-    <Color x:Key="SecondaryColor">#374955</Color>
+    <Color x:Key="SecondaryColor">#01574f</Color>
 
     <Color x:Key="MessageColor">#F7F7F8</Color>
     <Color x:Key="CircularButton">#868BCB</Color>

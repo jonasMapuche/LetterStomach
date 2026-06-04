@@ -15,13 +15,8 @@
     <ContentPage.Behaviors>
         <toolkit:StatusBarBehavior StatusBarColor="{StaticResource LetterColor}" StatusBarStyle="LightContent" />
     </ContentPage.Behaviors>
-    <ContentPage.Resources>
-        <ResourceDictionary>
-        </ResourceDictionary>
-    </ContentPage.Resources>
     <ContentPage.Content>
         <Grid      
-            BackgroundColor="{StaticResource LetterColor}"
             RowDefinitions="20, *, 150">
             <Grid
                 Grid.Row="0"
@@ -30,11 +25,11 @@
             <Grid
                 Grid.Row="1">
                 <BoxView
-                    Style="{StaticResource ChatHomeBoxViewStyle}"/>
+                    Style="{StaticResource boxHomeView}"/>
                 <CollectionView
                     ItemsSource="{Binding RecentChat}"
                     x:DataType="viewmodels:HomeViewModel"
-                    Style="{StaticResource ChatHomeCollectionViewStyle}">
+                    Style="{StaticResource colViewHomeView}">
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
                             <templates:HomeItemTemplate/>
@@ -45,53 +40,50 @@
             <Grid 
                 Grid.Row="2">
                 <Grid
-                    ColumnDefinitions="*, 150"
-                    BackgroundColor="{StaticResource WhiteColor}">
+                    ColumnDefinitions="*, 150">
                     <Border StrokeThickness="1"
                         Stroke="{StaticResource ModalColor}">
                         <Grid
                         Grid.Column="0"
                         Padding="16, 4, 4, 16">
                             <BoxView
-                            x:Name="boxDirection"
-                            BackgroundColor="{StaticResource MessageColor}">
+                            x:Name="boxDirection">
                                 <BoxView.GestureRecognizers>
                                     <TapGestureRecognizer 
-                                    Command="{Binding SpeakCommand}"/>
+                                        Command="{Binding SpeakCommand}"/>
                                     <SwipeGestureRecognizer 
-                                    Direction="Up" 
-                                    Command="{Binding SwipedCommand}" 
-                                    CommandParameter="{x:Static SwipeDirection.Up}"/>
+                                        Direction="Up" 
+                                        Command="{Binding SwipedCommand}" 
+                                        CommandParameter="{x:Static SwipeDirection.Up}"/>
                                     <SwipeGestureRecognizer 
-                                    Direction="Right" 
-                                    Command="{Binding SwipedCommand}" 
-                                    CommandParameter="{x:Static SwipeDirection.Right}" />
+                                        Direction="Right" 
+                                        Command="{Binding SwipedCommand}" 
+                                        CommandParameter="{x:Static SwipeDirection.Right}" />
                                     <SwipeGestureRecognizer 
-                                    Direction="Left" 
-                                    Command="{Binding SwipedCommand}" 
-                                    CommandParameter="{x:Static SwipeDirection.Left}" />
+                                        Direction="Left" 
+                                        Command="{Binding SwipedCommand}" 
+                                        CommandParameter="{x:Static SwipeDirection.Left}" />
                                     <SwipeGestureRecognizer 
-                                    Direction="Down" 
-                                    Command="{Binding SwipedCommand}" 
-                                    CommandParameter="{x:Static SwipeDirection.Down}" />
+                                        Direction="Down" 
+                                        Command="{Binding SwipedCommand}" 
+                                        CommandParameter="{x:Static SwipeDirection.Down}" />
                                 </BoxView.GestureRecognizers>
                             </BoxView>
                         </Grid>
                     </Border>
                     <Grid 
-                        Grid.Column="1"
-                        BackgroundColor="{StaticResource WhiteColor}">
+                        Grid.Column="1">
                         <Grid>
                             <Grid.GestureRecognizers>
                                 <TapGestureRecognizer 
                                     Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:HomeViewModel}}, Path=BotCommand}"/>
                             </Grid.GestureRecognizers>
                             <Grid 
-                                Style="{StaticResource NewBotHomeGridStyle}">
+                                Style="{StaticResource gridHomeView}">
                                 <Ellipse   
                                     Fill="{StaticResource LetterColor}"/>
                                 <Image
-                                    Style="{StaticResource NewBotHomeImageStyle}"
+                                    Style="{StaticResource imgHomeView}"
                                     Source="contacts_product_62dp_white.png"/>
                             </Grid>
                         </Grid>

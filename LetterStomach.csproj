@@ -124,6 +124,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <MauiXaml Include="Resources\Raw\Colors.txt" />
+	  <MauiXaml Include="Resources\Raw\Styles.txt" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <MauiXaml Update="Resources\Styles\MyColors.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

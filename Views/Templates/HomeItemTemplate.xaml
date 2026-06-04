@@ -4,10 +4,6 @@
              xmlns:models="clr-namespace:LetterStomach.Models"
              xmlns:viewmodels="clr-namespace:LetterStomach.ViewModels"
              x:Class="LetterStomach.Views.Templates.HomeItemTemplate">
-    <ContentView.Resources>
-        <ResourceDictionary>
-        </ResourceDictionary>
-    </ContentView.Resources>
     <ContentView.Content>
         <SwipeView
             Padding="2, 5">
@@ -43,20 +39,20 @@
                     Margin="12, 16">
                     <Grid.GestureRecognizers>
                         <TapGestureRecognizer 
-                        x:DataType="models:Message"
-                        Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:HomeViewModel}}, Path=BotCommand}"      
-                        CommandParameter="{Binding Sender}"/>
+                            x:DataType="models:Message"
+                            Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:HomeViewModel}}, Path=BotCommand}"      
+                            CommandParameter="{Binding Sender}"/>
                     </Grid.GestureRecognizers>
                     <Grid
-                        Style="{StaticResource ContainerHomeItemGridStyle}">
+                        Style="{StaticResource colViewHomeItemTemplate}">
                         <Ellipse
                             x:DataType="models:Message"
                             BackgroundColor="{Binding Sender.Color}"
-                            Style="{StaticResource HomeItemEllipseStyle}"/>
+                            Style="{StaticResource elpsHomeItemTemplate}"/>
                         <Image
                             x:DataType="models:Message"
                             Source="{Binding Sender.Image}"
-                            Style="{StaticResource HomeItemImageStyle}"/>
+                            Style="{StaticResource imgHomeItemTemplate}"/>
                     </Grid>
                     <Grid
                         Grid.Column="1"   
@@ -66,11 +62,11 @@
                                 x:Name="lblName"
                                 x:DataType="models:Message"
                                 Text="{Binding Sender.Name}"
-                                Style="{StaticResource NameHomeItemLabelStyle}"/>
+                                Style="{StaticResource lblNameHomeItemTemplate}"/>
                             <Label         
                                 x:DataType="models:Message"
                                 Text="{Binding Text}"
-                                Style="{StaticResource MessageHomeItemLabelStyle}"/>
+                                Style="{StaticResource lblMessageHomeItemTemplate}"/>
                         </StackLayout>
                     </Grid>
                 </Grid>
